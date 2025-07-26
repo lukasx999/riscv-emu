@@ -245,73 +245,13 @@ struct std::formatter<Instruction> : std::formatter<std::string> {
 
 enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
-class CPU {
 
-    struct InstructionVisitor {
-        CPU& m_cpu;
 
-        void operator()(const InstructionI& inst) {
-            switch (inst.m_type) {
-                using enum InstructionI::Type;
 
-                case Addi: {
-                    auto value = m_cpu.m_registers.get(inst.m_rs1);
-                    m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
-                } break;
 
-                case Ecall:
-                    forward_syscall();
-                    break;
-
-                default:
-                    throw std::runtime_error(std::format("unimplemented: {}", inst.m_type));
-            }
-        }
-
-        void operator()(const InstructionR& inst) {
-            switch (inst.m_type) {
-                using enum InstructionR::Type;
-                default: throw std::runtime_error("unimplemented");
-            }
-        }
-
-        void operator()(const InstructionU& inst) {
-            switch (inst.m_type) {
-                using enum InstructionU::Type;
-
-                case Auipc: {
-                    auto value = m_cpu.m_pc + (inst.m_imm << 12);
-                    m_cpu.m_registers.set(inst.m_rd, value);
-                } break;
-
-                default: throw std::runtime_error("unimplemented");
-            }
-        }
-
-    private:
-        void forward_syscall() const {
-            enum Syscall { Exit=93 };
-
-            auto syscall_nr = m_cpu.m_registers.get(Register::A7);
-            switch (syscall_nr) {
-                case Syscall::Exit:
-                    auto status = m_cpu.m_registers.get(Register::A0);
-                    exit(status);
-                    break;
-            }
-        }
-
-    };
-
+class Decoder {
 public:
-    uint64_t m_pc;
-    Registers m_registers;
-
-    CPU() = default;
-
-    void execute(Instruction instruction) {
-        std::visit(InstructionVisitor(*this), instruction);
-    }
+    Decoder() = default;
 
     [[nodiscard]] Instruction decode(BinaryInstruction instruction) const {
 
@@ -322,11 +262,11 @@ public:
             case IType: return decode_itype(instruction);
             case UType: return decode_utype(instruction);
 
-            default: throw std::runtime_error("unimplemented instruction format"); // TODO:
+            default:
+                throw std::runtime_error("unimplemented instruction format"); // TODO:
         }
 
         throw std::runtime_error("invalid instruction type");
-
     }
 
 private:
@@ -337,13 +277,13 @@ private:
         uint8_t opcode = extract_bits(inst, 0, opcode_len);
 
         bool is_itype = opcode == 0b0010011 ||
-                        opcode == 0b0000011 ||
-                        opcode == 0b1110011;
+            opcode == 0b0000011 ||
+            opcode == 0b1110011;
 
         if (is_itype) return InstructionFormat::IType;
 
         bool is_utype = opcode == 0b0110111 ||
-                        opcode == 0b0010111;
+            opcode == 0b0010111;
         if (is_utype) return InstructionFormat::UType;
 
         throw std::runtime_error("unimplemented instruction format"); // TODO:
@@ -439,6 +379,85 @@ private:
             num |= 1 << i;
 
         return (value >> start) & num;
+    }
+
+};
+
+
+
+
+
+class CPU {
+
+    struct InstructionVisitor {
+        CPU& m_cpu;
+
+        void operator()(const InstructionI& inst) {
+            switch (inst.m_type) {
+                using enum InstructionI::Type;
+
+                case Addi: {
+                    auto value = m_cpu.m_registers.get(inst.m_rs1);
+                    m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
+                } break;
+
+                case Ecall:
+                    forward_syscall();
+                    break;
+
+                default:
+                    throw std::runtime_error(std::format("unimplemented: {}", inst.m_type));
+            }
+        }
+
+        void operator()(const InstructionR& inst) {
+            switch (inst.m_type) {
+                using enum InstructionR::Type;
+                default: throw std::runtime_error("unimplemented");
+            }
+        }
+
+        void operator()(const InstructionU& inst) {
+            switch (inst.m_type) {
+                using enum InstructionU::Type;
+
+                case Auipc: {
+                    auto value = m_cpu.m_pc + (inst.m_imm << 12);
+                    m_cpu.m_registers.set(inst.m_rd, value);
+                } break;
+
+                default: throw std::runtime_error("unimplemented");
+            }
+        }
+
+    private:
+        void forward_syscall() const {
+            enum Syscall { Exit=93 };
+
+            auto syscall_nr = m_cpu.m_registers.get(Register::A7);
+            switch (syscall_nr) {
+                case Syscall::Exit:
+                    auto status = m_cpu.m_registers.get(Register::A0);
+                    exit(status);
+                    break;
+            }
+        }
+
+    };
+
+public:
+    uint64_t m_pc;
+    Registers m_registers;
+    Decoder m_decoder;
+
+    CPU() = default;
+
+    void execute(Instruction instruction) {
+        std::visit(InstructionVisitor(*this), instruction);
+    }
+
+    [[nodiscard]] Instruction decode(BinaryInstruction instruction) const {
+        return m_decoder.decode(instruction);
     }
 
 };

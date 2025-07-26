@@ -6,12 +6,17 @@
 #include <filesystem>
 #include <print>
 #include <iterator>
-#include <variant>
 #include <vector>
 #include <fstream>
 #include <elf.h>
 
 namespace fs = std::filesystem;
+
+struct ElfExcecutableException : std::runtime_error {
+    ElfExcecutableException(const char* message)
+    : std::runtime_error(message)
+    { }
+};
 
 struct LoadableSegment {
     std::span<char> m_span;
@@ -26,8 +31,22 @@ class ElfExecutable {
     Elf64_Addr m_entry_point;
 
 public:
-    ElfExecutable(const fs::path& path) : m_bytes(load_file_binary(path)) {
+    explicit ElfExecutable(const fs::path& path)
+    : m_bytes(load_file_binary(path))
+    {
+        parse();
+    }
 
+    [[nodiscard]] auto get_loadable_segments() const {
+        return m_loadable_segments;
+    }
+
+    [[nodiscard]] auto get_entry_point() const {
+        return m_entry_point;
+    }
+
+private:
+    void parse() {
         std::memcpy(&m_elf_header, m_bytes.data(), sizeof(Elf64_Ehdr));
 
         m_entry_point = m_elf_header.e_entry;
@@ -51,18 +70,8 @@ public:
         }
 
         verify_elf_integrity();
-
     }
 
-    [[nodiscard]] auto get_loadable_segments() const {
-        return m_loadable_segments;
-    }
-
-    [[nodiscard]] auto get_entry_point() const {
-        return m_entry_point;
-    }
-
-private:
     [[nodiscard]]
     static std::vector<char> load_file_binary(const fs::path& path) {
         std::ifstream stream(path, std::ios::binary);
@@ -70,17 +79,30 @@ private:
     }
 
     void verify_elf_integrity() const {
-        assert(m_elf_header.e_ehsize == sizeof m_elf_header);
-        assert(m_elf_header.e_machine == EM_RISCV);
-        assert(m_elf_header.e_type == ET_EXEC);
-        assert(m_elf_header.e_ident[EI_MAG0] == 0x7f);
-        assert(m_elf_header.e_ident[EI_MAG1] == 'E');
-        assert(m_elf_header.e_ident[EI_MAG2] == 'L');
-        assert(m_elf_header.e_ident[EI_MAG3] == 'F');
-        assert(m_elf_header.e_ident[EI_CLASS] == ELFCLASS64);
-        assert(m_elf_header.e_ident[EI_DATA] == ELFDATA2LSB);
-        assert(m_elf_header.e_phentsize == sizeof(Elf64_Phdr));
-        assert(m_elf_header.e_phoff != 0); // must have program header table
+
+        if (m_elf_header.e_ident[EI_MAG0] != 0x7f ||
+            m_elf_header.e_ident[EI_MAG1] != 'E' ||
+            m_elf_header.e_ident[EI_MAG2] != 'L' ||
+            m_elf_header.e_ident[EI_MAG3] != 'F')
+            throw ElfExcecutableException("invalid file format");
+
+        if (m_elf_header.e_machine != EM_RISCV)
+            throw ElfExcecutableException("invalid architecture");
+
+        if (m_elf_header.e_type != ET_EXEC)
+            throw ElfExcecutableException("invalid binary type, must be executable");
+
+        if (m_elf_header.e_ident[EI_CLASS] != ELFCLASS64)
+            throw ElfExcecutableException("only 64-bit binaries are supported");
+
+        if (m_elf_header.e_ident[EI_DATA] != ELFDATA2LSB)
+            throw ElfExcecutableException("only little endian is supported");
+
+        if (m_elf_header.e_ehsize != sizeof(Elf64_Ehdr) ||
+            m_elf_header.e_phentsize != sizeof(Elf64_Phdr) ||
+            m_elf_header.e_phoff == 0)
+            throw ElfExcecutableException("internal elf error");
+
     }
 
 };

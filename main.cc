@@ -126,22 +126,45 @@ class Machine {
 public:
     Machine() = default;
 
-    void loop() {
-        auto instruction = fetch();
-        m_cpu.decode(instruction);
+    void run() {
+
+        auto raw_inst = fetch();
+        Instruction inst = m_cpu.decode(raw_inst);
+        std::println("{:x}", raw_inst);
+        m_cpu.execute(inst);
         m_cpu.m_pc += sizeof(Word);
+
+        std::println("{}", m_cpu.m_registers.get(Register::T2));
     }
 
-    [[nodiscard]] Word fetch() const {
-        return m_memory.get(m_cpu.m_pc);
+    [[nodiscard]] uint32_t fetch() const {
+        return m_memory.get<uint32_t>(m_cpu.m_pc);
     }
 
     void test() {
-        auto inst = m_cpu.decode(0x02d28393);
-        // std::println("inst: {}", inst);
+        // addi t2,t0,45
+        auto inst_addi = m_cpu.decode(0x02d28393);
+        assert(std::holds_alternative<InstructionI>(inst_addi));
+        auto addi = std::get<InstructionI>(inst_addi);
+        assert(addi.m_imm == 45);
+        assert(addi.m_type == InstructionI::Type::Addi);
+        assert(addi.m_rd == Register::T2);
+        assert(addi.m_rs1 == Register::T0);
+
+        // xori s2,s11,2000
+        auto inst_xori = m_cpu.decode(0x7d0dc913);
+        assert(std::holds_alternative<InstructionI>(inst_xori));
+        auto xori = std::get<InstructionI>(inst_xori);
+        assert(xori.m_imm == 2000);
+        assert(xori.m_type == InstructionI::Type::Xori);
+        assert(xori.m_rd == Register::S2);
+        assert(xori.m_rs1 == Register::S11);
+
     }
 
     void load_binary(const ElfExecutable& exec) {
+
+        // TODO: virtual memory + memory protection
 
         auto segments = exec.get_loadable_segments();
         size_t offset = 0;
@@ -168,6 +191,7 @@ int main() {
     Machine machine;
     machine.load_binary(elf);
     machine.test();
+    machine.run();
 
     return EXIT_SUCCESS;
 }

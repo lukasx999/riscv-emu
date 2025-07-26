@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <print>
 #include <cstring>
 #include <stdexcept>
 #include <utility>
@@ -49,10 +50,13 @@ enum class Register : uint8_t {
 
 class Registers {
     static constexpr size_t m_register_count = 32;
-    std::array<Word, m_register_count> m_registers;
+    std::array<Word, m_register_count> m_registers{};
 
 public:
+    Registers() = default;
+
     void set(Register reg, Word value) {
+        if (reg == Register::Zero) return;
         m_registers[std::to_underlying(reg)] = value;
     }
 
@@ -62,7 +66,7 @@ public:
 
 };
 
-struct InstructionIType {
+struct InstructionI {
     enum class Type {
         Addi,
         Xori,
@@ -83,10 +87,10 @@ struct InstructionIType {
     } m_type;
     Register m_rd;
     Register m_rs1;
-    uint16_t m_imm;
+    int16_t m_imm;
 };
 
-struct InstructionRType {
+struct InstructionR {
     enum class Type {
     } m_type;
     Register m_rd;
@@ -94,10 +98,10 @@ struct InstructionRType {
     Register m_rs2;
 };
 
-using Instruction = std::variant<InstructionIType, InstructionRType>;
+using Instruction = std::variant<InstructionI, InstructionR>;
 
 class CPU {
-    enum class Op : uint8_t {
+    enum OpCode : uint8_t {
         Arithmetic    = 0b0110011,
         ArithmeticImm = 0b0010011,
         Load          = 0b0000011,
@@ -116,14 +120,39 @@ public:
 
     CPU() = default;
 
+    struct InstructionVisitor {
+        CPU& m_cpu;
+
+        void operator()(InstructionI inst) {
+            switch (inst.m_type) {
+                using enum InstructionI::Type;
+                case Addi: {
+                    auto value = m_cpu.m_registers.get(inst.m_rs1);
+                    m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
+                } break;
+            }
+        }
+
+        void operator()(InstructionR inst) {
+        }
+
+    };
+
+    void execute(Instruction instruction) {
+        assert(std::holds_alternative<InstructionI>(instruction));
+        std::visit(InstructionVisitor(*this), instruction);
+    }
+
     Instruction decode(Word instruction) {
 
         uint8_t opcode = extract_bits(instruction, 0, m_opcode_encoding_len);
 
         if (instruction_is_itype(opcode)) {
             return decode_itype(opcode, instruction);
+
         } else {
             throw std::runtime_error("invalid instruction type");
+
         }
 
     }
@@ -136,19 +165,19 @@ private:
         uint8_t rd     = extract_bits(inst, m_opcode_encoding_len,                                                m_register_encoding_len);
         uint8_t funct3 = extract_bits(inst, m_opcode_encoding_len+m_register_encoding_len,                        funct3_encoding_size);
         uint8_t rs1    = extract_bits(inst, m_opcode_encoding_len+m_register_encoding_len+funct3_encoding_size,   m_register_encoding_len);
-        uint8_t imm    = extract_bits(inst, m_opcode_encoding_len+m_register_encoding_len*2+funct3_encoding_size, imm_encoding_size);
+        int16_t imm    = extract_bits(inst, m_opcode_encoding_len+m_register_encoding_len*2+funct3_encoding_size, imm_encoding_size);
 
         auto type = parse_itype(opcode, funct3, imm);
-        return InstructionIType(type, static_cast<Register>(rd),
-                                static_cast<Register>(rs1), imm);
+        return InstructionI(type, static_cast<Register>(rd),
+                            static_cast<Register>(rs1), imm);
     }
 
-    [[nodiscard]] static InstructionIType::Type
-    parse_itype(uint8_t opcode, uint8_t funct3, uint16_t imm) {
-        using enum InstructionIType::Type;
+    [[nodiscard]] static InstructionI::Type
+    parse_itype(uint8_t opcode, uint8_t funct3, int16_t imm) {
+        using enum InstructionI::Type;
 
         switch (opcode) {
-            case 0b0010011: {
+            case OpCode::ArithmeticImm:
                 switch (funct3) {
                     case 0x0: return Addi;
                     case 0x4: return Xori;
@@ -165,7 +194,27 @@ private:
                     case 0x2: return Slti;
                     case 0x3: return Sltiu;
                 }
-            } break;
+                break;
+
+            case OpCode::Load:
+                switch (funct3) {
+                    case 0x0: return Lb;
+                    case 0x1: return Lh;
+                    case 0x2: return Lw;
+                    case 0x4: return Lbu;
+                    case 0x5: return Lhu;
+                }
+                break;
+
+            case OpCode::Environment:
+                switch (funct3) {
+                    case 0x0:
+                        if (imm == 0x0)
+                            return Ecall;
+                        else if (imm == 0x1)
+                            return Ebreak;
+                }
+            break;
         }
 
         throw std::runtime_error("invalid instruction");
@@ -174,8 +223,8 @@ private:
 
     // `start` start at 0
     [[nodiscard]] static constexpr
-    uint64_t extract_bits(uint64_t value, uint8_t start, uint8_t size) {
-        uint8_t num = 0;
+    uint64_t extract_bits(uint64_t value, int start, int size) {
+        int num = 0;
         for (auto i=0; i < size; ++i)
             num |= 1 << i;
 

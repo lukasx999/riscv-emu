@@ -224,16 +224,9 @@ class CPU {
                     m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
                 } break;
 
-                case Ecall: {
-                    auto syscall_nr = m_cpu.m_registers.get(Register::A7);
-                    switch (syscall_nr) {
-                        case 93:
-                            auto status = m_cpu.m_registers.get(Register::A0);
-                            exit(status);
-                            break;
-                    }
-
-                } break;
+                case Ecall:
+                    forward_syscall();
+                    break;
 
                 default:
                     throw std::runtime_error(std::format("unimplemented: {}", inst.m_type));
@@ -243,6 +236,19 @@ class CPU {
         void operator()(const InstructionR& inst) {
             switch (inst.m_type) {
                 default: throw std::runtime_error("unimplemented");
+            }
+        }
+
+    private:
+        void forward_syscall() const {
+            enum Syscall { Exit=93 };
+
+            auto syscall_nr = m_cpu.m_registers.get(Register::A7);
+            switch (syscall_nr) {
+                case Syscall::Exit:
+                    auto status = m_cpu.m_registers.get(Register::A0);
+                    exit(status);
+                    break;
             }
         }
 

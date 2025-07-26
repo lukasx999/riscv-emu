@@ -1,9 +1,17 @@
+.data
+string:
+.ascii "foo"
+string_len = .-string
+
 .text
 .global _start
 _start:
 
-addi t2, zero, 5
-addi t3, t2, 5
+# li a0, 1
+# la a1, string
+# li a2, string_len
+# li a7, 64
+# ecall
 
 # exit()
 li a0, 45

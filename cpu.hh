@@ -109,6 +109,7 @@ public:
     }
 
     [[nodiscard]] Word get(Register reg) const {
+        if (reg == Register::Zero) return 0;
         return m_registers[std::to_underlying(reg)];
     }
 
@@ -116,22 +117,12 @@ public:
 
 struct InstructionI {
     enum class Type {
-        Addi,
-        Xori,
-        Ori,
-        Andi,
-        Slli,
-        Srli,
-        Srai,
-        Slti,
-        Sltiu,
-        Lb,
-        Lh,
-        Lw,
-        Lbu,
-        Lhu,
-        Ecall,
-        Ebreak,
+        // Arithmetic Immediate
+        Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
+        // Load
+        Lb, Lh, Lw, Lbu, Lhu,
+        // Environment
+        Ecall, Ebreak,
     } m_type;
     Register m_rd;
     Register m_rs1;
@@ -175,7 +166,6 @@ struct std::formatter<InstructionI> : std::formatter<std::string> {
     }
 };
 
-
 struct [[gnu::packed]] RawInstructionI {
     // TODO: use global constants
     unsigned int opcode : 7;
@@ -193,22 +183,67 @@ struct InstructionR {
     Register m_rs2;
 };
 
-using Instruction = std::variant<InstructionI, InstructionR>;
-
-enum class InstructionFormat {
-    RType, IType, SType, BType, UType, JType
+struct InstructionU {
+    enum class Type {
+        // Upper
+        Lui, Auipc,
+    } m_type;
+    Register m_rd;
+    uint32_t m_imm;
 };
 
-enum OpCode : uint8_t {
-    Arithmetic    = 0b0110011,
-    ArithmeticImm = 0b0010011,
-    Load          = 0b0000011,
-    Store         = 0b0100011,
-    Branch        = 0b1100011,
-    Jump          = 0b1101111,
-    Upper         = 0b0110111,
-    Environment   = 0b1110011,
+struct [[gnu::packed]] RawInstructionU {
+    unsigned int opcode : 7;
+    unsigned int rd     : 5;
+    unsigned int imm    : 20;
 };
+
+template <>
+struct std::formatter<InstructionU::Type> : std::formatter<std::string> {
+    auto format(const InstructionU::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionU::Type;
+                case Lui: return "Lui";
+                case Auipc: return "Auipc";
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionU> : std::formatter<std::string> {
+    auto format(const InstructionU& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}", inst.m_type,
+                               inst.m_rd, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+using Instruction = std::variant<InstructionI, InstructionU>;
+
+template <>
+struct std::formatter<Instruction> : std::formatter<std::string> {
+    auto format(const Instruction& inst, std::format_context& ctx) const {
+        std::string fmt;
+
+        // TODO: visitor
+        if (std::holds_alternative<InstructionI>(inst)) {
+            fmt = std::format("{}", std::get<InstructionI>(inst));
+
+        } else if (std::holds_alternative<InstructionU>(inst)) {
+            fmt = std::format("{}", std::get<InstructionU>(inst));
+
+        } else {
+            throw std::runtime_error("invalid instruction");
+        }
+
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
 class CPU {
 
@@ -235,6 +270,20 @@ class CPU {
 
         void operator()(const InstructionR& inst) {
             switch (inst.m_type) {
+                using enum InstructionR::Type;
+                default: throw std::runtime_error("unimplemented");
+            }
+        }
+
+        void operator()(const InstructionU& inst) {
+            switch (inst.m_type) {
+                using enum InstructionU::Type;
+
+                case Auipc: {
+                    auto value = m_cpu.m_pc + (inst.m_imm << 12);
+                    m_cpu.m_registers.set(inst.m_rd, value);
+                } break;
+
                 default: throw std::runtime_error("unimplemented");
             }
         }
@@ -271,6 +320,7 @@ public:
         switch (format) {
             using enum InstructionFormat;
             case IType: return decode_itype(instruction);
+            case UType: return decode_utype(instruction);
 
             default: throw std::runtime_error("unimplemented instruction format"); // TODO:
         }
@@ -280,8 +330,8 @@ public:
     }
 
 private:
-    [[nodiscard]]
-    static InstructionFormat decode_format(BinaryInstruction inst) {
+    [[nodiscard]] static
+    InstructionFormat decode_format(BinaryInstruction inst) {
 
         int opcode_len = 7;
         uint8_t opcode = extract_bits(inst, 0, opcode_len);
@@ -291,6 +341,10 @@ private:
                         opcode == 0b1110011;
 
         if (is_itype) return InstructionFormat::IType;
+
+        bool is_utype = opcode == 0b0110111 ||
+                        opcode == 0b0010111;
+        if (is_utype) return InstructionFormat::UType;
 
         throw std::runtime_error("unimplemented instruction format"); // TODO:
     }
@@ -306,12 +360,34 @@ private:
         );
     }
 
+    [[nodiscard]] static Instruction decode_utype(BinaryInstruction inst) {
+        auto raw_inst = std::bit_cast<RawInstructionU>(inst);
+
+        return InstructionU(
+            parse_utype(raw_inst),
+            static_cast<Register>(raw_inst.rd),
+            raw_inst.imm
+        );
+    }
+
+    [[nodiscard]] static
+    InstructionU::Type parse_utype(RawInstructionU inst) {
+        using enum InstructionU::Type;
+
+        switch (inst.opcode) {
+            case 0b0110111: return Lui;
+            case 0b0010111: return Auipc;
+        }
+
+        throw std::runtime_error("invalid instruction");
+    }
+
     [[nodiscard]] static
     InstructionI::Type parse_itype(RawInstructionI inst) {
         using enum InstructionI::Type;
 
         switch (inst.opcode) {
-            case OpCode::ArithmeticImm:
+            case 0b0010011:
                 switch (inst.funct3) {
                     case 0x0: return Addi;
                     case 0x4: return Xori;
@@ -330,7 +406,7 @@ private:
                 }
                 break;
 
-            case OpCode::Load:
+            case 0b0000011:
                 switch (inst.funct3) {
                     case 0x0: return Lb;
                     case 0x1: return Lh;
@@ -340,7 +416,7 @@ private:
                 }
                 break;
 
-            case OpCode::Environment:
+            case 0b1110011:
                 switch (inst.funct3) {
                     case 0x0:
                         if (inst.imm == 0x0)

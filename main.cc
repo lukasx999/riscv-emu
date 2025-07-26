@@ -52,8 +52,8 @@ public:
             auto raw_inst = fetch();
             Instruction inst = m_cpu.decode(raw_inst);
             m_cpu.execute(inst);
-            std::println("{}", std::get<InstructionI>(inst));
             m_cpu.m_pc += sizeof(BinaryInstruction);
+            std::println("{}", inst);
         }
         // std::println("{}", m_cpu.m_registers.get(Register::T3));
     }

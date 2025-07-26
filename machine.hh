@@ -59,6 +59,7 @@ public:
         return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
     }
 
+    // TODO: replace with proper unit tests
     void test() {
 
         // addi t2,t0,45

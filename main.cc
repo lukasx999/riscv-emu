@@ -8,10 +8,11 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
-// TODO: proper error handling
 // TODO: unit testing
 
 int main() {
+
+    // TODO: map binary into host virtual memory using mmap()
 
     try {
         ElfExecutable elf("./probe/a.out");

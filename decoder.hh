@@ -136,6 +136,12 @@ struct std::formatter<Instruction> : std::formatter<std::string> {
 
 enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
+struct DecodingException : std::runtime_error {
+    explicit DecodingException(const char* msg)
+    : std::runtime_error(msg)
+    { }
+};
+
 class Decoder {
 public:
     Decoder() = default;

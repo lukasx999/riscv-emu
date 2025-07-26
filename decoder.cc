@@ -27,20 +27,22 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     int opcode_len = 7;
     uint8_t opcode = extract_bits(inst, 0, opcode_len);
 
-    bool is_itype = opcode == 0b0010011 ||
-        opcode == 0b0000011 ||
-        opcode == 0b1110011;
+    switch (opcode) {
+        case 0b0010011:
+        case 0b0000011:
+        case 0b1110011:
+            return InstructionFormat::IType;
 
-    if (is_itype) return InstructionFormat::IType;
+        case 0b0110111:
+        case 0b0010111:
+            return InstructionFormat::UType;
 
-    bool is_utype = opcode == 0b0110111 ||
-        opcode == 0b0010111;
-    if (is_utype) return InstructionFormat::UType;
+        default:
+            throw std::runtime_error("unimplemented instruction format"); // TODO:
+    }
 
-    throw std::runtime_error("unimplemented instruction format"); // TODO:
+    throw DecodingException("invalid instruction format");
 }
-
-
 
 [[nodiscard]] Instruction Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
@@ -71,7 +73,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
         case 0b0010111: return Auipc;
     }
 
-    throw std::runtime_error("invalid instruction");
+    throw DecodingException("invalid u-type instruction");
 }
 
 [[nodiscard]] InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
@@ -118,8 +120,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
             break;
     }
 
-    throw std::runtime_error("invalid instruction");
-
+    throw DecodingException("invalid i-type instruction");
 }
 
 [[nodiscard]] constexpr

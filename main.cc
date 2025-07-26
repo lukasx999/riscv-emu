@@ -14,7 +14,6 @@
 int main() {
 
     try {
-
         ElfExecutable elf("./probe/a.out");
         Machine machine;
         machine.load_binary(elf);

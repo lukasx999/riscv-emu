@@ -130,7 +130,6 @@ public:
 
         auto raw_inst = fetch();
         Instruction inst = m_cpu.decode(raw_inst);
-        std::println("{:x}", raw_inst);
         m_cpu.execute(inst);
         m_cpu.m_pc += sizeof(Word);
 
@@ -142,6 +141,7 @@ public:
     }
 
     void test() {
+
         // addi t2,t0,45
         auto inst_addi = m_cpu.decode(0x02d28393);
         assert(std::holds_alternative<InstructionI>(inst_addi));

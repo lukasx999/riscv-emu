@@ -1,96 +1,17 @@
-#include <bitset>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <print>
-#include <iterator>
-#include <utility>
 #include <variant>
 #include <vector>
-#include <fstream>
-
-#include <elf.h>
 
 #include "cpu.hh"
+#include "elf.hh"
 
 // https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
 // https://projectf.io/posts/riscv-cheat-sheet/
-
-namespace fs = std::filesystem;
-
-struct LoadableSegment {
-    std::span<char> m_span;
-    Elf64_Addr m_virt_addr;
-};
-
-class ElfExecutable {
-    std::vector<char> m_bytes;
-    Elf64_Ehdr m_elf_header;
-    std::vector<Elf64_Phdr> m_program_headers;
-    std::vector<LoadableSegment> m_loadable_segments;
-    Elf64_Addr m_entry_point;
-
-public:
-    ElfExecutable(const fs::path& path) : m_bytes(load_file_binary(path)) {
-
-        std::memcpy(&m_elf_header, m_bytes.data(), sizeof(Elf64_Ehdr));
-
-        m_entry_point = m_elf_header.e_entry;
-
-        auto prog_hdr_entries = m_elf_header.e_phnum;
-        auto prog_hdr_offset = m_elf_header.e_phoff;
-
-        m_program_headers.resize(prog_hdr_entries);
-
-        for (size_t i=0; i < prog_hdr_entries; ++i) {
-            auto src = m_bytes.data() + prog_hdr_offset + i*sizeof(Elf64_Phdr);
-            std::memcpy(&m_program_headers[i], src, sizeof(Elf64_Phdr));
-        }
-
-        for (auto& hdr : m_program_headers) {
-            if (hdr.p_type != PT_LOAD) continue;
-            auto offset = hdr.p_offset;
-            auto size = hdr.p_memsz;
-            m_loadable_segments.push_back({{ m_bytes.begin()+offset, size }, hdr.p_vaddr});
-        }
-
-        verify_elf_integrity();
-
-    }
-
-    [[nodiscard]] auto get_loadable_segments() const {
-        return m_loadable_segments;
-    }
-
-    [[nodiscard]] auto get_entry_point() const {
-        return m_entry_point;
-    }
-
-private:
-    [[nodiscard]]
-    static std::vector<char> load_file_binary(const fs::path& path) {
-        std::ifstream stream(path, std::ios::binary);
-        return { std::istreambuf_iterator(stream), {} };
-    }
-
-    void verify_elf_integrity() const {
-        assert(m_elf_header.e_ehsize == sizeof m_elf_header);
-        assert(m_elf_header.e_machine == EM_RISCV);
-        assert(m_elf_header.e_type == ET_EXEC);
-        assert(m_elf_header.e_ident[EI_MAG0] == 0x7f);
-        assert(m_elf_header.e_ident[EI_MAG1] == 'E');
-        assert(m_elf_header.e_ident[EI_MAG2] == 'L');
-        assert(m_elf_header.e_ident[EI_MAG3] == 'F');
-        assert(m_elf_header.e_ident[EI_CLASS] == ELFCLASS64);
-        assert(m_elf_header.e_ident[EI_DATA] == ELFDATA2LSB);
-        assert(m_elf_header.e_phentsize == sizeof(Elf64_Phdr));
-        assert(m_elf_header.e_phoff != 0); // must have program header table
-    }
-
-};
-
-
+// https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
 class Memory {
     static constexpr size_t m_memory_size = 4096;
@@ -127,17 +48,18 @@ public:
     Machine() = default;
 
     void run() {
-
-        auto raw_inst = fetch();
-        Instruction inst = m_cpu.decode(raw_inst);
-        m_cpu.execute(inst);
-        m_cpu.m_pc += sizeof(Word);
-
-        std::println("{}", m_cpu.m_registers.get(Register::T2));
+        while (true) {
+            auto raw_inst = fetch();
+            Instruction inst = m_cpu.decode(raw_inst);
+            m_cpu.execute(inst);
+            std::println("{}", std::get<InstructionI>(inst));
+            m_cpu.m_pc += sizeof(BinaryInstruction);
+        }
+        // std::println("{}", m_cpu.m_registers.get(Register::T3));
     }
 
-    [[nodiscard]] uint32_t fetch() const {
-        return m_memory.get<uint32_t>(m_cpu.m_pc);
+    [[nodiscard]] BinaryInstruction fetch() const {
+        return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
     }
 
     void test() {
@@ -169,7 +91,8 @@ public:
         auto segments = exec.get_loadable_segments();
         size_t offset = 0;
         for (auto& segment : segments) {
-            std::memcpy(m_memory.get_data()+offset, segment.m_span.data(), segment.m_span.size());
+            std::memcpy(m_memory.get_data()+offset, segment.m_span.data(),
+                        segment.m_span.size());
             offset += segment.m_span.size();
         }
 

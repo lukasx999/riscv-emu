@@ -108,7 +108,7 @@ public:
         m_registers[std::to_underlying(reg)] = value;
     }
 
-    [[nodiscard]] Word& get(Register reg) {
+    [[nodiscard]] Word get(Register reg) const {
         return m_registers[std::to_underlying(reg)];
     }
 
@@ -138,17 +138,8 @@ struct InstructionI {
     int16_t m_imm;
 };
 
-struct [[gnu::packed]] RawInstructionI {
-    unsigned int opcode : 7;
-    unsigned int rd     : 5;
-    unsigned int funct3 : 3;
-    unsigned int rs1    : 5;
-    unsigned int imm    : 12;
-};
-
 template <>
 struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
-
     auto format(const InstructionI::Type& type, std::format_context& ctx) const {
         auto str = [&] {
             switch (type) {
@@ -173,6 +164,25 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);
     }
+};
+
+template <>
+struct std::formatter<InstructionI> : std::formatter<std::string> {
+    auto format(const InstructionI& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, imm: {} }}",
+                               inst.m_type, inst.m_rd, inst.m_rs1, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+
+struct [[gnu::packed]] RawInstructionI {
+    // TODO: use global constants
+    unsigned int opcode : 7;
+    unsigned int rd     : 5;
+    unsigned int funct3 : 3;
+    unsigned int rs1    : 5;
+    unsigned int imm    : 12;
 };
 
 struct InstructionR {
@@ -208,14 +218,32 @@ class CPU {
         void operator()(const InstructionI& inst) {
             switch (inst.m_type) {
                 using enum InstructionI::Type;
+
                 case Addi: {
                     auto value = m_cpu.m_registers.get(inst.m_rs1);
                     m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
                 } break;
+
+                case Ecall: {
+                    auto syscall_nr = m_cpu.m_registers.get(Register::A7);
+                    switch (syscall_nr) {
+                        case 93:
+                            auto status = m_cpu.m_registers.get(Register::A0);
+                            exit(status);
+                            break;
+                    }
+
+                } break;
+
+                default:
+                    throw std::runtime_error(std::format("unimplemented: {}", inst.m_type));
             }
         }
 
         void operator()(const InstructionR& inst) {
+            switch (inst.m_type) {
+                default: throw std::runtime_error("unimplemented");
+            }
         }
 
     };
@@ -230,7 +258,7 @@ public:
         std::visit(InstructionVisitor(*this), instruction);
     }
 
-    [[nodiscard]] Instruction decode(uint32_t instruction) const {
+    [[nodiscard]] Instruction decode(BinaryInstruction instruction) const {
 
         auto format = decode_format(instruction);
 
@@ -238,7 +266,7 @@ public:
             using enum InstructionFormat;
             case IType: return decode_itype(instruction);
 
-            default: throw std::runtime_error("unimplemented"); // TODO:
+            default: throw std::runtime_error("unimplemented instruction format"); // TODO:
         }
 
         throw std::runtime_error("invalid instruction type");
@@ -246,7 +274,8 @@ public:
     }
 
 private:
-    [[nodiscard]] static InstructionFormat decode_format(uint32_t inst) {
+    [[nodiscard]]
+    static InstructionFormat decode_format(BinaryInstruction inst) {
 
         int opcode_len = 7;
         uint8_t opcode = extract_bits(inst, 0, opcode_len);
@@ -257,10 +286,10 @@ private:
 
         if (is_itype) return InstructionFormat::IType;
 
-        throw std::runtime_error("unimplemented"); // TODO:
+        throw std::runtime_error("unimplemented instruction format"); // TODO:
     }
 
-    [[nodiscard]] static Instruction decode_itype(uint32_t inst) {
+    [[nodiscard]] static Instruction decode_itype(BinaryInstruction inst) {
         auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
         return InstructionI(
@@ -320,7 +349,7 @@ private:
 
     }
 
-    // `start` start at 0
+    // `start` begins at 0
     [[nodiscard]] static constexpr
     uint64_t extract_bits(uint64_t value, int start, int size) {
         int num = 0;
@@ -328,13 +357,6 @@ private:
             num |= 1 << i;
 
         return (value >> start) & num;
-    }
-
-    [[nodiscard]] static constexpr
-    bool instruction_is_itype(uint8_t opcode) {
-        return opcode == 0b0010011 ||
-        opcode == 0b0000011 ||
-        opcode == 0b1110011;
     }
 
 };

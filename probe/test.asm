@@ -2,8 +2,8 @@
 .global _start
 _start:
 
-addi t2, zero, 45
-xori s2, s11, 2000
+addi t2, zero, 5
+addi t3, t2, 5
 
 # exit()
 li a0, 45

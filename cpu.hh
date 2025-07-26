@@ -14,6 +14,7 @@
 
 // TODO: proper error handling
 // TODO: decoder class
+// TODO: unit testing
 
 enum class Register : uint8_t {
     X0  = 0,  Zero = X0,
@@ -137,6 +138,14 @@ struct InstructionI {
     int16_t m_imm;
 };
 
+struct [[gnu::packed]] RawInstructionI {
+    unsigned int opcode : 7;
+    unsigned int rd     : 5;
+    unsigned int funct3 : 3;
+    unsigned int rs1    : 5;
+    unsigned int imm    : 12;
+};
+
 template <>
 struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
 
@@ -176,6 +185,21 @@ struct InstructionR {
 
 using Instruction = std::variant<InstructionI, InstructionR>;
 
+enum class InstructionFormat {
+    RType, IType, SType, BType, UType, JType
+};
+
+enum OpCode : uint8_t {
+    Arithmetic    = 0b0110011,
+    ArithmeticImm = 0b0010011,
+    Load          = 0b0000011,
+    Store         = 0b0100011,
+    Branch        = 0b1100011,
+    Jump          = 0b1101111,
+    Upper         = 0b0110111,
+    Environment   = 0b1110011,
+};
+
 class CPU {
 
     struct InstructionVisitor {
@@ -199,18 +223,6 @@ class CPU {
 public:
     uint64_t m_pc;
     Registers m_registers;
-    static constexpr int m_opcode_encoding_len = 7;
-
-    enum OpCode : uint8_t {
-        Arithmetic    = 0b0110011,
-        ArithmeticImm = 0b0010011,
-        Load          = 0b0000011,
-        Store         = 0b0100011,
-        Branch        = 0b1100011,
-        Jump          = 0b1101111,
-        Upper         = 0b0110111,
-        Environment   = 0b1110011,
-    };
 
     CPU() = default;
 
@@ -218,48 +230,49 @@ public:
         std::visit(InstructionVisitor(*this), instruction);
     }
 
-    Instruction decode(uint32_t instruction) {
+    [[nodiscard]] Instruction decode(uint32_t instruction) const {
 
-        uint8_t opcode = extract_bits(instruction, 0, m_opcode_encoding_len);
+        auto format = decode_format(instruction);
 
-        if (instruction_is_itype(opcode)) {
-            return decode_itype(instruction);
+        switch (format) {
+            using enum InstructionFormat;
+            case IType: return decode_itype(instruction);
 
-        } else {
-            throw std::runtime_error("invalid instruction type");
-
+            default: throw std::runtime_error("unimplemented"); // TODO:
         }
+
+        throw std::runtime_error("invalid instruction type");
 
     }
 
 private:
-    enum class InstructionFormat {
-        RType, IType, SType, BType, UType, JType
-    };
+    [[nodiscard]] static InstructionFormat decode_format(uint32_t inst) {
 
-    InstructionFormat decode_format(uint32_t inst) {
+        int opcode_len = 7;
+        uint8_t opcode = extract_bits(inst, 0, opcode_len);
+
+        bool is_itype = opcode == 0b0010011 ||
+                        opcode == 0b0000011 ||
+                        opcode == 0b1110011;
+
+        if (is_itype) return InstructionFormat::IType;
+
+        throw std::runtime_error("unimplemented"); // TODO:
     }
 
-    struct [[gnu::packed]] RawInstructionI {
-        unsigned int opcode : 7;
-        unsigned int rd     : 5;
-        unsigned int funct3 : 3;
-        unsigned int rs1    : 5;
-        unsigned int imm    : 12;
-    };
-
-    [[nodiscard]] static Instruction decode_itype(uint32_t instruction) {
-        auto inst = std::bit_cast<RawInstructionI>(instruction);
+    [[nodiscard]] static Instruction decode_itype(uint32_t inst) {
+        auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
         return InstructionI(
-            parse_itype(inst),
-            static_cast<Register>(inst.rd),
-            static_cast<Register>(inst.rs1),
-            inst.imm
+            parse_itype(raw_inst),
+            static_cast<Register>(raw_inst.rd),
+            static_cast<Register>(raw_inst.rs1),
+            raw_inst.imm
         );
     }
 
-    [[nodiscard]] static InstructionI::Type parse_itype(RawInstructionI inst) {
+    [[nodiscard]] static
+    InstructionI::Type parse_itype(RawInstructionI inst) {
         using enum InstructionI::Type;
 
         switch (inst.opcode) {

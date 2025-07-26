@@ -13,6 +13,9 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
+// TODO: proper error handling
+// TODO: unit testing
+
 class Memory {
     static constexpr size_t m_memory_size = 4096;
     std::vector<char> m_memory;
@@ -50,7 +53,7 @@ public:
     void run() {
         while (true) {
             auto raw_inst = fetch();
-            Instruction inst = m_cpu.decode(raw_inst);
+            Instruction inst = m_cpu.m_decoder.decode(raw_inst);
             m_cpu.execute(inst);
             m_cpu.m_pc += sizeof(BinaryInstruction);
             std::println("{}", inst);
@@ -65,7 +68,7 @@ public:
     void test() {
 
         // addi t2,t0,45
-        auto inst_addi = m_cpu.decode(0x02d28393);
+        auto inst_addi = m_cpu.m_decoder.decode(0x02d28393);
         assert(std::holds_alternative<InstructionI>(inst_addi));
         auto addi = std::get<InstructionI>(inst_addi);
         assert(addi.m_imm == 45);
@@ -74,7 +77,7 @@ public:
         assert(addi.m_rs1 == Register::T0);
 
         // xori s2,s11,2000
-        auto inst_xori = m_cpu.decode(0x7d0dc913);
+        auto inst_xori = m_cpu.m_decoder.decode(0x7d0dc913);
         assert(std::holds_alternative<InstructionI>(inst_xori));
         auto xori = std::get<InstructionI>(inst_xori);
         assert(xori.m_imm == 2000);

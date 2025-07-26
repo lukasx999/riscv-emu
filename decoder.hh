@@ -1,0 +1,283 @@
+#pragma once
+
+#include <cassert>
+#include <cstdlib>
+#include <bit>
+#include <print>
+#include <cstring>
+#include <stdexcept>
+#include <utility>
+#include <array>
+#include <variant>
+
+#include "main.hh"
+#include "register.hh"
+
+
+struct InstructionI {
+    enum class Type {
+        // Arithmetic Immediate
+        Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
+        // Load
+        Lb, Lh, Lw, Lbu, Lhu,
+        // Environment
+        Ecall, Ebreak,
+    } m_type;
+    Register m_rd;
+    Register m_rs1;
+    int16_t m_imm;
+};
+
+template <>
+struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
+    auto format(const InstructionI::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionI::Type;
+                case Addi:   return "Addi";
+                case Xori:   return "Xori";
+                case Ori:    return "Ori";
+                case Andi:   return "Andi";
+                case Slli:   return "Slli";
+                case Srli:   return "Srli";
+                case Srai:   return "Srai";
+                case Slti:   return "Slti";
+                case Sltiu:  return "Sltiu";
+                case Lb:     return "Lb";
+                case Lh:     return "Lh";
+                case Lw:     return "Lw";
+                case Lbu:    return "Lbu";
+                case Lhu:    return "Lhu";
+                case Ecall:  return "Ecall";
+                case Ebreak: return "Ebreak";
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionI> : std::formatter<std::string> {
+    auto format(const InstructionI& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, imm: {} }}",
+                               inst.m_type, inst.m_rd, inst.m_rs1, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+struct [[gnu::packed]] RawInstructionI {
+    // TODO: use global constants
+    unsigned int opcode : 7;
+    unsigned int rd     : 5;
+    unsigned int funct3 : 3;
+    unsigned int rs1    : 5;
+    unsigned int imm    : 12;
+};
+
+struct InstructionR {
+    enum class Type {
+    } m_type;
+    Register m_rd;
+    Register m_rs1;
+    Register m_rs2;
+};
+
+struct InstructionU {
+    enum class Type {
+        // Upper
+        Lui, Auipc,
+    } m_type;
+    Register m_rd;
+    uint32_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionU {
+    unsigned int opcode : 7;
+    unsigned int rd     : 5;
+    unsigned int imm    : 20;
+};
+
+template <>
+struct std::formatter<InstructionU::Type> : std::formatter<std::string> {
+    auto format(const InstructionU::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionU::Type;
+                case Lui: return "Lui";
+                case Auipc: return "Auipc";
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionU> : std::formatter<std::string> {
+    auto format(const InstructionU& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}", inst.m_type,
+                               inst.m_rd, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+using Instruction = std::variant<InstructionI, InstructionU>;
+
+template <>
+struct std::formatter<Instruction> : std::formatter<std::string> {
+    auto format(const Instruction& inst, std::format_context& ctx) const {
+        std::string fmt;
+
+        // TODO: visitor
+        if (std::holds_alternative<InstructionI>(inst)) {
+            fmt = std::format("{}", std::get<InstructionI>(inst));
+
+        } else if (std::holds_alternative<InstructionU>(inst)) {
+            fmt = std::format("{}", std::get<InstructionU>(inst));
+
+        } else {
+            throw std::runtime_error("invalid instruction");
+        }
+
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+
+
+
+
+enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
+
+class Decoder {
+public:
+    Decoder() = default;
+
+    [[nodiscard]] Instruction decode(BinaryInstruction instruction) const {
+
+        auto format = decode_format(instruction);
+
+        switch (format) {
+            using enum InstructionFormat;
+            case IType: return decode_itype(instruction);
+            case UType: return decode_utype(instruction);
+
+            default:
+                throw std::runtime_error("unimplemented instruction format"); // TODO:
+        }
+
+        throw std::runtime_error("invalid instruction type");
+    }
+
+private:
+    [[nodiscard]] static
+    InstructionFormat decode_format(BinaryInstruction inst) {
+
+        int opcode_len = 7;
+        uint8_t opcode = extract_bits(inst, 0, opcode_len);
+
+        bool is_itype = opcode == 0b0010011 ||
+            opcode == 0b0000011 ||
+            opcode == 0b1110011;
+
+        if (is_itype) return InstructionFormat::IType;
+
+        bool is_utype = opcode == 0b0110111 ||
+            opcode == 0b0010111;
+        if (is_utype) return InstructionFormat::UType;
+
+        throw std::runtime_error("unimplemented instruction format"); // TODO:
+    }
+
+    [[nodiscard]] static Instruction decode_itype(BinaryInstruction inst) {
+        auto raw_inst = std::bit_cast<RawInstructionI>(inst);
+
+        return InstructionI(
+            parse_itype(raw_inst),
+            static_cast<Register>(raw_inst.rd),
+            static_cast<Register>(raw_inst.rs1),
+            raw_inst.imm
+        );
+    }
+
+    [[nodiscard]] static Instruction decode_utype(BinaryInstruction inst) {
+        auto raw_inst = std::bit_cast<RawInstructionU>(inst);
+
+        return InstructionU(
+            parse_utype(raw_inst),
+            static_cast<Register>(raw_inst.rd),
+            raw_inst.imm
+        );
+    }
+
+    [[nodiscard]] static
+    InstructionU::Type parse_utype(RawInstructionU inst) {
+        using enum InstructionU::Type;
+
+        switch (inst.opcode) {
+            case 0b0110111: return Lui;
+            case 0b0010111: return Auipc;
+        }
+
+        throw std::runtime_error("invalid instruction");
+    }
+
+    [[nodiscard]] static
+    InstructionI::Type parse_itype(RawInstructionI inst) {
+        using enum InstructionI::Type;
+
+        switch (inst.opcode) {
+            case 0b0010011:
+                switch (inst.funct3) {
+                    case 0x0: return Addi;
+                    case 0x4: return Xori;
+                    case 0x6: return Ori;
+                    case 0x7: return Andi;
+                    case 0x1:
+                        if (extract_bits(inst.imm, 5, 7) == 0x0)
+                            return Slli;
+                    case 0x5:
+                        if (extract_bits(inst.imm, 5, 7) == 0x20)
+                            return Srai;
+                        else if (extract_bits(inst.imm, 5, 7) == 0x0)
+                            return Srli;
+                    case 0x2: return Slti;
+                    case 0x3: return Sltiu;
+                }
+                break;
+
+            case 0b0000011:
+                switch (inst.funct3) {
+                    case 0x0: return Lb;
+                    case 0x1: return Lh;
+                    case 0x2: return Lw;
+                    case 0x4: return Lbu;
+                    case 0x5: return Lhu;
+                }
+                break;
+
+            case 0b1110011:
+                switch (inst.funct3) {
+                    case 0x0:
+                        if (inst.imm == 0x0)
+                            return Ecall;
+                        else if (inst.imm == 0x1)
+                            return Ebreak;
+                }
+                break;
+        }
+
+        throw std::runtime_error("invalid instruction");
+
+    }
+
+    // `start` begins at 0
+    [[nodiscard]] static constexpr
+    uint64_t extract_bits(uint64_t value, int start, int size) {
+        int num = 0;
+        for (auto i=0; i < size; ++i)
+            num |= 1 << i;
+
+        return (value >> start) & num;
+    }
+
+};

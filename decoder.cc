@@ -14,11 +14,11 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
         case IType: return decode_itype(instruction);
         case UType: return decode_utype(instruction);
 
-        default:
-            throw std::runtime_error("unimplemented instruction format"); // TODO:
+        default: throw std::runtime_error("unimplemented instruction format"); // TODO:
     }
 
-    throw std::runtime_error("invalid instruction type");
+    throw std::runtime_error("unreachable: format decoder should have thrown exception by now");
+
 }
 
 [[nodiscard]]

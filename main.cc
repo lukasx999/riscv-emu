@@ -20,8 +20,10 @@ int main() {
         machine.test();
         machine.run();
 
-    } catch (ElfExcecutableException exc) {
-        std::println(stderr, "Failed to parse binary: {}", exc.what());
+    } catch (ElfExcecutableException e) {
+        std::println(stderr, "Failed to parse binary: {}", e.what());
+    } catch (DecodingException e) {
+        std::println(stderr, "Failed to decode instruction: {}", e.what());
     }
 
     return EXIT_SUCCESS;

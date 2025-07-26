@@ -7,6 +7,7 @@ string_len = .-string
 .global _start
 _start:
 
+# add t0, t1, t2
 # li a0, 1
 # la a1, string
 # li a2, string_len

@@ -18,7 +18,7 @@ private:
 class CPU {
 public:
     Word m_pc;
-    Registers m_registers;
+    RegisterFile m_registers;
     Decoder m_decoder;
     InstructionVisitor m_vis;
 

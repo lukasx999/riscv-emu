@@ -11,7 +11,8 @@
 // http://www.skyfree.org/linux/references/ELF_Format.pdf
 
 void ElfExecutable::parse() {
-    std::memcpy(&m_elf_header, m_bytes.data(), sizeof(Elf64_Ehdr));
+
+    m_elf_header = *std::bit_cast<Elf64_Ehdr*>(m_bytes.data());
 
     m_entry_point = m_elf_header.e_entry;
 
@@ -22,7 +23,7 @@ void ElfExecutable::parse() {
 
     for (size_t i=0; i < prog_hdr_entries; ++i) {
         auto src = m_bytes.data() + prog_hdr_offset + i*sizeof(Elf64_Phdr);
-        std::memcpy(&m_program_headers[i], src, sizeof(Elf64_Phdr));
+        m_program_headers[i] = *std::bit_cast<Elf64_Phdr*>(src);
     }
 
     for (auto& hdr : m_program_headers) {

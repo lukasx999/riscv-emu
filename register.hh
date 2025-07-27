@@ -90,12 +90,12 @@ struct std::formatter<Register> : std::formatter<std::string> {
     }
 };
 
-class Registers {
+class RegisterFile {
     static constexpr size_t m_register_count = 32;
     std::array<Word, m_register_count> m_registers{};
 
 public:
-    Registers() = default;
+    RegisterFile() = default;
 
     void set(Register reg, Word value) {
         if (reg == Register::Zero) return;

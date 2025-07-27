@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "cpu.hh"
+#include "fmt.hh"
 
 void InstructionVisitor::operator()(const InstructionI& inst) {
     switch (inst.m_type) {

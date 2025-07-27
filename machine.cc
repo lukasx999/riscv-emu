@@ -1,4 +1,5 @@
 #include "machine.hh"
+#include "fmt.hh"
 
 void Machine::run() {
     while (true) {

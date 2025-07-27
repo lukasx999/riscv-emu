@@ -40,7 +40,7 @@ public:
 
 class Machine {
     std::unique_ptr<std::array<char, 4096>> m_stack;
-    Memory m_memory;
+    // Memory m_memory; // TODO:
     CPU m_cpu;
 
 public:
@@ -106,13 +106,19 @@ private:
         auto* virt = std::bit_cast<void*>(segment.m_virt_addr);
         size_t size = segment.m_span.size();
 
-        void* mem = mmap(virt, size, PROT_WRITE, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-
-        std::memcpy(mem, segment.m_span.data(), size);
-        mprotect(mem, size, PROT_EXEC | PROT_READ); // TODO:
+        // TODO: get rid of MAP_FIXED (somehow)
+        void* mem = mmap(virt, size, PROT_WRITE,
+                         MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
         assert(mem != MAP_FAILED);
         assert(mem == virt);
+
+        // TODO: map actual portion of the binary into memory
+        std::memcpy(mem, segment.m_span.data(), size);
+
+        // elf.h and sys/mman.h r/w/x flags have the same values
+        mprotect(mem, size, segment.m_flags);
+
     }
 
 };

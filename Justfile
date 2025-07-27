@@ -6,3 +6,6 @@ build: configure
 
 run: build
     ./build/riscv-emu
+
+test: build
+    ./build/tests

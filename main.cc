@@ -12,8 +12,6 @@
 
 int main() {
 
-    // TODO: map binary into host virtual memory using mmap()
-
     try {
         ElfExecutable elf("./probe/a.out");
 

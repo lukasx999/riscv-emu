@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 23)
@@ -8,4 +8,23 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O0 -ggdb -fsanitize=address,undefi
 
 project(RiscvEmu)
 
-add_executable(riscv-emu main.cc cpu.cc decoder.cc elf.cc)
+list(APPEND sources cpu.cc decoder.cc elf.cc)
+
+add_executable(riscv-emu main.cc ${sources})
+
+
+
+Include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.8.1 # or a later release
+)
+
+FetchContent_MakeAvailable(Catch2)
+
+add_executable(tests test.cc ${sources})
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
+# TODO: use ctest

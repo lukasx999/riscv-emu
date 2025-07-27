@@ -14,23 +14,23 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
         auto str = [&] {
             switch (type) {
                 using enum InstructionI::Type;
-                case Addi:   return "Addi";
-                case Xori:   return "Xori";
-                case Ori:    return "Ori";
-                case Andi:   return "Andi";
-                case Slli:   return "Slli";
-                case Srli:   return "Srli";
-                case Srai:   return "Srai";
-                case Slti:   return "Slti";
-                case Sltiu:  return "Sltiu";
-                case Lb:     return "Lb";
-                case Lh:     return "Lh";
-                case Lw:     return "Lw";
-                case Lbu:    return "Lbu";
-                case Lhu:    return "Lhu";
-                case Jalr:   return "Jalr";
-                case Ecall:  return "Ecall";
-                case Ebreak: return "Ebreak";
+                case Addi:   return STRINGIFY(Addi);
+                case Xori:   return STRINGIFY(Xori);
+                case Ori:    return STRINGIFY(Ori);
+                case Andi:   return STRINGIFY(Andi);
+                case Slli:   return STRINGIFY(Slli);
+                case Srli:   return STRINGIFY(Srli);
+                case Srai:   return STRINGIFY(Srai);
+                case Slti:   return STRINGIFY(Slti);
+                case Sltiu:  return STRINGIFY(Sltiu);
+                case Lb:     return STRINGIFY(Lb);
+                case Lh:     return STRINGIFY(Lh);
+                case Lw:     return STRINGIFY(Lw);
+                case Lbu:    return STRINGIFY(Lbu);
+                case Lhu:    return STRINGIFY(Lhu);
+                case Jalr:   return STRINGIFY(Jalr);
+                case Ecall:  return STRINGIFY(Ecall);
+                case Ebreak: return STRINGIFY(Ebreak);
             };
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);
@@ -53,16 +53,16 @@ struct std::formatter<InstructionR::Type> : std::formatter<std::string> {
         auto str = [&] {
             switch (type) {
                 using enum InstructionR::Type;
-                case Add:  return "Add";
-                case Sub:  return "Sub";
-                case Xor:  return "Xor";
-                case Or:   return "Or";
-                case And:  return "And";
-                case Sll:  return "Sll";
-                case Srl:  return "Srl";
-                case Sra:  return "Sra";
-                case Slt:  return "Slt";
-                case Sltu: return "Sltu";
+                case Add:  return STRINGIFY(Add);
+                case Sub:  return STRINGIFY(Sub);
+                case Xor:  return STRINGIFY(Xor);
+                case Or:   return STRINGIFY(Or);
+                case And:  return STRINGIFY(And);
+                case Sll:  return STRINGIFY(Sll);
+                case Srl:  return STRINGIFY(Srl);
+                case Sra:  return STRINGIFY(Sra);
+                case Slt:  return STRINGIFY(Slt);
+                case Sltu: return STRINGIFY(Sltu);
             };
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);
@@ -84,8 +84,8 @@ struct std::formatter<InstructionU::Type> : std::formatter<std::string> {
         auto str = [&] {
             switch (type) {
                 using enum InstructionU::Type;
-                case Lui: return "Lui";
-                case Auipc: return "Auipc";
+                case Lui:   return STRINGIFY(Lui);
+                case Auipc: return STRINGIFY(Auipc);
             };
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);

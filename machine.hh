@@ -6,6 +6,7 @@
 #include <print>
 #include <variant>
 #include <vector>
+#include <sys/mman.h>
 
 #include "cpu.hh"
 #include "elf.hh"
@@ -38,25 +39,25 @@ public:
 };
 
 class Machine {
+    std::unique_ptr<std::array<char, 4096>> m_stack;
     Memory m_memory;
     CPU m_cpu;
 
 public:
-    Machine() = default;
+    Machine() : m_stack(std::make_unique<std::array<char, 4096>>()) { }
 
     void run() {
         while (true) {
-            auto raw_inst = fetch();
+            BinaryInstruction raw_inst = fetch();
             Instruction inst = m_cpu.m_decoder.decode(raw_inst);
             m_cpu.execute(inst);
             m_cpu.m_pc += sizeof(BinaryInstruction);
             std::println("{}", inst);
         }
-        // std::println("{}", m_cpu.m_registers.get(Register::T3));
     }
 
     [[nodiscard]] BinaryInstruction fetch() const {
-        return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
+        return *std::bit_cast<BinaryInstruction*>(m_cpu.m_pc);
     }
 
     // TODO: replace with proper unit tests
@@ -84,24 +85,34 @@ public:
 
     void load_binary(const ElfExecutable& exec) {
 
-        // TODO: virtual memory + memory protection
-        // TODO: just use mmap()?
-
         auto segments = exec.get_loadable_segments();
-        size_t offset = 0;
+
         for (auto& segment : segments) {
-            std::memcpy(m_memory.get_data()+offset, segment.m_span.data(),
-                        segment.m_span.size());
-            offset += segment.m_span.size();
+            load_segment(segment);
         }
 
         std::println("{} Segment(s) loaded", segments.size());
 
-        auto entry = exec.get_entry_point() - segments.front().m_virt_addr;
-        m_cpu.m_pc = entry;
-        m_cpu.m_registers.set(Register::Sp, offset);
-        m_cpu.m_registers.set(Register::Fp, offset);
+        m_cpu.m_pc = exec.get_entry_point();
+        auto stack_begin = std::bit_cast<Word>(m_stack->data());
+        m_cpu.m_registers.set(Register::Sp, stack_begin);
+        m_cpu.m_registers.set(Register::Fp, stack_begin);
 
+    }
+
+private:
+    void load_segment(const LoadableSegment& segment) {
+
+        auto* virt = std::bit_cast<void*>(segment.m_virt_addr);
+        size_t size = segment.m_span.size();
+
+        void* mem = mmap(virt, size, PROT_WRITE, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
+        std::memcpy(mem, segment.m_span.data(), size);
+        mprotect(mem, size, PROT_EXEC | PROT_READ); // TODO:
+
+        assert(mem != MAP_FAILED);
+        assert(mem == virt);
     }
 
 };

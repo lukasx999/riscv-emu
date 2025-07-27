@@ -1,7 +1,7 @@
-.data
-string:
-.ascii "foo"
-string_len = .-string
+# .data
+# string:
+# .ascii "foo"
+# string_len = .-string
 
 .text
 .global _start

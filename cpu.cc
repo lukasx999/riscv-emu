@@ -27,8 +27,9 @@ void InstructionVisitor::operator()(const InstructionU& inst) {
         using enum InstructionU::Type;
 
         case Auipc: {
-            auto value = m_cpu.m_pc + (inst.m_imm << 12);
-            m_cpu.m_registers.set(inst.m_rd, value);
+            // auto value = m_cpu.m_pc + (inst.m_imm << 12);
+            // m_cpu.m_registers.set(inst.m_rd, value);
+            throw std::runtime_error("todo");
         } break;
 
         default: throw std::runtime_error("unimplemented");

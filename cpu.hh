@@ -17,7 +17,7 @@ private:
 
 class CPU {
 public:
-    uint64_t m_pc;
+    Word m_pc;
     Registers m_registers;
     Decoder m_decoder;
     InstructionVisitor m_vis;

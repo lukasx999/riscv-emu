@@ -60,38 +60,18 @@ public:
         return *std::bit_cast<BinaryInstruction*>(m_cpu.m_pc);
     }
 
-    // TODO: replace with proper unit tests
-    void test() {
-
-        // addi t2,t0,45
-        auto inst_addi = m_cpu.m_decoder.decode(0x02d28393);
-        assert(std::holds_alternative<InstructionI>(inst_addi));
-        auto addi = std::get<InstructionI>(inst_addi);
-        assert(addi.m_imm == 45);
-        assert(addi.m_type == InstructionI::Type::Addi);
-        assert(addi.m_rd == Register::T2);
-        assert(addi.m_rs1 == Register::T0);
-
-        // xori s2,s11,2000
-        auto inst_xori = m_cpu.m_decoder.decode(0x7d0dc913);
-        assert(std::holds_alternative<InstructionI>(inst_xori));
-        auto xori = std::get<InstructionI>(inst_xori);
-        assert(xori.m_imm == 2000);
-        assert(xori.m_type == InstructionI::Type::Xori);
-        assert(xori.m_rd == Register::S2);
-        assert(xori.m_rs1 == Register::S11);
-
-    }
-
     void load_binary(const ElfExecutable& exec) {
 
         auto segments = exec.get_loadable_segments();
 
         for (auto& segment : segments) {
+            std::println("Segment Address: {}", segment.m_virt_addr);
+            std::println("Segment Size: {}", segment.m_span.size());
             load_segment(segment);
         }
 
         std::println("{} Segment(s) loaded", segments.size());
+        std::println("Entrypoint: {}", exec.get_entry_point());
 
         m_cpu.m_pc = exec.get_entry_point();
         auto stack_begin = std::bit_cast<Word>(m_stack->data());

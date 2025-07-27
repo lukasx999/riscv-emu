@@ -8,8 +8,6 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
-// TODO: unit testing
-
 int main() {
 
     try {
@@ -17,7 +15,6 @@ int main() {
 
         Machine machine;
         machine.load_binary(elf);
-        machine.test();
         machine.run();
 
     } catch (ElfExcecutableException e) {

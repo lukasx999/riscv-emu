@@ -2,13 +2,11 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <bit>
-#include <print>
+#include <format>
 #include <cstring>
-#include <stdexcept>
+#include <string>
 #include <utility>
 #include <array>
-#include <variant>
 
 #include "main.hh"
 

@@ -7,7 +7,6 @@
 .global _start
 _start:
 
-andi x7, x12, 1000
 # add t0, t1, t2
 # li a0, 1
 # la a1, string

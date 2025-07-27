@@ -28,17 +28,27 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     uint8_t opcode = extract_bits(inst, 0, opcode_len);
 
     switch (opcode) {
+        case 0b0110011:
+            return InstructionFormat::RType;
+
         case 0b0010011:
         case 0b0000011:
+        case 0b1100111:
         case 0b1110011:
             return InstructionFormat::IType;
+
+        case 0b0100011:
+            return InstructionFormat::SType;
+
+        case 0b1100011:
+            return InstructionFormat::BType;
 
         case 0b0110111:
         case 0b0010111:
             return InstructionFormat::UType;
 
-        default:
-            throw std::runtime_error("unimplemented instruction format"); // TODO:
+        case 0b1101111:
+            return InstructionFormat::JType;
     }
 
     throw DecodingException("invalid instruction format");
@@ -118,6 +128,10 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
                         return Ebreak;
             }
             break;
+
+        case 0b1100111:
+            if (inst.funct3 == 0x0)
+                return Jalr;
     }
 
     throw DecodingException("invalid i-type instruction");

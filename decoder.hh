@@ -9,6 +9,12 @@
 #include "register.hh"
 
 
+static constexpr int opcode_encoding_size = 7;
+static constexpr int register_encoding_size = 5;
+static constexpr int funct3_encoding_size = 3;
+static constexpr int funct7_encoding_size = 7;
+static constexpr int imm_encoding_size = 12;
+static constexpr int imm_large_encoding_size = 20;
 
 struct InstructionI {
     enum class Type {
@@ -16,12 +22,23 @@ struct InstructionI {
         Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
         // Load
         Lb, Lh, Lw, Lbu, Lhu,
+        // Jump
+        Jalr,
         // Environment
         Ecall, Ebreak,
     } m_type;
     Register m_rd;
     Register m_rs1;
     int16_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionI {
+    // TODO: use global constants
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int imm    : imm_encoding_size;
 };
 
 template <>
@@ -44,6 +61,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
                 case Lw:     return "Lw";
                 case Lbu:    return "Lbu";
                 case Lhu:    return "Lhu";
+                case Jalr:   return "Jalr";
                 case Ecall:  return "Ecall";
                 case Ebreak: return "Ebreak";
             };
@@ -61,26 +79,58 @@ struct std::formatter<InstructionI> : std::formatter<std::string> {
     }
 };
 
-struct [[gnu::packed]] RawInstructionI {
-    // TODO: use global constants
-    unsigned int opcode : 7;
-    unsigned int rd     : 5;
-    unsigned int funct3 : 3;
-    unsigned int rs1    : 5;
-    unsigned int imm    : 12;
-};
-
 struct InstructionR {
     enum class Type {
+        Add, Sub, Xor, Or, And, Sll, Srl, Sra, Slt, Sltu
     } m_type;
     Register m_rd;
     Register m_rs1;
     Register m_rs2;
 };
 
+struct [[gnu::packed]] RawInstructionR {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int funct7 : funct7_encoding_size;
+};
+
+template <>
+struct std::formatter<InstructionR::Type> : std::formatter<std::string> {
+    auto format(const InstructionR::Type& type, std::format_context& ctx) const {
+
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionR::Type;
+                case Add:  return "Add";
+                case Sub:  return "Sub";
+                case Xor:  return "Xor";
+                case Or:   return "Or";
+                case And:  return "And";
+                case Sll:  return "Sll";
+                case Srl:  return "Srl";
+                case Sra:  return "Sra";
+                case Slt:  return "Slt";
+                case Sltu: return "Sltu";
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionR> : std::formatter<std::string> {
+    auto format(const InstructionR& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, rs2: {} }}",
+                               inst.m_type, inst.m_rd, inst.m_rs1, inst.m_rs2);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
 struct InstructionU {
     enum class Type {
-        // Upper
         Lui, Auipc,
     } m_type;
     Register m_rd;
@@ -88,9 +138,9 @@ struct InstructionU {
 };
 
 struct [[gnu::packed]] RawInstructionU {
-    unsigned int opcode : 7;
-    unsigned int rd     : 5;
-    unsigned int imm    : 20;
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int imm    : imm_large_encoding_size;
 };
 
 template <>

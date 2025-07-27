@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstdlib>
+#include <sys/mman.h>
 
 #include "elf.hh"
 #include "machine.hh"
@@ -16,6 +17,13 @@ int main() {
 
     try {
         ElfExecutable elf("./probe/a.out");
+
+        auto segm = elf.get_loadable_segments().front();
+        auto* mem = mmap(std::bit_cast<void*>(segm.m_virt_addr), segm.m_span.size(),
+             PROT_EXEC | PROT_READ, MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        assert(mem != MAP_FAILED);
+        return 0;
+
         Machine machine;
         machine.load_binary(elf);
         machine.test();

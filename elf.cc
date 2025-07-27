@@ -8,6 +8,8 @@
 
 #include "elf.hh"
 
+// http://www.skyfree.org/linux/references/ELF_Format.pdf
+
 void ElfExecutable::parse() {
     std::memcpy(&m_elf_header, m_bytes.data(), sizeof(Elf64_Ehdr));
 
@@ -27,7 +29,7 @@ void ElfExecutable::parse() {
         if (hdr.p_type != PT_LOAD) continue;
         auto offset = hdr.p_offset;
         auto size = hdr.p_memsz;
-        LoadableSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr);
+        LoadableSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr, hdr.p_flags);
         m_loadable_segments.push_back(seg);
     }
 

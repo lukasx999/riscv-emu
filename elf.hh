@@ -16,6 +16,7 @@ struct ElfExcecutableException : std::runtime_error {
 struct LoadableSegment {
     std::span<char> m_span;
     Elf64_Addr m_virt_addr;
+    Elf64_Word m_flags;
 };
 
 class ElfExecutable {

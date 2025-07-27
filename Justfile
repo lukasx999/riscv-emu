@@ -8,4 +8,4 @@ run: build
     ./build/riscv-emu
 
 test: build
-    ./build/tests
+    ctest --test-dir ./build

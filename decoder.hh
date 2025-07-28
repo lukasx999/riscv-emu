@@ -9,11 +9,11 @@
 #include "register.hh"
 
 
-static constexpr int opcode_encoding_size = 7;
-static constexpr int register_encoding_size = 5;
-static constexpr int funct3_encoding_size = 3;
-static constexpr int funct7_encoding_size = 7;
-static constexpr int imm_encoding_size = 12;
+static constexpr int opcode_encoding_size    = 7;
+static constexpr int register_encoding_size  = 5;
+static constexpr int funct3_encoding_size    = 3;
+static constexpr int funct7_encoding_size    = 7;
+static constexpr int imm_encoding_size       = 12;
 static constexpr int imm_large_encoding_size = 20;
 
 struct InstructionR {
@@ -147,12 +147,11 @@ public:
 
 private:
     [[nodiscard]] static InstructionFormat decode_format(BinaryInstruction inst);
-    [[nodiscard]] static Instruction decode_itype(BinaryInstruction inst);
-    [[nodiscard]] static Instruction decode_utype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionR decode_rtype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionI decode_itype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionR::Type parse_rtype(RawInstructionR inst);
     [[nodiscard]] static InstructionU::Type parse_utype(RawInstructionU inst);
     [[nodiscard]] static InstructionI::Type parse_itype(RawInstructionI inst);
-
-    // `start` begins at 0
-    [[nodiscard]] static constexpr uint64_t extract_bits(uint64_t value, int start, int size);
 
 };

@@ -1,6 +1,20 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "decoder.hh"
+#include "cpu.hh"
+#include "memory.hh"
+
+TEST_CASE("cpu") {
+
+    Memory memory;
+    CPU cpu(memory);
+
+    cpu.m_registers.set(Register::A1, 5);
+    InstructionI inst { InstructionI::Type::Addi, Register::A0, Register::A1, 3 };
+    cpu.execute(inst);
+    REQUIRE(cpu.m_registers.get(Register::A0) == 8);
+
+}
 
 TEST_CASE("decoder") {
 

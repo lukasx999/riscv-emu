@@ -11,6 +11,7 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
 
     switch (format) {
         using enum InstructionFormat;
+        case RType: return decode_rtype(instruction);
         case IType: return decode_itype(instruction);
         case UType: return decode_utype(instruction);
 
@@ -54,25 +55,60 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     throw DecodingException("invalid instruction format");
 }
 
-[[nodiscard]] Instruction Decoder::decode_itype(BinaryInstruction inst) {
+[[nodiscard]] InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionR>(inst);
+
+    return {
+        parse_rtype(raw_inst),
+        static_cast<Register>(raw_inst.rd),
+        static_cast<Register>(raw_inst.rs1),
+        static_cast<Register>(raw_inst.rs2),
+    };
+}
+
+[[nodiscard]] InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
-    return InstructionI(
+    return {
         parse_itype(raw_inst),
         static_cast<Register>(raw_inst.rd),
         static_cast<Register>(raw_inst.rs1),
         raw_inst.imm
-    );
+    };
 }
 
-[[nodiscard]] Instruction Decoder::decode_utype(BinaryInstruction inst) {
+[[nodiscard]] InstructionU Decoder::decode_utype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionU>(inst);
 
-    return InstructionU(
+    return {
         parse_utype(raw_inst),
         static_cast<Register>(raw_inst.rd),
         raw_inst.imm
-    );
+    };
+}
+
+[[nodiscard]] InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {
+    using enum InstructionR::Type;
+
+    if (inst.opcode == 0b0110011) {
+        switch (inst.funct3) {
+            case 0x0:
+                if      (inst.funct7 == 0x00) return Add;
+                else if (inst.funct7 == 0x20) return Sub;
+            case 0x4: return Xor;
+            case 0x6: return Or;
+            case 0x7: return And;
+            case 0x1: return Sll;
+            case 0x5:
+                if      (inst.funct7 == 0x00) return Srl;
+                else if (inst.funct7 == 0x20) return Sra;
+            case 0x2: return Slt;
+            case 0x3: return Sltu;
+
+        }
+    }
+
+    throw DecodingException("invalid r-type instruction");
 }
 
 [[nodiscard]] InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
@@ -97,13 +133,10 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
                 case 0x6: return Ori;
                 case 0x7: return Andi;
                 case 0x1:
-                    if (extract_bits(inst.imm, 5, 7) == 0x0)
-                        return Slli;
+                    if (extract_bits(inst.imm, 5, 7) == 0x00) return Slli;
                 case 0x5:
-                    if (extract_bits(inst.imm, 5, 7) == 0x20)
-                        return Srai;
-                    else if (extract_bits(inst.imm, 5, 7) == 0x0)
-                        return Srli;
+                    if      (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
+                    else if (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;
             }
@@ -122,10 +155,8 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
         case 0b1110011:
             switch (inst.funct3) {
                 case 0x0:
-                    if (inst.imm == 0x0)
-                        return Ecall;
-                    else if (inst.imm == 0x1)
-                        return Ebreak;
+                    if      (inst.imm == 0x0) return Ecall;
+                    else if (inst.imm == 0x1) return Ebreak;
             }
             break;
 
@@ -135,13 +166,4 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     }
 
     throw DecodingException("invalid i-type instruction");
-}
-
-[[nodiscard]] constexpr
-uint64_t Decoder::extract_bits(uint64_t value, int start, int size) {
-    int num = 0;
-    for (auto i=0; i < size; ++i)
-        num |= 1 << i;
-
-    return (value >> start) & num;
 }

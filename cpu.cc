@@ -14,13 +14,40 @@ void InstructionVisitor::operator()(const InstructionR& inst) {
 }
 
 void InstructionVisitor::operator()(const InstructionI& inst) {
+
+    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
+    uint16_t imm = inst.m_imm;
+
+    auto set_rd = [&](Word value) {
+        m_cpu.m_registers.set(inst.m_rd, value);
+    };
+
     switch (inst.m_type) {
         using enum InstructionI::Type;
 
-        case Addi: {
-            auto value = m_cpu.m_registers.get(inst.m_rs1);
-            m_cpu.m_registers.set(inst.m_rd, value + inst.m_imm);
-        } break;
+        case Addi:
+            set_rd(rs1 + imm);
+            break;
+
+        case Xori:
+            set_rd(rs1 ^ imm);
+            break;
+
+        case Ori:
+            set_rd(rs1 | imm);
+            break;
+
+        case Andi:
+            set_rd(rs1 & imm);
+            break;
+
+        case Slli:
+            set_rd(rs1 << extract_bits(imm, 0, 5));
+            break;
+
+        case Srli:
+            set_rd(rs1 >> extract_bits(imm, 0, 5));
+            break;
 
         case Ecall:
             forward_syscall();

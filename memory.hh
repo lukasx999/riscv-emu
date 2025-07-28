@@ -26,14 +26,44 @@ public:
 
     Memory() : m_memory(m_stack_size) { }
 
+    void load_binary() {
+        size_t offset = 0;
+
+        for (auto& segment : m_segments) {
+            size_t size = segment.m_span.size();
+            m_memory.resize(m_memory.size()+size);
+            std::memcpy(m_memory.data()+offset, segment.m_span.data(), size);
+            offset += size;
+        }
+
+        m_stack_offset = offset;
+    }
+
+    [[nodiscard]] size_t get_stack_address() const {
+        return m_stack_offset;
+    }
+
+    template <typename T=char>
+    void set(size_t guest_address, T value) {
+        size_t addr = translate_address(guest_address);
+        reinterpret_cast<T&>(m_memory[addr]) = std::move(value);
+    }
+
+    template <typename T=char>
+    [[nodiscard]] const T& get(size_t guest_address) const {
+        size_t addr = translate_address(guest_address);
+        return reinterpret_cast<const T&>(m_memory[addr]);
+    }
+
+private:
     // translates a virtual address from the guest binary to the corresponding
     // address of the emulator memory
-    [[nodiscard]] size_t translate_address(size_t address) const {
+    [[nodiscard]] size_t translate_address(size_t guest_address) const {
 
         size_t base = m_segments.front().m_virt_addr;
 
         auto find_fn = [&](const LoadSegment& segm) {
-            return address >= segm.m_virt_addr-base;
+            return guest_address >= segm.m_virt_addr-base;
         };
 
         // find the segment the address belongs to
@@ -57,53 +87,13 @@ public:
             acc_fn
         );
 
-        size_t relative_offset = address - (adjacent_segm->m_virt_addr - base);
+        size_t relative_offset = guest_address - (adjacent_segm->m_virt_addr - base);
 
-        return segment_offset+relative_offset;
+        size_t address = segment_offset+relative_offset;
+        check_address(address);
+        return address;
     }
 
-    void load_binary() {
-        size_t offset = 0;
-
-        for (auto& segment : m_segments) {
-            size_t size = segment.m_span.size();
-            m_memory.resize(m_memory.size()+size);
-            std::memcpy(get_data()+offset, segment.m_span.data(), size);
-            offset += size;
-        }
-
-        m_stack_offset = offset;
-    }
-
-    [[nodiscard]] size_t get_stack_address() const {
-        return m_stack_offset;
-    }
-
-    [[nodiscard]] char* get_data() {
-        return m_memory.data();
-    }
-
-    void set_byte(size_t address, char byte) {
-        size_t addr = translate_address(address);
-        check_address(addr);
-        m_memory[addr] = byte;
-    }
-
-    template <typename T=char>
-    [[nodiscard]] const T& get(size_t address) const {
-        size_t addr = translate_address(address);
-        check_address(addr);
-        return *std::bit_cast<T*>(&m_memory[addr]);
-    }
-
-    template <>
-    [[nodiscard]] const char& get<char>(size_t address) const {
-        size_t addr = translate_address(address);
-        check_address(addr);
-        return m_memory[addr];
-    }
-
-private:
     void check_address(size_t address) const {
         if (address >= m_memory.size())
             throw MemoryException("out-of-bounds memory access");

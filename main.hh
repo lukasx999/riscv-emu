@@ -12,6 +12,7 @@ using Word = uint64_t;
 template <typename... Args>
 static inline void log(std::format_string<Args...> fmt, [[maybe_unused]] Args&& ...args) {
     #ifdef EMU_LOG
+    std::print("[LOG] ");
     std::println(fmt, std::forward<Args>(args)...);
     #endif // EMU_LOG
 }

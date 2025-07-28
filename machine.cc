@@ -44,8 +44,6 @@ void Machine::load_binary(const ElfExecutable& exec) {
     }
 
     log("{} Segment(s) loaded", segments.size());
-    log("Binary loaded at {:x}", program_offset);
-    log("Entrypoint: {:x}", exec.get_entry_point());
 
     m_cpu.m_pc = exec.get_entry_point() - program_offset;
     m_cpu.m_registers.set(Register::Sp, offset);

@@ -8,14 +8,15 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
+// ../configure --enable-languages=c,c++ --prefix=/home/lukas/opt/riscv64 --target=riscv64-elf --with-arch=rv64i --with-abi=lp64
+
 int main() {
 
     try {
         // TODO: destroy after loading (or just mmap read only)
-        ElfExecutable elf("./probe/a.out");
+        ElfExecutable elf("./probe/bin");
 
-        Machine machine;
-        machine.load_binary(elf);
+        Machine machine(elf);
         machine.run();
 
     } catch (ElfExcecutableException e) {

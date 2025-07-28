@@ -9,9 +9,16 @@ class Machine {
     CPU m_cpu{m_memory};
 
 public:
-    Machine() = default;
+    Machine(const ElfExecutable& exec)
+    : m_memory(exec.get_load_segments())
+    {
+        load_binary(exec);
+    }
 
     void run();
+
+private:
     [[nodiscard]] BinaryInstruction fetch() const;
-    void load_binary(const ElfExecutable &exec);
+    void load_binary(const ElfExecutable& exec);
+
 };

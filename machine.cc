@@ -18,17 +18,12 @@ void Machine::run() {
     return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
 }
 
-// TODO: move into constructor
 void Machine::load_binary(const ElfExecutable& exec) {
-
     // load segments in elf binaries are guaranteed to have ordered
     // virtual addresses, in ascending order, so we can take the address
     // of the first one as an offset
 
     auto segments = exec.get_load_segments();
-
-    m_memory.m_segments = segments;
-    m_memory.load_binary();
 
     size_t program_offset = segments.front().m_virt_addr;
 

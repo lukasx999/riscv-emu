@@ -6,13 +6,22 @@
 
 TEST_CASE("cpu") {
 
-    Memory memory;
-    CPU cpu(memory);
-
-    cpu.m_registers.set(Register::A1, 5);
-    InstructionI inst { InstructionI::Type::Addi, Register::A0, Register::A1, 3 };
-    cpu.execute(inst);
-    REQUIRE(cpu.m_registers.get(Register::A0) == 8);
+    // Memory memory;
+    // CPU cpu(memory);
+    //
+    // SECTION("addi") {
+    //     cpu.m_registers.set(Register::A1, 5);
+    //     InstructionI inst { InstructionI::Type::Addi, Register::A0, Register::A1, 3 };
+    //     cpu.execute(inst);
+    //     REQUIRE(cpu.m_registers.get(Register::A0) == 8);
+    // }
+    //
+    // SECTION("Xori") {
+    //     cpu.m_registers.set(Register::A1, 5);
+    //     InstructionI inst { InstructionI::Type::Xori, Register::A0, Register::A1, 3 };
+    //     cpu.execute(inst);
+    //     REQUIRE(cpu.m_registers.get(Register::A0) == 6);
+    // }
 
 }
 

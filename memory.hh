@@ -20,23 +20,14 @@ class Memory {
     static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
+    std::span<const LoadSegment> m_segments;
 
 public:
-    std::span<const LoadSegment> m_segments; // TODO: make private
-
-    Memory() : m_memory(m_stack_size) { }
-
-    void load_binary() {
-        size_t offset = 0;
-
-        for (auto& segment : m_segments) {
-            size_t size = segment.m_span.size();
-            m_memory.resize(m_memory.size()+size);
-            std::memcpy(m_memory.data()+offset, segment.m_span.data(), size);
-            offset += size;
-        }
-
-        m_stack_offset = offset;
+    Memory(std::span<const LoadSegment> segments)
+        : m_memory(m_stack_size)
+        , m_segments(segments)
+    {
+        load_binary();
     }
 
     [[nodiscard]] size_t get_stack_address() const {
@@ -97,6 +88,19 @@ private:
     void check_address(size_t address) const {
         if (address >= m_memory.size())
             throw MemoryException("out-of-bounds memory access");
+    }
+
+    void load_binary() {
+        size_t offset = 0;
+
+        for (auto& segment : m_segments) {
+            size_t size = segment.m_span.size();
+            m_memory.resize(m_memory.size()+size);
+            std::memcpy(m_memory.data()+offset, segment.m_span.data(), size);
+            offset += size;
+        }
+
+        m_stack_offset = offset;
     }
 
 };

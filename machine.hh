@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cassert>
-#include <print>
-
 #include "cpu.hh"
 #include "elf.hh"
 #include "memory.hh"

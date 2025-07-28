@@ -20,8 +20,13 @@ int main() {
 
     } catch (ElfExcecutableException e) {
         std::println(stderr, "Failed to parse binary: {}", e.what());
+
     } catch (DecodingException e) {
         std::println(stderr, "Failed to decode instruction: {}", e.what());
+
+    } catch (MemoryException e) {
+        std::println(stderr, "Memory failure: {}", e.what());
+
     }
 
     return EXIT_SUCCESS;

@@ -35,7 +35,7 @@ void Machine::load_binary(const ElfExecutable& exec) {
     log("{} Segment(s) loaded", segments.size());
 
     m_cpu.m_pc = exec.get_entry_point() - program_offset;
-    size_t stack = m_memory.get_stack_location();
+    size_t stack = m_memory.get_stack_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
 }

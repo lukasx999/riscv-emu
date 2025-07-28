@@ -10,6 +10,12 @@
 #include "elf.hh"
 #include "main.hh"
 
+struct MemoryException : std::runtime_error {
+    explicit MemoryException(const char* msg)
+    : std::runtime_error(msg)
+    { }
+};
+
 class Memory {
     static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
@@ -69,7 +75,7 @@ public:
         m_stack_offset = offset;
     }
 
-    [[nodiscard]] size_t get_stack_location() const {
+    [[nodiscard]] size_t get_stack_address() const {
         return m_stack_offset;
     }
 
@@ -78,18 +84,29 @@ public:
     }
 
     void set_byte(size_t address, char byte) {
-        m_memory[address] = byte;
+        size_t addr = translate_address(address);
+        check_address(addr);
+        m_memory[addr] = byte;
     }
 
     template <typename T=char>
-    [[nodiscard]] T get(size_t address) const {
-        return *std::bit_cast<T*>(&m_memory[address]);
+    [[nodiscard]] const T& get(size_t address) const {
+        size_t addr = translate_address(address);
+        check_address(addr);
+        return *std::bit_cast<T*>(&m_memory[addr]);
     }
 
-    // TODO: check out-of-bounds access
     template <>
-    [[nodiscard]] char get<char>(size_t address) const {
-        return m_memory[address];
+    [[nodiscard]] const char& get<char>(size_t address) const {
+        size_t addr = translate_address(address);
+        check_address(addr);
+        return m_memory[addr];
+    }
+
+private:
+    void check_address(size_t address) const {
+        if (address >= m_memory.size())
+            throw MemoryException("out-of-bounds memory access");
     }
 
 };

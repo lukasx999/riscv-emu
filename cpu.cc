@@ -70,11 +70,10 @@ void InstructionVisitor::forward_syscall() const {
         } break;
 
         case Syscall::Write: {
-            int fd = m_cpu.m_registers.get(Register::A0);
-            size_t buf = m_cpu.m_registers.get(Register::A1);
-            size_t len = m_cpu.m_registers.get(Register::A2);
-            size_t addr = m_cpu.m_memory.translate_address(buf);
-            write(fd, m_cpu.m_memory.get_data() + addr, len);
+            int    fd   = m_cpu.m_registers.get(Register::A0);
+            size_t buf  = m_cpu.m_registers.get(Register::A1);
+            size_t len  = m_cpu.m_registers.get(Register::A2);
+            write(fd, &m_cpu.m_memory.get(buf), len);
         } break;
     }
 }

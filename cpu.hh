@@ -26,15 +26,15 @@ public:
     RegisterFile m_registers;
     Decoder m_decoder;
     Memory& m_memory;
-    InstructionVisitor m_vis;
+    InstructionVisitor m_visitor;
 
     CPU(Memory& memory)
         : m_memory(memory)
-        , m_vis(*this)
+        , m_visitor(*this)
     { }
 
     void execute(const Instruction& instruction) {
-        std::visit(m_vis, instruction);
+        std::visit(m_visitor, instruction);
     }
 
 };

@@ -63,9 +63,10 @@ void ElfExecutable::verify_elf_integrity() const {
         throw ElfExcecutableException(
             "invalid architecture, must be riscv (duh)");
 
-    if (m_elf_header.e_type != ET_EXEC)
-        throw ElfExcecutableException(
-            "invalid binary type, must be executable");
+    // TODO: handle ET_DYN case separately
+    // if (m_elf_header.e_type != ET_EXEC)
+    //     throw ElfExcecutableException(
+    //         "invalid binary type, must be executable");
 
     if (m_elf_header.e_ident[EI_CLASS] != ELFCLASS64)
         throw ElfExcecutableException("only 64-bit binaries are supported");

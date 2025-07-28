@@ -11,14 +11,18 @@ void Machine::run() {
     }
 }
 
-void Machine::load_binary(const ElfExecutable &exec) {
+BinaryInstruction Machine::fetch() const {
+  return *std::bit_cast<BinaryInstruction*>(m_cpu.m_pc);
+}
+
+void Machine::load_binary(const ElfExecutable& exec) {
 
     auto segments = exec.get_loadable_segments();
 
     // TODO: if binary is PIC, load it anywhere, if not:
     // either load emu (pic) and binary (non-pic) at the same time
     // or load emu at higher address so there are no address conflicts
-    for (auto &segment : segments) {
+    for (auto& segment : segments) {
         std::println("Segment Address: {:x}", segment.m_virt_addr);
         std::println("Segment Size: {}", segment.m_span.size());
         load_segment(segment);
@@ -33,13 +37,13 @@ void Machine::load_binary(const ElfExecutable &exec) {
     m_cpu.m_registers.set(Register::Fp, stack_begin);
 }
 
-void Machine::load_segment(const LoadableSegment &segment) {
+void Machine::load_segment(const LoadableSegment& segment) {
 
-    auto *virt = std::bit_cast<void *>(segment.m_virt_addr);
+    auto* virt = std::bit_cast<void*>(segment.m_virt_addr);
     size_t size = segment.m_span.size();
 
     // TODO: dont forget to munmap()
-    void *mem = mmap(virt, size, PROT_WRITE,
+    void* mem = mmap(virt, size, PROT_WRITE,
                      MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
     assert(mem != MAP_FAILED);

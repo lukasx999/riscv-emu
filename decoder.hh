@@ -16,32 +16,6 @@ static constexpr int funct7_encoding_size = 7;
 static constexpr int imm_encoding_size = 12;
 static constexpr int imm_large_encoding_size = 20;
 
-struct InstructionI {
-    enum class Type {
-        // Arithmetic Immediate
-        Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
-        // Load
-        Lb, Lh, Lw, Lbu, Lhu,
-        // Jump
-        Jalr,
-        // Environment
-        Ecall, Ebreak,
-    } m_type;
-    Register m_rd;
-    Register m_rs1;
-    int16_t m_imm;
-};
-
-struct [[gnu::packed]] RawInstructionI {
-    // TODO: use global constants
-    unsigned int opcode : opcode_encoding_size;
-    unsigned int rd     : register_encoding_size;
-    unsigned int funct3 : funct3_encoding_size;
-    unsigned int rs1    : register_encoding_size;
-    unsigned int imm    : imm_encoding_size;
-};
-
-
 struct InstructionR {
     enum class Type {
         Add, Sub, Xor, Or, And, Sll, Srl, Sra, Slt, Sltu
@@ -60,6 +34,63 @@ struct [[gnu::packed]] RawInstructionR {
     unsigned int funct7 : funct7_encoding_size;
 };
 
+struct InstructionI {
+    enum class Type {
+        // Arithmetic Immediate
+        Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
+        // Load
+        Lb, Lh, Lw, Lbu, Lhu,
+        // Jump
+        Jalr,
+        // Environment
+        Ecall, Ebreak,
+    } m_type;
+    Register m_rd;
+    Register m_rs1;
+    int16_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionI {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int imm    : imm_encoding_size;
+};
+
+struct InstructionS {
+    enum class Type {
+        Sb, Sh, Sw
+    } m_type;
+    Register m_rs1;
+    Register m_rs2;
+    uint16_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionS {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int imm1   : 5;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int imm2   : 7;
+};
+
+struct InstructionB {
+    enum class Type {
+        Beq, Bne, Blt, Bge, Bltu, Bgeu
+    } m_type;
+    Register m_rs1;
+    Register m_rs2;
+    uint16_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionB {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int imm1   : 5;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int imm2   : 7;
+};
 
 struct InstructionU {
     enum class Type {
@@ -75,9 +106,28 @@ struct [[gnu::packed]] RawInstructionU {
     unsigned int imm    : imm_large_encoding_size;
 };
 
+struct InstructionJ {
+    enum class Type {
+        Jal
+    } m_type;
+    Register m_rd;
+    uint32_t m_imm;
+};
 
-using Instruction = std::variant<InstructionI, InstructionU>;
+struct [[gnu::packed]] RawInstructionJ {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int imm    : imm_large_encoding_size;
+};
 
+using Instruction = std::variant<
+    InstructionR,
+    InstructionI,
+    InstructionS,
+    InstructionB,
+    InstructionU,
+    InstructionJ
+>;
 
 enum class InstructionFormat {
     RType, IType, SType, BType, UType, JType,

@@ -7,8 +7,12 @@
 
 struct InstructionVisitor {
     class CPU& m_cpu;
+    void operator()(const InstructionR& inst);
     void operator()(const InstructionI& inst);
+    void operator()(const InstructionS& inst);
+    void operator()(const InstructionB& inst);
     void operator()(const InstructionU& inst);
+    void operator()(const InstructionJ& inst);
 
 private:
     void forward_syscall() const;
@@ -24,7 +28,7 @@ public:
 
     CPU() : m_vis(*this) { }
 
-    void execute(Instruction instruction) {
+    void execute(const Instruction& instruction) {
         std::visit(m_vis, instruction);
     }
 

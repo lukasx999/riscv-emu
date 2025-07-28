@@ -47,11 +47,7 @@ public:
     Machine() : m_stack(std::make_unique<std::array<char, 4096>>()) { }
 
     void run();
-
-    [[nodiscard]] BinaryInstruction fetch() const {
-        return *std::bit_cast<BinaryInstruction*>(m_cpu.m_pc);
-    }
-
+    [[nodiscard]] BinaryInstruction fetch() const;
     void load_binary(const ElfExecutable &exec);
 
   private:

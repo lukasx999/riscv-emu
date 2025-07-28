@@ -102,6 +102,79 @@ struct std::formatter<InstructionU> : std::formatter<std::string> {
 };
 
 template <>
+struct std::formatter<InstructionS::Type> : std::formatter<std::string> {
+    auto format(const InstructionS::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionS::Type;
+                case Sb: return STRINGIFY(Sb);
+                case Sh: return STRINGIFY(Sh);
+                case Sw: return STRINGIFY(Sw);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionS> : std::formatter<std::string> {
+    auto format(const InstructionS& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rs1: {}, rs2: {}, imm: {} }}",
+                               inst.m_type, inst.m_rs1, inst.m_rs2, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionB::Type> : std::formatter<std::string> {
+    auto format(const InstructionB::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionB::Type;
+                case Beq:  return STRINGIFY(Beq);
+                case Bne:  return STRINGIFY(Bne);
+                case Blt:  return STRINGIFY(Blt);
+                case Bge:  return STRINGIFY(Bge);
+                case Bltu: return STRINGIFY(Bltu);
+                case Bgeu: return STRINGIFY(Bgeu);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionB> : std::formatter<std::string> {
+    auto format(const InstructionB& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rs1: {}, rs2: {}, imm: {} }}",
+                               inst.m_type, inst.m_rs1, inst.m_rs2, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionJ::Type> : std::formatter<std::string> {
+    auto format(const InstructionJ::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionJ::Type;
+                case Jal:  return STRINGIFY(Jal);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
+struct std::formatter<InstructionJ> : std::formatter<std::string> {
+    auto format(const InstructionJ& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}",
+                               inst.m_type, inst.m_rd, inst.m_imm);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+template <>
 struct std::formatter<Instruction> : std::formatter<std::string> {
     auto format(const Instruction& inst, std::format_context& ctx) const {
 

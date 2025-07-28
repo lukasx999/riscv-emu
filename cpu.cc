@@ -5,6 +5,11 @@
 #include "cpu.hh"
 #include "fmt.hh"
 
+void InstructionVisitor::operator()(const InstructionR& inst) {
+    (void) inst;
+    throw std::runtime_error("unimplemented");
+}
+
 void InstructionVisitor::operator()(const InstructionI& inst) {
     switch (inst.m_type) {
         using enum InstructionI::Type;
@@ -23,6 +28,16 @@ void InstructionVisitor::operator()(const InstructionI& inst) {
     }
 }
 
+void InstructionVisitor::operator()(const InstructionS& inst) {
+    (void) inst;
+    throw std::runtime_error("unimplemented");
+}
+
+void InstructionVisitor::operator()(const InstructionB& inst) {
+    (void) inst;
+    throw std::runtime_error("unimplemented");
+}
+
 void InstructionVisitor::operator()(const InstructionU& inst) {
     switch (inst.m_type) {
         using enum InstructionU::Type;
@@ -35,6 +50,11 @@ void InstructionVisitor::operator()(const InstructionU& inst) {
 
         default: throw std::runtime_error("unimplemented");
     }
+}
+
+void InstructionVisitor::operator()(const InstructionJ& inst) {
+    (void) inst;
+    throw std::runtime_error("unimplemented");
 }
 
 void InstructionVisitor::forward_syscall() const {

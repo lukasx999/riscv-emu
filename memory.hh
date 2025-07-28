@@ -9,17 +9,12 @@ class Memory {
     // TODO: size load segments dynamically and stack statically
     static constexpr size_t m_memory_size = 4096*100;
     std::vector<char> m_memory;
-    size_t m_offset = 0;
 
 public:
     Memory() : m_memory(m_memory_size) { }
 
     [[nodiscard]] char* get_data() {
         return m_memory.data();
-    }
-
-    void set_offset(size_t offset) {
-        m_offset = offset;
     }
 
     void set_byte(size_t address, char byte) {

@@ -22,6 +22,9 @@ void Machine::load_binary(const ElfExecutable& exec) {
     // TODO: if binary is PIC, load it anywhere, if not:
     // either load emu (pic) and binary (non-pic) at the same time
     // or load emu at higher address so there are no address conflicts
+
+    // just remove offset 0x40000 from no-pie binaries in the cpu
+
     for (auto& segment : segments) {
         std::println("Segment Address: {:x}", segment.m_virt_addr);
         std::println("Segment Size: {}", segment.m_span.size());

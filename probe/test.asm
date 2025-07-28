@@ -14,6 +14,6 @@ li a7, 64
 ecall
 
 # exit()
-li a0, 45
+li a0, 0
 li a7, 93
 ecall

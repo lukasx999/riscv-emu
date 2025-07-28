@@ -73,7 +73,9 @@ void InstructionVisitor::forward_syscall() const {
             int fd = m_cpu.m_registers.get(Register::A0);
             size_t buf = m_cpu.m_registers.get(Register::A1);
             size_t len = m_cpu.m_registers.get(Register::A2);
-            write(fd, m_cpu.m_memory.get_data() + buf, len);
+            size_t addr = m_cpu.m_memory.translate_address(buf);
+            std::println("CHAR: {}", m_cpu.m_memory.get<char>(addr));
+            write(fd, m_cpu.m_memory.get_data() + addr, len);
         } break;
     }
 }

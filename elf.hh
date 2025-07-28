@@ -33,7 +33,7 @@ public:
         parse();
     }
 
-    [[nodiscard]] auto get_load_segments() const {
+    [[nodiscard]] std::span<const LoadSegment> get_load_segments() const {
         return m_loadable_segments;
     }
 

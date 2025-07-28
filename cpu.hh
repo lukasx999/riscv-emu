@@ -6,7 +6,7 @@
 #include "register.hh"
 #include "memory.hh"
 
-struct InstructionVisitor {
+struct Executor {
     class CPU& m_cpu;
     void operator()(const InstructionR& inst);
     void operator()(const InstructionI& inst);
@@ -26,15 +26,15 @@ public:
     RegisterFile m_registers;
     Decoder m_decoder;
     Memory& m_memory;
-    InstructionVisitor m_visitor;
+    Executor m_executor;
 
     CPU(Memory& memory)
         : m_memory(memory)
-        , m_visitor(*this)
+        , m_executor(*this)
     { }
 
     void execute(const Instruction& instruction) {
-        std::visit(m_visitor, instruction);
+        std::visit(m_executor, instruction);
     }
 
 };

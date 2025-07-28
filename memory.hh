@@ -16,6 +16,7 @@ struct MemoryException : std::runtime_error {
     { }
 };
 
+// TODO: construct memory object without elf binary
 class Memory {
     static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;

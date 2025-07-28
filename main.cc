@@ -15,7 +15,6 @@ int main() {
     try {
         // TODO: destroy after loading (or just mmap read only)
         ElfExecutable elf("./probe/bin");
-
         Machine machine(elf);
         machine.run();
 

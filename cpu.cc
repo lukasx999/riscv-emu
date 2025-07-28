@@ -8,12 +8,12 @@
 #include "cpu.hh"
 #include "fmt.hh"
 
-void InstructionVisitor::operator()(const InstructionR& inst) {
+void Executor::operator()(const InstructionR& inst) {
     (void) inst;
     throw std::runtime_error("unimplemented");
 }
 
-void InstructionVisitor::operator()(const InstructionI& inst) {
+void Executor::operator()(const InstructionI& inst) {
 
     Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
     uint16_t imm = inst.m_imm;
@@ -58,17 +58,17 @@ void InstructionVisitor::operator()(const InstructionI& inst) {
     }
 }
 
-void InstructionVisitor::operator()(const InstructionS& inst) {
+void Executor::operator()(const InstructionS& inst) {
     (void) inst;
     throw std::runtime_error("unimplemented");
 }
 
-void InstructionVisitor::operator()(const InstructionB& inst) {
+void Executor::operator()(const InstructionB& inst) {
     (void) inst;
     throw std::runtime_error("unimplemented");
 }
 
-void InstructionVisitor::operator()(const InstructionU& inst) {
+void Executor::operator()(const InstructionU& inst) {
     switch (inst.m_type) {
         using enum InstructionU::Type;
 
@@ -81,25 +81,31 @@ void InstructionVisitor::operator()(const InstructionU& inst) {
     }
 }
 
-void InstructionVisitor::operator()(const InstructionJ& inst) {
+void Executor::operator()(const InstructionJ& inst) {
     (void) inst;
     throw std::runtime_error("unimplemented");
 }
 
-void InstructionVisitor::forward_syscall() const {
-    enum Syscall { Exit=93, Write=64 };
+void Executor::forward_syscall() const {
+    enum Syscall {
+        Exit=93, Write=64
+    };
 
     auto syscall_nr = m_cpu.m_registers.get(Register::A7);
+    Word arg0       = m_cpu.m_registers.get(Register::A0);
+    Word arg1       = m_cpu.m_registers.get(Register::A1);
+    Word arg2       = m_cpu.m_registers.get(Register::A2);
+
     switch (syscall_nr) {
         case Syscall::Exit: {
-            int status = m_cpu.m_registers.get(Register::A0);
+            int status = arg0;
             exit(status);
         } break;
 
         case Syscall::Write: {
-            int    fd   = m_cpu.m_registers.get(Register::A0);
-            size_t buf  = m_cpu.m_registers.get(Register::A1);
-            size_t len  = m_cpu.m_registers.get(Register::A2);
+            int    fd   = arg0;
+            size_t buf  = arg1;
+            size_t len  = arg2;
             write(fd, &m_cpu.m_memory.get(buf), len);
         } break;
     }

@@ -2,9 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <format>
 #include <cstring>
-#include <string>
 #include <utility>
 #include <array>
 
@@ -45,50 +43,6 @@ enum class Register : uint8_t {
     X31 = 31, T6   = 31,
 };
 
-template <>
-struct std::formatter<Register> : std::formatter<std::string> {
-
-    auto format(const Register& reg, std::format_context& ctx) const {
-        auto str = [&] {
-            switch (reg) {
-                using enum Register;
-                case Zero: return "Zero";
-                case Ra:   return "Ra";
-                case Sp:   return "Sp";
-                case Gp:   return "Gp";
-                case Tp:   return "Tp";
-                case T0:   return "T0";
-                case T1:   return "T1";
-                case T2:   return "T2";
-                case Fp:   return "Fp";
-                case S1:   return "S1";
-                case A0:   return "A0";
-                case A1:   return "A1";
-                case A2:   return "A2";
-                case A3:   return "A3";
-                case A4:   return "A4";
-                case A5:   return "A5";
-                case A6:   return "A6";
-                case A7:   return "A7";
-                case S2:   return "S2";
-                case S3:   return "S3";
-                case S4:   return "S4";
-                case S5:   return "S5";
-                case S6:   return "S6";
-                case S7:   return "S7";
-                case S8:   return "S8";
-                case S9:   return "S9";
-                case S10:  return "S10";
-                case S11:  return "S11";
-                case T3:   return "T3";
-                case T4:   return "T4";
-                case T5:   return "T5";
-                case T6:   return "T6";
-            };
-        }();
-        return std::formatter<std::string>::format(std::format("{}", str), ctx);
-    }
-};
 
 class RegisterFile {
     static constexpr size_t m_register_count = 32;

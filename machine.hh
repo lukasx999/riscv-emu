@@ -1,11 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <cstdlib>
-#include <cstring>
 #include <print>
-#include <vector>
-#include <sys/mman.h>
 
 #include "cpu.hh"
 #include "elf.hh"

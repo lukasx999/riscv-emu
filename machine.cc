@@ -2,7 +2,6 @@
 #include <cstring>
 #include <print>
 #include <vector>
-#include <sys/mman.h>
 
 #include "machine.hh"
 #include "fmt.hh"

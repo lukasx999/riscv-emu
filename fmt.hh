@@ -1,12 +1,59 @@
 #pragma once
 
 #include <format>
+#include <string>
 
 #include "decoder.hh"
+#include "register.hh"
 
 // "use" the value by casting to void, so language servers will
 // rename the argument of the macro
 #define STRINGIFY(value) (static_cast<void>(value), #value)
+
+template <>
+struct std::formatter<Register> : std::formatter<std::string> {
+
+    auto format(const Register& reg, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (reg) {
+                using enum Register;
+                case Zero: return STRINGIFY(Zero);
+                case Ra:   return STRINGIFY(Ra);
+                case Sp:   return STRINGIFY(Sp);
+                case Gp:   return STRINGIFY(Gp);
+                case Tp:   return STRINGIFY(Tp);
+                case T0:   return STRINGIFY(T0);
+                case T1:   return STRINGIFY(T1);
+                case T2:   return STRINGIFY(T2);
+                case Fp:   return STRINGIFY(Fp);
+                case S1:   return STRINGIFY(S1);
+                case A0:   return STRINGIFY(A0);
+                case A1:   return STRINGIFY(A1);
+                case A2:   return STRINGIFY(A2);
+                case A3:   return STRINGIFY(A3);
+                case A4:   return STRINGIFY(A4);
+                case A5:   return STRINGIFY(A5);
+                case A6:   return STRINGIFY(A6);
+                case A7:   return STRINGIFY(A7);
+                case S2:   return STRINGIFY(S2);
+                case S3:   return STRINGIFY(S3);
+                case S4:   return STRINGIFY(S4);
+                case S5:   return STRINGIFY(S5);
+                case S6:   return STRINGIFY(S6);
+                case S7:   return STRINGIFY(S7);
+                case S8:   return STRINGIFY(S8);
+                case S9:   return STRINGIFY(S9);
+                case S10:  return STRINGIFY(S10);
+                case S11:  return STRINGIFY(S11);
+                case T3:   return STRINGIFY(T3);
+                case T4:   return STRINGIFY(T4);
+                case T5:   return STRINGIFY(T5);
+                case T6:   return STRINGIFY(T6);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
 
 template <>
 struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
@@ -185,3 +232,4 @@ struct std::formatter<Instruction> : std::formatter<std::string> {
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
+

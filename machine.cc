@@ -26,11 +26,12 @@ void Machine::load_binary(const ElfExecutable& exec) {
     // virtual addresses, in ascending order, so we can take the address
     // of the first one as an offset
 
-    auto segments = exec.get_loadable_segments();
+    auto segments = exec.get_load_segments();
+    m_memory.m_segments = segments;
 
     size_t program_offset = segments.front().m_virt_addr;
 
-    size_t offset = 0;
+    // TODO: move to memory.hh
     for (auto& segment : segments) {
 
         log("Segment Address: {:x}", segment.m_virt_addr);
@@ -39,7 +40,6 @@ void Machine::load_binary(const ElfExecutable& exec) {
         size_t size = segment.m_span.size();
         size_t addr = segment.m_virt_addr - program_offset;
         std::memcpy(m_memory.get_data()+addr, segment.m_span.data(), size);
-        offset += size;
     }
 
     log("{} Segment(s) loaded", segments.size());
@@ -47,6 +47,8 @@ void Machine::load_binary(const ElfExecutable& exec) {
     log("Entrypoint: {:x}", exec.get_entry_point());
 
     m_cpu.m_pc = exec.get_entry_point() - program_offset;
-    m_cpu.m_registers.set(Register::Sp, offset);
-    m_cpu.m_registers.set(Register::Fp, offset);
+    auto last = segments.back();
+    size_t back = last.m_virt_addr + last.m_span.size();
+    m_cpu.m_registers.set(Register::Sp, back);
+    m_cpu.m_registers.set(Register::Fp, back);
 }

@@ -13,7 +13,7 @@ struct ElfExcecutableException : std::runtime_error {
     { }
 };
 
-struct LoadableSegment {
+struct LoadSegment {
     std::span<char> m_span;
     Elf64_Addr m_virt_addr;
     Elf64_Word m_flags;
@@ -23,9 +23,8 @@ class ElfExecutable {
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;
     std::vector<Elf64_Phdr> m_program_headers;
-    std::vector<LoadableSegment> m_loadable_segments;
+    std::vector<LoadSegment> m_loadable_segments;
     Elf64_Addr m_entry_point;
-    bool m_is_position_independent = false;
 
 public:
     explicit ElfExecutable(const fs::path& path)
@@ -34,11 +33,7 @@ public:
         parse();
     }
 
-    [[nodiscard]] bool is_position_independent() const {
-        return m_is_position_independent;
-    }
-
-    [[nodiscard]] auto get_loadable_segments() const {
+    [[nodiscard]] auto get_load_segments() const {
         return m_loadable_segments;
     }
 

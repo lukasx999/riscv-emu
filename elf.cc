@@ -26,14 +26,11 @@ void ElfExecutable::parse() {
         m_program_headers[i] = *std::bit_cast<Elf64_Phdr*>(src);
     }
 
-    if (m_elf_header.e_type == ET_DYN)
-        m_is_position_independent = true;
-
     for (auto& hdr : m_program_headers) {
         if (hdr.p_type != PT_LOAD) continue;
         auto offset = hdr.p_offset;
         auto size = hdr.p_memsz;
-        LoadableSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr, hdr.p_flags);
+        LoadSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr, hdr.p_flags);
         m_loadable_segments.push_back(seg);
     }
 

@@ -25,12 +25,17 @@ class ElfExecutable {
     std::vector<Elf64_Phdr> m_program_headers;
     std::vector<LoadableSegment> m_loadable_segments;
     Elf64_Addr m_entry_point;
+    bool m_is_position_independent = false;
 
 public:
     explicit ElfExecutable(const fs::path& path)
     : m_bytes(load_file_binary(path))
     {
         parse();
+    }
+
+    [[nodiscard]] bool is_position_independent() const {
+        return m_is_position_independent;
     }
 
     [[nodiscard]] auto get_loadable_segments() const {

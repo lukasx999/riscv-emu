@@ -26,6 +26,9 @@ void ElfExecutable::parse() {
         m_program_headers[i] = *std::bit_cast<Elf64_Phdr*>(src);
     }
 
+    if (m_elf_header.e_type == ET_DYN)
+        m_is_position_independent = true;
+
     for (auto& hdr : m_program_headers) {
         if (hdr.p_type != PT_LOAD) continue;
         auto offset = hdr.p_offset;
@@ -63,10 +66,8 @@ void ElfExecutable::verify_elf_integrity() const {
         throw ElfExcecutableException(
             "invalid architecture, must be riscv (duh)");
 
-    // TODO: handle ET_DYN case separately
-    // if (m_elf_header.e_type != ET_EXEC)
-    //     throw ElfExcecutableException(
-    //         "invalid binary type, must be executable");
+    if (m_elf_header.e_type != ET_EXEC && m_elf_header.e_type != ET_DYN)
+        throw ElfExcecutableException("invalid binary type, must be executable");
 
     if (m_elf_header.e_ident[EI_CLASS] != ELFCLASS64)
         throw ElfExcecutableException("only 64-bit binaries are supported");

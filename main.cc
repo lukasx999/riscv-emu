@@ -10,24 +10,24 @@
 
 // ../configure --enable-languages=c,c++ --prefix=/home/lukas/opt/riscv64 --target=riscv64-elf --with-arch=rv64i --with-abi=lp64
 
-int main() {
+int main() try {
 
-    try {
-        // TODO: destroy after loading (or just mmap read only)
-        ElfExecutable elf("./probe/bin");
-        Machine machine(elf);
-        machine.run();
-
-    } catch (ElfExcecutableException e) {
-        std::println(stderr, "Failed to parse binary: {}", e.what());
-
-    } catch (DecodingException e) {
-        std::println(stderr, "Failed to decode instruction: {}", e.what());
-
-    } catch (MemoryException e) {
-        std::println(stderr, "Memory failure: {}", e.what());
-
-    }
-
+    // TODO: destroy after loading (or just mmap read only)
+    ElfExecutable elf("./probe/bin");
+    Machine machine(elf);
+    machine.run();
     return EXIT_SUCCESS;
+
+} catch (ElfExcecutableException e) {
+    std::println(stderr, "Failed to parse binary: {}", e.what());
+    return EXIT_FAILURE;
+
+} catch (DecodingException e) {
+    std::println(stderr, "Failed to decode instruction: {}", e.what());
+    return EXIT_FAILURE;
+
+} catch (MemoryException e) {
+    std::println(stderr, "Memory failure: {}", e.what());
+    return EXIT_FAILURE;
+
 }

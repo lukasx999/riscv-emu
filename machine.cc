@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <print>
-#include <vector>
 
 #include "machine.hh"
 #include "fmt.hh"
@@ -20,6 +19,7 @@ void Machine::run() {
     return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
 }
 
+// TODO: move into constructor
 void Machine::load_binary(const ElfExecutable& exec) {
 
     // load segments in elf binaries are guaranteed to have ordered
@@ -27,25 +27,16 @@ void Machine::load_binary(const ElfExecutable& exec) {
     // of the first one as an offset
 
     auto segments = exec.get_load_segments();
+
     m_memory.m_segments = segments;
+    m_memory.load_binary();
 
     size_t program_offset = segments.front().m_virt_addr;
-
-    // TODO: move to memory.hh
-    size_t offset = 0;
-    for (auto& segment : segments) {
-
-        log("Segment Address: {:x}", segment.m_virt_addr);
-        log("Segment Size: {:x}", segment.m_span.size());
-
-        size_t size = segment.m_span.size();
-        std::memcpy(m_memory.get_data()+offset, segment.m_span.data(), size);
-        offset += size;
-    }
 
     log("{} Segment(s) loaded", segments.size());
 
     m_cpu.m_pc = exec.get_entry_point() - program_offset;
-    m_cpu.m_registers.set(Register::Sp, offset);
-    m_cpu.m_registers.set(Register::Fp, offset);
+    size_t stack = m_memory.get_stack_location();
+    m_cpu.m_registers.set(Register::Sp, stack);
+    m_cpu.m_registers.set(Register::Fp, stack);
 }

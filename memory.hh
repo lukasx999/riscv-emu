@@ -5,21 +5,20 @@
 #include <cstdlib>
 #include <cstring>
 #include <numeric>
-#include <ranges>
 #include <vector>
 
-#include "main.hh"
 #include "elf.hh"
+#include "main.hh"
 
 class Memory {
-    // TODO: size load segments dynamically and stack statically
-    static constexpr size_t m_memory_size = 4096;
+    static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
+    size_t m_stack_offset = 0;
 
 public:
     std::span<const LoadSegment> m_segments; // TODO: make private
 
-    Memory() : m_memory(m_memory_size) { }
+    Memory() : m_memory(m_stack_size) { }
 
     // translates a virtual address from the guest binary to the corresponding
     // address of the emulator memory
@@ -32,7 +31,11 @@ public:
         };
 
         // find the segment the address belongs to
-        auto adjacent_segm = std::find_if(m_segments.rbegin(), m_segments.rend(), find_fn);
+        auto adjacent_segm = std::find_if(
+            m_segments.rbegin(),
+            m_segments.rend(),
+            find_fn
+        );
 
         assert(adjacent_segm != m_segments.rend());
 
@@ -41,11 +44,33 @@ public:
         };
 
         // start address of the segment the address belongs to
-        size_t segment_offset = std::accumulate(m_segments.begin(), adjacent_segm.base()-1, 0, acc_fn);
+        size_t segment_offset = std::accumulate(
+            m_segments.begin(),
+            adjacent_segm.base()-1,
+            0,
+            acc_fn
+        );
 
         size_t relative_offset = address - (adjacent_segm->m_virt_addr - base);
 
         return segment_offset+relative_offset;
+    }
+
+    void load_binary() {
+        size_t offset = 0;
+
+        for (auto& segment : m_segments) {
+            size_t size = segment.m_span.size();
+            m_memory.resize(m_memory.size()+size);
+            std::memcpy(get_data()+offset, segment.m_span.data(), size);
+            offset += size;
+        }
+
+        m_stack_offset = offset;
+    }
+
+    [[nodiscard]] size_t get_stack_location() const {
+        return m_stack_offset;
     }
 
     [[nodiscard]] char* get_data() {

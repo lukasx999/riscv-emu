@@ -40,9 +40,9 @@ jobs:
 
 
     - name: Installing Compiler
-      run: >
-          g++ --version
-        # sudo apt install g++-15
+      run: |
+        clang++ --version
+        sudo apt install g++-15
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

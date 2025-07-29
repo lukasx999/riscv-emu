@@ -11,7 +11,6 @@
 int main() try {
 
     // TODO: destroy after loading (or just mmap read only)
-    // ElfExecutable elf("./probe/a.out");
     ElfExecutable elf("./probe/bin-asm");
     Machine machine(elf);
     machine.run();

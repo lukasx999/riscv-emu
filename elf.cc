@@ -37,7 +37,6 @@ void ElfExecutable::parse() {
     verify_elf_integrity();
 }
 
-[[nodiscard]]
 std::vector<char> ElfExecutable::load_file_binary(const fs::path& path) {
 
     auto type = fs::status(path).type();

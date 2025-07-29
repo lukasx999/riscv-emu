@@ -4,7 +4,6 @@
 
 #include "decoder.hh"
 
-[[nodiscard]]
 Instruction Decoder::decode(BinaryInstruction instruction) {
 
     auto format = decode_format(instruction);
@@ -22,7 +21,6 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
 
 }
 
-[[nodiscard]]
 InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
     int opcode_len = 7;
@@ -55,7 +53,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     throw DecodingException("invalid instruction format");
 }
 
-[[nodiscard]] InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
+InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionR>(inst);
 
     return {
@@ -66,7 +64,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     };
 }
 
-[[nodiscard]] InstructionI Decoder::decode_itype(BinaryInstruction inst) {
+InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
     return {
@@ -77,7 +75,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     };
 }
 
-[[nodiscard]] InstructionU Decoder::decode_utype(BinaryInstruction inst) {
+InstructionU Decoder::decode_utype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionU>(inst);
 
     return {
@@ -87,7 +85,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     };
 }
 
-[[nodiscard]] InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {
+InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {
     using enum InstructionR::Type;
 
     if (inst.opcode == 0b0110011) {
@@ -111,18 +109,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     throw DecodingException("invalid r-type instruction");
 }
 
-[[nodiscard]] InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
-    using enum InstructionU::Type;
-
-    switch (inst.opcode) {
-        case 0b0110111: return Lui;
-        case 0b0010111: return Auipc;
-    }
-
-    throw DecodingException("invalid u-type instruction");
-}
-
-[[nodiscard]] InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
+InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
     using enum InstructionI::Type;
 
     switch (inst.opcode) {
@@ -167,3 +154,15 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
     throw DecodingException("invalid i-type instruction");
 }
+
+InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
+    using enum InstructionU::Type;
+
+    switch (inst.opcode) {
+        case 0b0110111: return Lui;
+        case 0b0010111: return Auipc;
+    }
+
+    throw DecodingException("invalid u-type instruction");
+}
+

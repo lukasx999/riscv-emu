@@ -10,7 +10,7 @@
 
 #include "memory.hh"
 
-[[nodiscard]] size_t Memory::translate_address(size_t guest_address) const {
+size_t Memory::translate_address(size_t guest_address) const {
 
     size_t base = m_segments.front().m_virt_addr;
 

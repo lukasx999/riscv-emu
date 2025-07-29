@@ -151,7 +151,7 @@ private:
     [[nodiscard]] static InstructionI decode_itype(BinaryInstruction inst);
     [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
     [[nodiscard]] static InstructionR::Type parse_rtype(RawInstructionR inst);
-    [[nodiscard]] static InstructionU::Type parse_utype(RawInstructionU inst);
     [[nodiscard]] static InstructionI::Type parse_itype(RawInstructionI inst);
+    [[nodiscard]] static InstructionU::Type parse_utype(RawInstructionU inst);
 
 };

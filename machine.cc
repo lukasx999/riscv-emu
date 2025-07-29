@@ -14,7 +14,7 @@ void Machine::run() {
     }
 }
 
-[[nodiscard]] BinaryInstruction Machine::fetch() const {
+BinaryInstruction Machine::fetch() const {
     return m_memory.get<BinaryInstruction>(m_cpu.m_pc);
 }
 

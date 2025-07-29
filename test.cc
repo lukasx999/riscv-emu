@@ -59,35 +59,25 @@ static void test_decoder_itype(uint32_t raw_instruction, InstructionI::Type type
 }
 
 TEST_CASE("decoder") {
+    using enum InstructionI::Type;
+    using enum Register;
 
-    SECTION("addi") {
-        // addi t2,t0,45
-        test_decoder_itype(0x02d28393, InstructionI::Type::Addi, 45, Register::T2, Register::T0);
-    }
+    // addi t2,t0,45
+    test_decoder_itype(0x02d28393, Addi, 45, T2, T0);
 
-    SECTION("xori") {
-        // xori s2,s11,2000
-        test_decoder_itype(0x7d0dc913, InstructionI::Type::Xori, 2000, Register::S2, Register::S11);
-    }
+    // xori s2,s11,2000
+    test_decoder_itype(0x7d0dc913, Xori, 2000, S2, S11);
 
-    SECTION("ori") {
-        // ori s0,s1,167
-        test_decoder_itype(0x0a74e413, InstructionI::Type::Ori, 167, Register::S0, Register::S1);
-    }
+    // ori s0,s1,167
+    test_decoder_itype(0x0a74e413, Ori, 167, S0, S1);
 
-    SECTION("andi") {
-        // andi t2,a2,1000
-        test_decoder_itype(0x3e867393, InstructionI::Type::Andi, 1000, Register::T2, Register::A2);
-    }
+    // andi t2,a2,1000
+    test_decoder_itype(0x3e867393, Andi, 1000, T2, A2);
 
-    SECTION("srli") {
-        // srli t4,t1,0x2
-        test_decoder_itype(0x00235e93, InstructionI::Type::Srli, 2, Register::T4, Register::T1);
-    }
+    // srli t4,t1,0x2
+    test_decoder_itype(0x00235e93, Srli, 2, T4, T1);
 
-    SECTION("srai") {
-        // srai t5,t1,0x2
-        test_decoder_itype(0x40235f13, InstructionI::Type::Srai, 2, Register::T5, Register::T1);
-    }
+    // srai t5,t1,0x2
+    test_decoder_itype(0x40235f13, Srai, 2, T5, T1);
 
 }

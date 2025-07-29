@@ -60,8 +60,7 @@ void ElfExecutable::verify_elf_integrity() const {
         throw ElfExcecutableException("invalid file format, must be elf");
 
     if (m_elf_header.e_machine != EM_RISCV)
-        throw ElfExcecutableException(
-            "invalid architecture, must be riscv (duh)");
+        throw ElfExcecutableException("invalid architecture, must be riscv (duh)");
 
     if (m_elf_header.e_type != ET_EXEC && m_elf_header.e_type != ET_DYN)
         throw ElfExcecutableException("invalid binary type, must be executable");

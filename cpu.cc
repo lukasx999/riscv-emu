@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <print>
 #include <stdexcept>
@@ -49,10 +50,11 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(rs1 >> extract_bits(imm, 0, 5));
             break;
 
-        case Srai:
-            // TODO: sign extension
-            set_rd(rs1 >> extract_bits(imm, 0, 5));
-            break;
+        case Srai: {
+            // sign-extension
+            uint8_t n = extract_bits(imm, 0, 5);
+            set_rd(set_bits(rs1 >> n, sizeof(Word)-n, n, std::signbit(rs1)));
+        } break;
 
         case Ecall:
             forward_syscall();

@@ -66,6 +66,7 @@ InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
 
 InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
+    // TODO: leave out imm[5:11] for slli, srli, srai?
 
     return {
         parse_itype(raw_inst),
@@ -122,8 +123,8 @@ InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
                 case 0x1:
                     if (extract_bits(inst.imm, 5, 7) == 0x00) return Slli;
                 case 0x5:
-                    if      (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
-                    else if (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
+                    if      (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
+                    else if (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;
             }

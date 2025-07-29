@@ -20,9 +20,22 @@ void log(std::format_string<Args...> fmt, [[maybe_unused]] Args&& ...args) {
 // `start` begins at 0
 [[nodiscard]] inline constexpr
 uint64_t extract_bits(uint64_t value, int start, int size) {
-    int num = 0;
+    int mask = 0;
     for (auto i=0; i < size; ++i)
-        num |= 1 << i;
+        mask |= 1 << i;
 
-    return (value >> start) & num;
+    return (value >> start) & mask;
+}
+
+// `start` begins at 0
+[[nodiscard]] inline constexpr
+uint64_t set_bits(uint64_t value, int start, int size, bool bit) {
+    int mask = 0;
+    for (auto i=0; i < size; ++i)
+        mask |= 1 << (i + start);
+
+    if (bit)
+        return value | mask;
+    else
+        return value & ~mask;
 }

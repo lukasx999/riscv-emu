@@ -17,7 +17,7 @@ void Executor::operator()(const InstructionR& inst) {
 void Executor::operator()(const InstructionI& inst) {
 
     Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
-    uint16_t imm = inst.m_imm;
+    Word imm = sign_extend(inst.m_imm, imm_encoding_size);
 
     auto set_rd = [&](Word value) {
         m_cpu.m_registers.set(inst.m_rd, value);
@@ -26,9 +26,9 @@ void Executor::operator()(const InstructionI& inst) {
     switch (inst.m_type) {
         using enum InstructionI::Type;
 
-        case Addi:
+        case Addi: {
             set_rd(rs1 + imm);
-            break;
+        } break;
 
         case Xori:
             set_rd(rs1 ^ imm);
@@ -51,9 +51,8 @@ void Executor::operator()(const InstructionI& inst) {
             break;
 
         case Srai: {
-            // sign-extension
-            uint8_t n = extract_bits(imm, 0, 5);
-            set_rd(set_bits(rs1 >> n, sizeof(Word)-n, n, std::signbit(rs1)));
+            uint8_t operand = extract_bits(imm, 0, 5);
+            set_rd(sign_extend(rs1 >> operand, sizeof(Word)*8-operand));
         } break;
 
         case Slti:

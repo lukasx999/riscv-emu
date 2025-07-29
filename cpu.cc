@@ -56,16 +56,19 @@ void Executor::operator()(const InstructionI& inst) {
         } break;
 
         case Slti:
-            set_rd(rs1 < imm ? 1 : 0);
+            set_rd(static_cast<int64_t>(rs1) < static_cast<int64_t>(imm) ? 1 : 0);
             break;
 
         case Sltiu:
-            // TODO: zero-extension
             set_rd(rs1 < imm ? 1 : 0);
             break;
 
         case Ecall:
             forward_syscall();
+            break;
+
+        case Ebreak:
+            asm volatile ("int3");
             break;
 
         default:

@@ -1,9 +1,13 @@
 #pragma once
 
 #include <cassert>
+#include <print>
 #include <filesystem>
 #include <vector>
+
 #include <elf.h>
+
+#include "main.hh"
 
 namespace fs = std::filesystem;
 
@@ -31,6 +35,7 @@ public:
     : m_bytes(load_file_binary(path))
     {
         parse();
+        log("Parsed ELF binary ({} bytes)", m_bytes.size());
     }
 
     [[nodiscard]] std::span<const LoadSegment> get_load_segments() const {

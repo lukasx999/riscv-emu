@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O0 -ggdb -fsanitize=address,undefi
 
 project(RiscvEmu)
 
-list(APPEND sources cpu.cc decoder.cc elf.cc machine.cc)
+list(APPEND sources cpu.cc decoder.cc elf.cc machine.cc memory.cc)
 
 add_executable(riscv-emu main.cc ${sources})
 

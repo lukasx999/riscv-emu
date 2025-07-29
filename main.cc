@@ -8,10 +8,14 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
+// https://github.com/riscv-collab/riscv-gnu-toolchain
+// ./configure --prefix=/home/lukas/opt/riscv64 --with-arch=rv64i --with-abi=lp64
+// make -j$(nproc)
+
 int main() try {
 
     // TODO: destroy after loading (or just mmap read only)
-    ElfExecutable elf("./probe/bin-asm");
+    ElfExecutable elf("./probe/bin-c");
     Machine machine(elf);
     machine.run();
     return EXIT_SUCCESS;

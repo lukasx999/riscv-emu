@@ -1,4 +1,9 @@
 #!/bin/sh
 set -euxo pipefail
 
-riscv64-elf-objdump -dC a.out --disassembler-options=no-aliases
+dis() {
+    riscv64-elf-objdump -dC --disassembler-options=no-aliases $1 > "$1.s"
+}
+
+dis bin-asm
+dis bin-c

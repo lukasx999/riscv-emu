@@ -9,7 +9,7 @@ using Word = uint64_t;
 
 #define EMU_LOG
 
-template <typename... Args> static
+template <typename... Args> inline
 void log(std::format_string<Args...> fmt, [[maybe_unused]] Args&& ...args) {
     #ifdef EMU_LOG
     std::print("[LOG] ");
@@ -17,10 +17,9 @@ void log(std::format_string<Args...> fmt, [[maybe_unused]] Args&& ...args) {
     #endif // EMU_LOG
 }
 
-
 // `start` begins at 0
-[[nodiscard]] static
-constexpr uint64_t extract_bits(uint64_t value, int start, int size) {
+[[nodiscard]] inline constexpr
+uint64_t extract_bits(uint64_t value, int start, int size) {
     int num = 0;
     for (auto i=0; i < size; ++i)
         num |= 1 << i;

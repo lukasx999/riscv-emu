@@ -57,9 +57,9 @@ void Memory::load_binary() {
         m_memory.resize(m_memory.size()+size);
         std::memcpy(m_memory.data()+offset, segment.m_span.data(), size);
         offset += size;
+
         log("Loaded segment with address {:#x} ({} bytes)",
             segment.m_virt_addr, segment.m_span.size());
-
     }
 
     log("{} Segment(s) loaded", m_segments.size());

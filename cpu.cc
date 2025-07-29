@@ -56,6 +56,15 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(set_bits(rs1 >> n, sizeof(Word)-n, n, std::signbit(rs1)));
         } break;
 
+        case Slti:
+            set_rd(rs1 < imm ? 1 : 0);
+            break;
+
+        case Sltiu:
+            // TODO: zero-extension
+            set_rd(rs1 < imm ? 1 : 0);
+            break;
+
         case Ecall:
             forward_syscall();
             break;

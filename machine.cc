@@ -11,8 +11,6 @@ void Machine::run() {
         log("{}", inst);
         m_cpu.execute(inst);
         m_cpu.m_pc += sizeof(BinaryInstruction);
-        std::println("T4: {:#b}", m_cpu.m_registers.get(Register::T4));
-        std::println("T5: {:#b}", m_cpu.m_registers.get(Register::T5));
     }
 }
 

@@ -47,6 +47,10 @@ struct InstructionI {
     } m_type;
     Register m_rd;
     Register m_rs1;
+    // in case of Slli, Srli, and Srai, `m_imm` represents only the
+    // lowest 5 bits of the 12 bit immediate value, as the others
+    // are used as funct7, and therefore do not contribute
+    // to the actual immediate operand
     int16_t m_imm;
 };
 

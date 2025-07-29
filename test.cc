@@ -47,72 +47,47 @@ TEST_CASE("utils") {
 
 }
 
+static void test_decoder_itype(uint32_t raw_instruction, InstructionI::Type type,
+                         int imm, Register rd, Register rs1) {
+    auto inst = Decoder::decode(raw_instruction);
+    REQUIRE(std::holds_alternative<InstructionI>(inst));
+    auto i = std::get<InstructionI>(inst);
+    REQUIRE(i.m_imm == imm);
+    REQUIRE(i.m_type == type);
+    REQUIRE(i.m_rd == rd);
+    REQUIRE(i.m_rs1 == rs1);
+}
+
 TEST_CASE("decoder") {
 
     SECTION("addi") {
         // addi t2,t0,45
-        auto inst = Decoder::decode(0x02d28393);
-        REQUIRE(std::holds_alternative<InstructionI>(inst));
-        auto i = std::get<InstructionI>(inst);
-        REQUIRE(i.m_imm == 45);
-        REQUIRE(i.m_type == InstructionI::Type::Addi);
-        REQUIRE(i.m_rd == Register::T2);
-        REQUIRE(i.m_rs1 == Register::T0);
+        test_decoder_itype(0x02d28393, InstructionI::Type::Addi, 45, Register::T2, Register::T0);
     }
 
     SECTION("xori") {
         // xori s2,s11,2000
-        auto inst = Decoder::decode(0x7d0dc913);
-        REQUIRE(std::holds_alternative<InstructionI>(inst));
-        auto i = std::get<InstructionI>(inst);
-        REQUIRE(i.m_imm == 2000);
-        REQUIRE(i.m_type == InstructionI::Type::Xori);
-        REQUIRE(i.m_rd == Register::S2);
-        REQUIRE(i.m_rs1 == Register::S11);
+        test_decoder_itype(0x7d0dc913, InstructionI::Type::Xori, 2000, Register::S2, Register::S11);
     }
 
     SECTION("ori") {
         // ori s0,s1,167
-        auto inst = Decoder::decode(0x0a74e413);
-        REQUIRE(std::holds_alternative<InstructionI>(inst));
-        auto i = std::get<InstructionI>(inst);
-        REQUIRE(i.m_imm == 167);
-        REQUIRE(i.m_type == InstructionI::Type::Ori);
-        REQUIRE(i.m_rd == Register::S0);
-        REQUIRE(i.m_rs1 == Register::S1);
+        test_decoder_itype(0x0a74e413, InstructionI::Type::Ori, 167, Register::S0, Register::S1);
     }
 
     SECTION("andi") {
         // andi t2,a2,1000
-        auto inst = Decoder::decode(0x3e867393);
-        REQUIRE(std::holds_alternative<InstructionI>(inst));
-        auto i = std::get<InstructionI>(inst);
-        REQUIRE(i.m_imm == 1000);
-        REQUIRE(i.m_type == InstructionI::Type::Andi);
-        REQUIRE(i.m_rd == Register::T2);
-        REQUIRE(i.m_rs1 == Register::A2);
+        test_decoder_itype(0x3e867393, InstructionI::Type::Andi, 1000, Register::T2, Register::A2);
     }
 
     SECTION("srli") {
         // srli t4,t1,0x2
-        auto inst = Decoder::decode(0x00235e93);
-        REQUIRE(std::holds_alternative<InstructionI>(inst));
-        auto i = std::get<InstructionI>(inst);
-        REQUIRE(i.m_imm == 2);
-        REQUIRE(i.m_type == InstructionI::Type::Srli);
-        REQUIRE(i.m_rd == Register::T4);
-        REQUIRE(i.m_rs1 == Register::T1);
+        test_decoder_itype(0x00235e93, InstructionI::Type::Srli, 2, Register::T4, Register::T1);
     }
 
-    // SECTION("srai") {
-    //     // srai t5,t1,0x2
-    //     auto inst = Decoder::decode(0x40235f13);
-    //     REQUIRE(std::holds_alternative<InstructionI>(inst));
-    //     auto i = std::get<InstructionI>(inst);
-    //     REQUIRE(i.m_imm == 2);
-    //     REQUIRE(i.m_type == InstructionI::Type::Srai);
-    //     REQUIRE(i.m_rd == Register::T5);
-    //     REQUIRE(i.m_rs1 == Register::T1);
-    // }
+    SECTION("srai") {
+        // srai t5,t1,0x2
+        test_decoder_itype(0x40235f13, InstructionI::Type::Srai, 2, Register::T5, Register::T1);
+    }
 
 }

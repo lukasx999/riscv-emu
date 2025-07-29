@@ -49,6 +49,11 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(rs1 >> extract_bits(imm, 0, 5));
             break;
 
+        case Srai:
+            // TODO: sign extension
+            set_rd(rs1 >> extract_bits(imm, 0, 5));
+            break;
+
         case Ecall:
             forward_syscall();
             break;

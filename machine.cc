@@ -8,9 +8,11 @@ void Machine::run() {
     while (true) {
         BinaryInstruction raw_inst = fetch();
         Instruction inst = m_cpu.m_decoder.decode(raw_inst);
-        log("{}", inst);
+        log("EXEC: {}", inst);
         m_cpu.execute(inst);
         m_cpu.m_pc += sizeof(BinaryInstruction);
+        std::println("T4: {}", m_cpu.m_registers.get(Register::T4));
+        std::println("T5: {}", m_cpu.m_registers.get(Register::T5));
     }
 }
 

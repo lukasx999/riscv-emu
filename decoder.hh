@@ -59,6 +59,7 @@ struct [[gnu::packed]] RawInstructionI {
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
+    // TODO: signed?
     unsigned int imm    : imm_encoding_size;
 };
 

@@ -41,6 +41,8 @@ jobs:
 
     - name: Installing Compiler
       run: |
+        sudo apt update
+        sudo apt upgrade
         sudo apt install gcc-15
 
     - name: Configure CMake

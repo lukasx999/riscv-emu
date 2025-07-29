@@ -8,9 +8,9 @@ void Machine::run() {
     while (true) {
         BinaryInstruction raw_inst = fetch();
         Instruction inst = m_cpu.m_decoder.decode(raw_inst);
+        log("{}", inst);
         m_cpu.execute(inst);
         m_cpu.m_pc += sizeof(BinaryInstruction);
-        log("{}", inst);
     }
 }
 

@@ -8,6 +8,7 @@
 // https://projectf.io/posts/riscv-cheat-sheet/
 // https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
 
+// Building crosscompiler for rv64i
 // https://github.com/riscv-collab/riscv-gnu-toolchain
 // ./configure --prefix=/home/lukas/opt/riscv64 --with-arch=rv64i --with-abi=lp64
 // make -j$(nproc)

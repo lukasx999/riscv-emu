@@ -7,16 +7,6 @@
 #include "machine.hh"
 #include "machine.hh"
 
-// https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
-// https://projectf.io/posts/riscv-cheat-sheet/
-// https://jborza.com/post/2021-05-11-riscv-linux-syscalls/
-// http://www.ee.ic.ac.uk/pcheung/teaching/eie2-iac/Lecture%206%20-%20RISC-V%20Instruction%20Set%20Overview%20(notes).pdf
-
-// Building crosscompiler for rv64i
-// https://github.com/riscv-collab/riscv-gnu-toolchain
-// ./configure --prefix=/home/lukas/opt/riscv64 --with-arch=rv64i --with-abi=lp64
-// make -j$(nproc)
-
 struct Options {
     std::string filename;
 };

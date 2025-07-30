@@ -7,7 +7,7 @@ Userspace emulator for RV64I ELF binaries.
 ### Build
 
 ```console
-cmake -B build -GNinja && cmake --build build
+cmake -B build && cmake --build build
 ```
 
 ### Running the Test Suite

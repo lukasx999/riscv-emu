@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "elf.hh"
-#include "main.hh"
+#include "util.hh"
 
 struct MemoryException : std::runtime_error {
     explicit MemoryException(const char* msg)

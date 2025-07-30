@@ -7,7 +7,7 @@
 
 #include <elf.h>
 
-#include "main.hh"
+#include "util.hh"
 
 namespace fs = std::filesystem;
 

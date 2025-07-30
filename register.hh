@@ -6,7 +6,7 @@
 #include <utility>
 #include <array>
 
-#include "main.hh"
+#include "util.hh"
 
 enum class Register : uint8_t {
     X0  = 0,  Zero = X0,

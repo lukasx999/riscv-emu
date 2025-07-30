@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "elf.hh"
-#include "main.hh"
+#include "util.hh"
 
 #include "memory.hh"
 

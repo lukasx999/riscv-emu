@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 
+#include "util.hh"
 #include "cpu.hh"
 #include "fmt.hh"
 
@@ -56,7 +57,7 @@ void Executor::operator()(const InstructionI& inst) {
         } break;
 
         case Slti:
-            set_rd(static_cast<int64_t>(rs1) < static_cast<int64_t>(imm) ? 1 : 0);
+            set_rd(static_cast<SignedWord>(rs1) < static_cast<SignedWord>(imm) ? 1 : 0);
             break;
 
         case Sltiu:

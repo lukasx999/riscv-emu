@@ -5,6 +5,7 @@
 
 #include "elf.hh"
 #include "machine.hh"
+#include "machine.hh"
 
 // https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf
 // https://projectf.io/posts/riscv-cheat-sheet/
@@ -17,15 +18,14 @@
 // make -j$(nproc)
 
 struct Options {
-    bool verbose = false;
     std::string filename;
 };
 
 [[nodiscard]] static Options parse_args(int argc, char **argv) {
-
     Options opts;
 
     argparse::ArgumentParser program("riscv-emu");
+
     program
         .add_argument("filename")
         .help("specify the filename of the binary to be run")
@@ -35,7 +35,7 @@ struct Options {
         .add_argument("-v", "--verbose")
         .help("show logging information")
         .flag()
-        .store_into(opts.verbose);
+        .store_into(enable_logging);
 
     try {
         program.parse_args(argc, argv);

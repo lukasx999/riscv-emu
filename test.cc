@@ -1,10 +1,11 @@
-#include <catch2/catch_test_macros.hpp>
 #include <cmath>
+
+#include <catch2/catch_test_macros.hpp>
 
 #include "decoder.hh"
 #include "cpu.hh"
 #include "memory.hh"
-#include "main.hh"
+#include "util.hh"
 
 static void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input, int16_t imm, Word output) {
     auto int12_max = std::pow(2, 12)/2 - 1;

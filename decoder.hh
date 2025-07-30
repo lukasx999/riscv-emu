@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <variant>
 
-#include "main.hh"
+#include "util.hh"
 #include "register.hh"
 
 using BinaryInstruction = uint32_t;

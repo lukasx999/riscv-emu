@@ -1,11 +1,11 @@
 configure:
-    cmake -B build -GNinja
+    cmake -B build -GNinja -DCMAKE_CXX_COMPILER=clang++
 
 build: configure
     cmake --build build
 
 run: build
-    ./build/riscv-emu ./probe/bin-asm
+    ./build/riscv-emu ./probe/bin-asm -v
 
 test: build
     ctest --test-dir ./build

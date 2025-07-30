@@ -23,6 +23,7 @@ private:
 
 class CPU {
 public:
+    // TODO: put program counter into register file?
     Word m_pc;
     RegisterFile m_registers;
     Decoder m_decoder;

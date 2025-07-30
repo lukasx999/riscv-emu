@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O0 -ggdb -fsanitize=address,undefined -fdiagnostics-color=always")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic -O0 -ggdb -fsanitize=address,undefined")
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 project(RiscvEmu)
 

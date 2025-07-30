@@ -43,7 +43,6 @@ enum class Register : uint8_t {
     X31 = 31, T6   = 31,
 };
 
-
 class RegisterFile {
     static constexpr size_t m_register_count = 32;
     std::array<Word, m_register_count> m_registers{};

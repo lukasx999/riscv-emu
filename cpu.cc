@@ -72,8 +72,31 @@ void Executor::operator()(const InstructionI& inst) {
             asm volatile ("int3");
             break;
 
-        default:
-            throw std::runtime_error(std::format("unimplemented: {}", inst.m_type));
+        // TODO: factor out into function
+        case Lb:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8), 8));
+            break;
+
+        case Lh:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16), 16));
+            break;
+
+        case Lw:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 32), 32));
+            break;
+
+        case Lbu:
+            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8));
+            break;
+
+        case Lhu:
+            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16));
+            break;
+
+        case Jalr:
+            set_rd(m_cpu.m_pc + sizeof(BinaryInstruction));
+            m_cpu.m_pc = rs1 + imm;
+            break;
     }
 }
 

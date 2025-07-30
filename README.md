@@ -4,10 +4,29 @@ Linux Userspace emulator for RV64I ELF binaries.
 
 ## Build Instructions
 
+### Requirements
+
+- C++23 Toolchain (tested on gcc/clang)
+- CMake
+- Ninja (optional, for faster builds)
+- Just (optional, for more convenient running of builds/tests)
+
+#### Installing via pacman
+
+```console
+# pacman -S cmake ninja gcc just
+```
+
 ### Build
 
 ```console
 cmake -B build && cmake --build build
+```
+
+#### Faster builds with [Ninja](https://github.com/ninja-build/ninja)
+
+```console
+cmake -B build -GNinja && cmake --build build
 ```
 
 ### Running the Test Suite

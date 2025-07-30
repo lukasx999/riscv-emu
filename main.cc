@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstdlib>
 
+#include <argparse/argparse.hpp>
+
 #include "elf.hh"
 #include "machine.hh"
 
@@ -14,25 +16,58 @@
 // ./configure --prefix=/home/lukas/opt/riscv64 --with-arch=rv64i --with-abi=lp64
 // make -j$(nproc)
 
-int main() try {
+struct Options {
+    bool verbose = false;
+    std::string filename;
+};
 
-    // TODO: argument parsing
+[[nodiscard]] static Options parse_args(int argc, char **argv) {
+
+    Options opts;
+
+    argparse::ArgumentParser program("riscv-emu");
+    program
+        .add_argument("filename")
+        .help("specify the filename of the binary to be run")
+        .store_into(opts.filename);
+
+    program
+        .add_argument("-v", "--verbose")
+        .help("show logging information")
+        .flag()
+        .store_into(opts.verbose);
+
+    try {
+        program.parse_args(argc, argv);
+
+    } catch (const std::exception& e) {
+        std::println(stderr, "Argument parsing failure: {}", e.what());
+        std::println(stderr, "{}", program.usage());
+        exit(EXIT_FAILURE);
+    }
+
+    return opts;
+}
+
+int main(int argc, char **argv) try {
+
+    auto opts = parse_args(argc, argv);
 
     // TODO: destroy after loading (or just mmap read only)
-    ElfExecutable elf("./probe/bin-asm");
+    ElfExecutable elf(opts.filename);
     Machine machine(elf);
     machine.run();
     return EXIT_SUCCESS;
 
-} catch (ElfExcecutableException e) {
+} catch (const ElfExcecutableException& e) {
     std::println(stderr, "Failed to parse binary: {}", e.what());
     return EXIT_FAILURE;
 
-} catch (DecodingException e) {
+} catch (const DecodingException& e) {
     std::println(stderr, "Failed to decode instruction: {}", e.what());
     return EXIT_FAILURE;
 
-} catch (MemoryException e) {
+} catch (const MemoryException& e) {
     std::println(stderr, "Memory failure: {}", e.what());
     return EXIT_FAILURE;
 

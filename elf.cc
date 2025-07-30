@@ -39,6 +39,9 @@ void ElfExecutable::parse() {
 
 std::vector<char> ElfExecutable::load_file_binary(const fs::path& path) {
 
+    if (!fs::exists(path))
+        throw ElfExcecutableException("file does not exist");
+
     auto type = fs::status(path).type();
     if (type != fs::file_type::regular)
         throw ElfExcecutableException("invalid file type");

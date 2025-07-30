@@ -26,9 +26,13 @@ TEST_CASE("cpu") {
     test_cpu_itype(cpu, Xori, 5, 3, 6);
     test_cpu_itype(cpu, Ori, 5, 7, 7);
     test_cpu_itype(cpu, Andi, 123, 6, 2);
+    test_cpu_itype(cpu, Slli, 16, 1, 32);
     test_cpu_itype(cpu, Slli, 78, 6, 4992);
+    test_cpu_itype(cpu, Srli, 16, 1, 8);
     test_cpu_itype(cpu, Srli, 432432, 12, 105);
     test_cpu_itype(cpu, Srai, -66, 5, -3);
+    test_cpu_itype(cpu, Slti, 1, 1, 0);
+    test_cpu_itype(cpu, Slti, 1, 2, 1);
     test_cpu_itype(cpu, Slti, -10, 999, 1);
     test_cpu_itype(cpu, Sltiu, 10, 999, 1);
 

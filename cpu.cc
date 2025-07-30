@@ -117,6 +117,7 @@ void Executor::forward_syscall() const {
     switch (syscall_nr) {
         case Syscall::Exit: {
             int status = arg0;
+            log("Guest exited with status {}", status);
             exit(status);
         } break;
 

@@ -34,6 +34,6 @@ just test
 
 ```console
 git clone --depth 1 https://github.com/riscv-collab/riscv-gnu-toolchain.git
-./configure --prefix=/home/lukas/opt/riscv64 --with-arch=rv64i --with-abi=lp64
+./configure --prefix=<your_prefix> --with-arch=rv64i --with-abi=lp64
 make -j$(nproc)
 ```

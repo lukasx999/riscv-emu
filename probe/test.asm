@@ -7,14 +7,16 @@ string_len = .-string
 .global _start
 _start:
 
-la t1, string
-lb t0, 0x0(t1)
+la t0, .after
+jalr zero, 0(t0)
+ebreak
 
 li a0, 1
 la a1, string
 li a2, string_len
 li a7, 64
 ecall
+.after:
 
 # exit()
 li a0, 0

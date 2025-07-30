@@ -39,7 +39,8 @@ struct Options {
     return opts;
 }
 
-int main(int argc, char **argv) try {
+int main(int argc, char** argv) try {
+    // TODO: collect statistics of running program (reads/writes/register usage)
 
     auto opts = parse_args(argc, argv);
 

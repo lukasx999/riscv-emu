@@ -15,7 +15,6 @@ struct MemoryException : std::runtime_error {
     { }
 };
 
-// TODO: construct memory object without elf binary
 class Memory {
     static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
@@ -29,6 +28,8 @@ public:
     {
         load_binary();
     }
+
+    Memory() = default;
 
     [[nodiscard]] size_t get_stack_address() const {
         return m_stack_offset;
@@ -47,6 +48,9 @@ public:
     }
 
 private:
+    // TODO: what about stack addresses?
+    // if adjacent segment is not found, or none exist, just return stack offset?
+
     // translates a virtual address from the guest binary to the corresponding
     // address of the emulator memory
     [[nodiscard]] size_t translate_address(size_t guest_address) const;

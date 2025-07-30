@@ -7,6 +7,8 @@ string_len = .-string
 .global _start
 _start:
 
+sltiu t0, t1, 2045
+
 li a0, 1
 la a1, string
 li a2, string_len

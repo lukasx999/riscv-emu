@@ -23,8 +23,7 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
 
 InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
-    int opcode_len = 7;
-    uint8_t opcode = extract_bits(inst, 0, opcode_len);
+    uint8_t opcode = extract_bits(inst, 0, opcode_encoding_size);
 
     switch (opcode) {
         case 0b0110011:

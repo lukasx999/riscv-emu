@@ -8,6 +8,7 @@
 #include "main.hh"
 #include "register.hh"
 
+using BinaryInstruction = uint32_t;
 
 static constexpr int opcode_encoding_size    = 7;
 static constexpr int register_encoding_size  = 5;
@@ -59,7 +60,6 @@ struct [[gnu::packed]] RawInstructionI {
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
-    // TODO: signed?
     unsigned int imm    : imm_encoding_size;
 };
 

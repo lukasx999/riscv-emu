@@ -4,7 +4,6 @@
 #include <print>
 #include <utility>
 
-using BinaryInstruction = uint32_t;
 using Word = uint64_t;
 
 #define EMU_LOG
@@ -12,8 +11,8 @@ using Word = uint64_t;
 template <typename... Args> inline
 void log(std::format_string<Args...> fmt, [[maybe_unused]] Args&& ...args) {
     #ifdef EMU_LOG
-    std::print("[LOG] ");
-    std::println(fmt, std::forward<Args>(args)...);
+    std::print(stderr, "[LOG] ");
+    std::println(stderr, fmt, std::forward<Args>(args)...);
     #endif // EMU_LOG
 }
 

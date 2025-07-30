@@ -16,7 +16,7 @@
 
 int main() try {
 
-    // TODO: test srli and srai
+    // TODO: argument parsing
 
     // TODO: destroy after loading (or just mmap read only)
     ElfExecutable elf("./probe/bin-asm");

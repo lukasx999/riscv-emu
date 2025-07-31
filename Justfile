@@ -8,4 +8,7 @@ run: build
     ./build/riscv-emu ./probe/bin-asm -v
 
 test: build
-    ctest --test-dir ./build
+    ctest --test-dir ./build/
+
+rerun:
+    ctest --test-dir ./build/ --rerun-failed --output-on-failure

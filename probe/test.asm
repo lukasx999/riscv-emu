@@ -7,16 +7,15 @@ string_len = .-string
 .global _start
 _start:
 
-la t0, .after
-jalr zero, 0(t0)
-ebreak
+# la a1, 0x110fc
 
-li a0, 1
-la a1, string
-li a2, string_len
-li a7, 64
-ecall
-.after:
+# addi t0, zero, 123
+# li a0, 1
+# la a1, string
+# li a2, string_len
+# li a7, 64
+# ecall
+# .after:
 
 # exit()
 li a0, 0

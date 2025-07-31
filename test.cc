@@ -41,6 +41,13 @@ TEST_CASE("cpu") {
 
 TEST_CASE("utils") {
 
+    SECTION("encode_instruction") {
+        REQUIRE(encode_instruction("ecall")[0] == 0x00000073);
+        REQUIRE(encode_instruction("ebreak")[0] == 0x00100073);
+        REQUIRE(encode_instruction("addi t0, zero, 123")[0] == 0x07b00293);
+        REQUIRE(encode_instruction("li a0, 1")[0] == encode_instruction("addi a0, zero, 1")[0]);
+    }
+
     SECTION("extract_bits") {
         REQUIRE(extract_bits(0b0000111000, 3, 3) == 0b111);
         REQUIRE(extract_bits(0b1, 0, 1) == 0b1);

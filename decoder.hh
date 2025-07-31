@@ -8,7 +8,6 @@
 #include "util.hh"
 #include "register.hh"
 
-using BinaryInstruction = uint32_t;
 
 static constexpr int opcode_encoding_size    = 7;
 static constexpr int register_encoding_size  = 5;

@@ -22,10 +22,20 @@ struct Options {
         .store_into(opts.filename);
 
     program
+        .add_argument("--assembler")
+        .help("specify the path of the assembler")
+        .store_into(global_data.assembler_path);
+
+    program
+        .add_argument("--objcopy")
+        .help("specify the path of objcopy")
+        .store_into(global_data.objcopy_path);
+
+    program
         .add_argument("-v", "--verbose")
         .help("show logging information")
         .flag()
-        .store_into(enable_logging);
+        .store_into(global_data.enable_logging);
 
     try {
         program.parse_args(argc, argv);
@@ -41,6 +51,8 @@ struct Options {
 
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
+
+    std::println("{}", encode_instruction("addi t0, zero, 45"));
 
     auto opts = parse_args(argc, argv);
 

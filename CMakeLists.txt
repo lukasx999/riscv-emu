@@ -9,8 +9,10 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 project(RiscvEmu)
 
 list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc)
+list(APPEND libs boost_process)
 
 add_executable(riscv-emu main.cc ${sources})
+target_link_libraries(riscv-emu PRIVATE ${libs})
 
 Include(FetchContent)
 
@@ -24,6 +26,6 @@ include(CTest)
 include(Catch)
 
 add_executable(tests test.cc ${sources})
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain ${libs})
 
 catch_discover_tests(tests)

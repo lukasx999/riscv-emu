@@ -1,17 +1,29 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
+#include <filesystem>
+#include <iterator>
 #include <print>
 #include <utility>
 
 using Word = uint64_t;
 using SignedWord = int64_t;
+using BinaryInstruction = uint32_t;
 
-extern bool enable_logging;
+struct GlobalData {
+    std::string assembler_path;
+    std::string objcopy_path;
+    bool enable_logging;
+} extern global_data;
+
+// returns vector, as pseudoinstructions will be expanded into multiple
+// primitive instructions
+[[nodiscard]] std::vector<BinaryInstruction> encode_instruction(std::string instruction);
 
 template <typename... Args> inline
 void log(std::format_string<Args...> fmt, Args&& ...args) {
-    if (enable_logging) {
+    if (global_data.enable_logging) {
         std::print(stderr, "[LOG] ");
         std::println(stderr, fmt, std::forward<Args>(args)...);
     }

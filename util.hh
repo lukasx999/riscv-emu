@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <vector>
 #include <string>
 #include <print>
@@ -11,9 +12,10 @@ using SignedWord = int64_t;
 using BinaryInstruction = uint32_t;
 
 struct GlobalData {
-    std::string assembler_path;
-    std::string objcopy_path;
-    bool enable_logging;
+    const std::string program_name = "riscv-emu";
+    std::string assembler_path = "/usr/bin/riscv64-linux-gnu-as";
+    std::string objcopy_path = "/usr/bin/riscv64-elf-objcopy";
+    bool enable_logging = false;
 } extern global_data;
 
 template <typename... Args> inline
@@ -25,8 +27,8 @@ void log(std::format_string<Args...> fmt, Args&& ...args) {
 
 // returns vector, as pseudoinstructions will be expanded into multiple
 // primitive instructions
-[[nodiscard]]
-std::vector<BinaryInstruction> encode_instruction(std::string instruction);
+[[nodiscard]] std::optional<std::vector<BinaryInstruction>>
+encode_instruction(std::string instruction);
 [[nodiscard]] uint64_t extract_bits(uint64_t value, int start, int size);
 [[nodiscard]] uint64_t set_bits(uint64_t value, int start, int size, bool bit);
 [[nodiscard]] uint64_t sign_extend(uint64_t value, int size_bits);

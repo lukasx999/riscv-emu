@@ -6,6 +6,7 @@
 #include "decoder.hh"
 #include "register.hh"
 #include "memory.hh"
+#include "fmt.hh"
 
 struct Executor {
     class CPU& m_cpu;
@@ -23,7 +24,6 @@ private:
 
 class CPU {
 public:
-    // TODO: put program counter into register file?
     Word m_pc;
     RegisterFile m_registers;
     Decoder m_decoder;
@@ -36,7 +36,12 @@ public:
     { }
 
     void execute(const Instruction& instruction) {
+        log("Running: {}", instruction);
         std::visit(m_executor, instruction);
+    }
+
+    void execute(BinaryInstruction instruction) {
+        execute(m_decoder.decode(instruction));
     }
 
 };

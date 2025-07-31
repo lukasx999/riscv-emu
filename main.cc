@@ -16,11 +16,11 @@ struct Options {
 [[nodiscard]] static Options parse_args(int argc, char **argv) {
     Options opts;
 
-    argparse::ArgumentParser program("riscv-emu");
+    argparse::ArgumentParser program(global_data.program_name);
 
     program
         .add_argument("filename")
-        .help("specify the filename of the binary to be run")
+        .help("specify the filename of the binary to be run, or `:repl` for an interactive session")
         .store_into(opts.filename);
 
     program
@@ -51,26 +51,36 @@ struct Options {
     return opts;
 }
 
+static void run_repl(CPU& cpu) {
+    while (true) {
+        auto output = readline("riscv-emu> ");
+        if (output == NULL) exit(EXIT_SUCCESS);
+
+        // TODO: handle custom commands for examining registers, etc...
+
+        auto instructions = encode_instruction(output);
+
+        if (!instructions) {
+            std::println(stderr, "failed to assemble, try again.");
+
+        } else for (auto& inst : *instructions) {
+            cpu.execute(cpu.m_decoder.decode(inst));
+        }
+
+        free(output);
+    }
+}
+
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
 
     auto opts = parse_args(argc, argv);
 
     if (opts.filename == ":repl") {
+        // TODO: machine default constructor
         Memory memory;
         CPU cpu(memory);
-
-        while (true) {
-            auto output = readline("riscv-emu> ");
-            auto instructions = encode_instruction(output);
-
-            for (auto& inst : instructions) {
-                cpu.execute(cpu.m_decoder.decode(inst));
-            }
-
-            free(output);
-        }
-
+        run_repl(cpu);
 
     } else {
         // TODO: destroy after loading (or just mmap read only)

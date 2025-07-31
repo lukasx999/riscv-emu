@@ -1,5 +1,6 @@
 #include <fstream>
 #include <filesystem>
+#include <optional>
 #include <iterator>
 
 #include <boost/process.hpp>
@@ -11,22 +12,20 @@ namespace fs = std::filesystem;
 namespace asio = boost::asio;
 namespace proc = boost::process;
 
-GlobalData global_data {
-    .assembler_path = "/usr/bin/riscv64-linux-gnu-as",
-    .objcopy_path = "/usr/bin/riscv64-elf-objcopy",
-    .enable_logging = false,
-};
+GlobalData global_data;
 
-std::vector<BinaryInstruction> encode_instruction(std::string instruction) {
+std::optional<std::vector<BinaryInstruction>>
+encode_instruction(std::string instruction) {
     asio::io_context ctx;
     asio::writable_pipe pipe(ctx);
 
     auto tmp_path = fs::temp_directory_path();
-    auto path = tmp_path / "riscv-emu";
+    auto path = tmp_path / global_data.program_name;
     fs::create_directory(path);
-    auto obj_path = path / "test.o";
+    auto obj_path = path / "obj.o";
     auto bin_path = path / "bin";
 
+    // TODO: mute stdout
     proc::process assembler(
         ctx,
         global_data.assembler_path,
@@ -37,6 +36,7 @@ std::vector<BinaryInstruction> encode_instruction(std::string instruction) {
     asio::write(pipe, asio::buffer(instruction + "\n"));
     pipe.close();
     assembler.wait();
+    if (assembler.exit_code() != 0) return {};
 
     proc::process objcopy(
         ctx,
@@ -45,6 +45,7 @@ std::vector<BinaryInstruction> encode_instruction(std::string instruction) {
     );
 
     objcopy.wait();
+    assert(objcopy.exit_code() == 0);
 
     std::ifstream bin(bin_path, std::ios::binary);
 

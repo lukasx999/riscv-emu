@@ -39,6 +39,10 @@ struct Options {
     return opts;
 }
 
+[[nodiscard]] static
+uint32_t encode_instruction(std::string_view instruction) {
+}
+
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
 

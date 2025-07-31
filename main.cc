@@ -54,7 +54,7 @@ struct Options {
 static void run_repl(CPU& cpu) {
     while (true) {
         auto output = readline("riscv-emu> ");
-        if (output == NULL) exit(EXIT_SUCCESS);
+        if (output == NULL) break;
 
         // TODO: handle custom commands for examining registers, etc...
 
@@ -67,6 +67,7 @@ static void run_repl(CPU& cpu) {
             cpu.execute(cpu.m_decoder.decode(inst));
         }
 
+        // TODO: unique_ptr? defer?
         free(output);
     }
 }

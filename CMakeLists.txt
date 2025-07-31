@@ -9,7 +9,7 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 project(RiscvEmu)
 
 list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc)
-list(APPEND libs boost_process)
+list(APPEND libs boost_process readline)
 
 add_executable(riscv-emu main.cc ${sources})
 target_link_libraries(riscv-emu PRIVATE ${libs})

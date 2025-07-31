@@ -2,8 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <filesystem>
-#include <iterator>
+#include <string>
 #include <print>
 #include <utility>
 
@@ -17,18 +16,17 @@ struct GlobalData {
     bool enable_logging;
 } extern global_data;
 
-// returns vector, as pseudoinstructions will be expanded into multiple
-// primitive instructions
-[[nodiscard]] std::vector<BinaryInstruction> encode_instruction(std::string instruction);
-
 template <typename... Args> inline
 void log(std::format_string<Args...> fmt, Args&& ...args) {
-    if (global_data.enable_logging) {
-        std::print(stderr, "[LOG] ");
-        std::println(stderr, fmt, std::forward<Args>(args)...);
-    }
+    if (!global_data.enable_logging) return;
+    std::print(stderr, "[LOG] ");
+    std::println(stderr, fmt, std::forward<Args>(args)...);
 }
 
+// returns vector, as pseudoinstructions will be expanded into multiple
+// primitive instructions
+[[nodiscard]]
+std::vector<BinaryInstruction> encode_instruction(std::string instruction);
 [[nodiscard]] uint64_t extract_bits(uint64_t value, int start, int size);
 [[nodiscard]] uint64_t set_bits(uint64_t value, int start, int size, bool bit);
 [[nodiscard]] uint64_t sign_extend(uint64_t value, int size_bits);

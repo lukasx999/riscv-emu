@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cstdlib>
+#include <cstdio>
+#include <readline/readline.h>
 
 #include <argparse/argparse.hpp>
 
@@ -52,14 +54,32 @@ struct Options {
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
 
-    std::println("{}", encode_instruction("addi t0, zero, 45"));
-
     auto opts = parse_args(argc, argv);
 
-    // TODO: destroy after loading (or just mmap read only)
-    ElfExecutable elf(opts.filename);
-    Machine machine(elf);
-    machine.run();
+    if (opts.filename == ":repl") {
+        Memory memory;
+        CPU cpu(memory);
+
+        while (true) {
+            auto output = readline("riscv-emu> ");
+            auto instructions = encode_instruction(output);
+
+            for (auto& inst : instructions) {
+                cpu.execute(cpu.m_decoder.decode(inst));
+            }
+
+            free(output);
+        }
+
+
+    } else {
+        // TODO: destroy after loading (or just mmap read only)
+        ElfExecutable elf(opts.filename);
+        Machine machine(elf);
+        machine.run();
+
+    }
+
     return EXIT_SUCCESS;
 
 } catch (const ElfExcecutableException& e) {

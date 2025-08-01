@@ -1,21 +1,28 @@
 .data
-string:
+
+str:
 .ascii "foo\n"
-string_len = .-string
+
+len = .-str
 
 .text
 .global _start
 _start:
 
-# la a1, 0x110fc
+li t0, 65
+la t1, str
+sb t0, 0(t1)
 
-addi t0, zero, 123
+li t0, 66
+la t1, str
+sb t0, 1(t1)
+
+# write()
 li a0, 1
-la a1, string
-li a2, string_len
+la a1, str
+li a2, len
 li a7, 64
 ecall
-.after:
 
 # exit()
 li a0, 0

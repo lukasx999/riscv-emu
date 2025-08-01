@@ -11,7 +11,7 @@ void REPL::run() {
     while (true) {
         auto line = get_line("riscv-emu> ");
         if (!line) break;
-
+        if (line->empty()) continue;
         if (handle_commands(*line)) continue;
 
         execute_line(std::move(*line));
@@ -28,7 +28,15 @@ void REPL::execute_line(std::string line) {
     }
 
     for (auto& inst : *instructions) {
-        m_cpu.execute(m_cpu.m_decoder.decode(inst));
+        m_cpu.execute(inst);
+    }
+
+    auto last = m_cpu.m_decoder.decode(instructions->back());
+    if (std::holds_alternative<InstructionI>(last)) {
+        auto reg = std::get<InstructionI>(last).m_rd;
+        Word value = m_cpu.m_registers.get(reg);
+        std::println(stderr, "{0}: {1} (unsigned), {2} (signed), {1:#x}, {1:#b}",
+                     reg, value, static_cast<SignedWord>(value));
     }
 
 }

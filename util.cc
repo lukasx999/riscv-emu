@@ -34,7 +34,7 @@ auto encode_instruction(std::string instruction)
         proc::process_stdio(pipe, {}, {})
     );
 
-    asio::write(pipe, asio::buffer(instruction + "\n"));
+    asio::write(pipe, asio::buffer(std::move(instruction) + "\n"));
     pipe.close();
     assembler.wait();
     if (assembler.exit_code() != 0) return {};

@@ -175,8 +175,46 @@ void Executor::operator()(const InstructionS& inst) {
 }
 
 void Executor::operator()(const InstructionB& inst) {
-    (void) inst;
-    throw std::runtime_error("unimplemented");
+
+    auto rs1 = m_cpu.m_registers.get(inst.m_rs1);
+    auto rs2 = m_cpu.m_registers.get(inst.m_rs2);
+    uint32_t imm = inst.m_imm;
+
+    switch (inst.m_type) {
+        using enum InstructionB::Type;
+
+        case Beq:
+            if (rs1 == rs2)
+                m_cpu.m_pc += imm;
+            break;
+
+        case Bne:
+            if (rs1 != rs2)
+                m_cpu.m_pc += imm;
+            break;
+
+        case Blt:
+            if (static_cast<SignedWord>(rs1) < static_cast<SignedWord>(rs2))
+                m_cpu.m_pc += imm;
+            break;
+
+        case Bge:
+            if (static_cast<SignedWord>(rs1) >= static_cast<SignedWord>(rs2))
+                m_cpu.m_pc += imm;
+            break;
+
+        case Bltu:
+            if (rs1 < rs2)
+                m_cpu.m_pc += imm;
+            break;
+
+        case Bgeu:
+            if (rs1 >= rs2)
+                m_cpu.m_pc += imm;
+            break;
+
+    }
+
 }
 
 void Executor::operator()(const InstructionU& inst) {

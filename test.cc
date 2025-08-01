@@ -47,6 +47,7 @@ TEST_CASE("cpu") {
 
     SECTION("itype") {
         test_cpu_itype(cpu, Addi, 5, 3, 8);
+        test_cpu_itype(cpu, Addi, std::numeric_limits<Word>::max(), 1, 0);
         test_cpu_itype(cpu, Addi, 5, -3, 2);
         test_cpu_itype(cpu, Addi, -5, -3, -8);
         test_cpu_itype(cpu, Xori, 5, 3, 6);
@@ -64,11 +65,11 @@ TEST_CASE("cpu") {
     }
 
     SECTION("stype") {
-        test_cpu_stype<uint8_t>(cpu, Sb, 0x0, 0, 45);
+        test_cpu_stype<uint8_t>(cpu, Sb, 0x0, 0, 100);
         test_cpu_stype<uint8_t>(cpu, Sb, 0x0, 0, std::numeric_limits<uint8_t>::max());
         test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, 123);
         test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, std::numeric_limits<uint16_t>::max());
-        test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 45);
+        test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 423);
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, std::numeric_limits<uint32_t>::max());
     }
 

@@ -92,6 +92,7 @@ struct InstructionB {
 struct [[gnu::packed]] RawInstructionB {
     unsigned int opcode : opcode_encoding_size;
     unsigned int imm1   : 5;
+    unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
     unsigned int rs2    : register_encoding_size;
     unsigned int imm2   : 7;
@@ -155,10 +156,12 @@ private:
     [[nodiscard]] static InstructionS decode_stype(BinaryInstruction inst);
     [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
     [[nodiscard]] static InstructionJ decode_jtype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionB decode_btype(BinaryInstruction inst);
     [[nodiscard]] static InstructionR::Type parse_rtype(RawInstructionR inst);
     [[nodiscard]] static InstructionI::Type parse_itype(RawInstructionI inst);
     [[nodiscard]] static InstructionS::Type parse_stype(RawInstructionS inst);
     [[nodiscard]] static InstructionU::Type parse_utype(RawInstructionU inst);
     [[nodiscard]] static InstructionJ::Type parse_jtype(RawInstructionJ inst);
+    [[nodiscard]] static InstructionB::Type parse_btype(RawInstructionB inst);
 
 };

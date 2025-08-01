@@ -13,10 +13,9 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
         case RType: return decode_rtype(instruction);
         case IType: return decode_itype(instruction);
         case SType: return decode_stype(instruction);
+        case BType: return decode_btype(instruction);
         case UType: return decode_utype(instruction);
         case JType: return decode_jtype(instruction);
-
-        default: throw std::runtime_error("unimplemented instruction format"); // TODO:
     }
 
     throw std::runtime_error("unreachable: format decoder should have thrown exception by now");
@@ -52,6 +51,19 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     }
 
     throw DecodingException("invalid instruction format");
+}
+
+InstructionB Decoder::decode_btype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionB>(inst);
+
+    uint16_t imm = raw_inst.imm2 << 7 | raw_inst.imm1;
+
+    return {
+        parse_btype(raw_inst),
+        static_cast<Register>(raw_inst.rs1),
+        static_cast<Register>(raw_inst.rs2),
+        imm
+    };
 }
 
 InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
@@ -121,6 +133,23 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
         static_cast<Register>(raw_inst.rd),
         raw_inst.imm
     };
+}
+
+InstructionB::Type Decoder::parse_btype(RawInstructionB inst) {
+    using enum InstructionB::Type;
+
+    if (inst.opcode == 0b1100011) {
+        switch (inst.funct3) {
+            case 0x0: return Beq;
+            case 0x1: return Bne;
+            case 0x4: return Blt;
+            case 0x5: return Bge;
+            case 0x6: return Bltu;
+            case 0x7: return Bgeu;
+        }
+    }
+
+    throw DecodingException("invalid b-type instruction");
 }
 
 InstructionJ::Type Decoder::parse_jtype(RawInstructionJ inst) {

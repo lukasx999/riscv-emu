@@ -1,6 +1,9 @@
-#include "cpu.hh"
-
 #pragma once
+
+#include <string>
+#include <optional>
+
+#include "cpu.hh"
 
 class REPL {
     CPU& m_cpu;

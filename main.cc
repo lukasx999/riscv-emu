@@ -1,13 +1,14 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
-#include <readline/readline.h>
+#include <ranges>
 
+#include <readline/readline.h>
 #include <argparse/argparse.hpp>
 
 #include "elf.hh"
 #include "machine.hh"
-#include "machine.hh"
+#include "repl.hh"
 
 struct Options {
     std::string filename;
@@ -51,27 +52,6 @@ struct Options {
     return opts;
 }
 
-static void run_repl(CPU& cpu) {
-    while (true) {
-        auto output = readline("riscv-emu> ");
-        if (output == NULL) break;
-
-        // TODO: handle custom commands for examining registers, etc...
-
-        auto instructions = encode_instruction(output);
-
-        if (!instructions) {
-            std::println(stderr, "failed to assemble, try again.");
-
-        } else for (auto& inst : *instructions) {
-            cpu.execute(cpu.m_decoder.decode(inst));
-        }
-
-        // TODO: unique_ptr? defer?
-        free(output);
-    }
-}
-
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
 
@@ -81,7 +61,8 @@ int main(int argc, char** argv) try {
         // TODO: machine default constructor
         Memory memory;
         CPU cpu(memory);
-        run_repl(cpu);
+        REPL repl(cpu);
+        repl.run();
 
     } else {
         // TODO: destroy after loading (or just mmap read only)

@@ -7,6 +7,9 @@ build: configure
 run: build
     ./build/riscv-emu ./probe/bin-asm -v
 
+repl: build
+    ./build/riscv-emu :repl
+
 test: build
     ctest --test-dir ./build/
 

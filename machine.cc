@@ -23,7 +23,9 @@ void Machine::load_binary(const ElfExecutable& exec) {
     auto segments = exec.get_load_segments();
     size_t program_offset = segments.front().m_virt_addr;
 
-    m_cpu.m_pc = exec.get_entry_point() - program_offset;
+    m_cpu.m_pc = m_memory.translate_address(exec.get_entry_point() - program_offset);
+    log("Beginning execution at {:#x}", m_cpu.m_pc);
+
     size_t stack = m_memory.get_stack_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);

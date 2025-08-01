@@ -14,8 +14,9 @@ namespace proc = boost::process;
 
 GlobalData global_data;
 
-std::optional<std::vector<BinaryInstruction>>
-encode_instruction(std::string instruction) {
+auto encode_instruction(std::string instruction)
+-> std::optional<std::vector<BinaryInstruction>> {
+
     asio::io_context ctx;
     asio::writable_pipe pipe(ctx);
 

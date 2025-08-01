@@ -15,6 +15,8 @@ public:
         load_binary(exec);
     }
 
+    Machine() = default;
+
     void run();
 
 private:

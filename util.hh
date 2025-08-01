@@ -27,8 +27,8 @@ void log(std::format_string<Args...> fmt, Args&& ...args) {
 
 // returns vector, as pseudoinstructions will be expanded into multiple
 // primitive instructions
-[[nodiscard]] std::optional<std::vector<BinaryInstruction>>
-encode_instruction(std::string instruction);
+[[nodiscard]] auto encode_instruction(std::string instruction)
+-> std::optional<std::vector<BinaryInstruction>>;
 [[nodiscard]] uint64_t extract_bits(uint64_t value, int start, int size);
 [[nodiscard]] uint64_t set_bits(uint64_t value, int start, int size, bool bit);
 [[nodiscard]] uint64_t sign_extend(uint64_t value, int size_bits);

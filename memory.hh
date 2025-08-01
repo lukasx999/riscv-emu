@@ -47,13 +47,14 @@ public:
         return reinterpret_cast<const T&>(m_memory[addr]);
     }
 
-private:
     // TODO: what about stack addresses?
     // if adjacent segment is not found, or none exist, just return stack offset?
 
     // translates a virtual address from the guest binary to the corresponding
     // address of the emulator memory
     [[nodiscard]] size_t translate_address(size_t guest_address) const;
+
+private:
     void load_binary();
 
 };

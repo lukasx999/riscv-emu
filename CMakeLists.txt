@@ -8,7 +8,7 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 project(RiscvEmu)
 
-list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc)
+list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc repl.cc)
 list(APPEND libs boost_process readline)
 
 add_executable(riscv-emu main.cc ${sources})
@@ -18,6 +18,7 @@ Include(FetchContent)
 
 FetchContent_Declare(Catch2 GIT_REPOSITORY https://github.com/catchorg/Catch2.git GIT_TAG v3.8.1)
 FetchContent_Declare(Argparse GIT_REPOSITORY https://github.com/p-ranav/argparse.git GIT_TAG v3.2)
+
 FetchContent_MakeAvailable(Argparse Catch2)
 
 include_directories(${argparse_SOURCE_DIR}/include)

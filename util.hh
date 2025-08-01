@@ -12,8 +12,8 @@ using SignedWord = int64_t;
 using BinaryInstruction = uint32_t;
 
 struct GlobalData {
-    const std::string program_name = "riscv-emu";
-    std::string assembler_path = "/usr/bin/riscv64-linux-gnu-as";
+    static constexpr std::string program_name = "riscv-emu";
+    std::string assembler_path = "/usr/bin/riscv64-elf-as";
     std::string objcopy_path = "/usr/bin/riscv64-elf-objcopy";
     bool enable_logging = false;
 } extern global_data;

@@ -12,9 +12,7 @@
 namespace fs = std::filesystem;
 
 struct ElfExcecutableException : std::runtime_error {
-    explicit ElfExcecutableException(const char* msg)
-    : std::runtime_error(msg)
-    { }
+    explicit ElfExcecutableException(const char* msg) : std::runtime_error(msg) { }
 };
 
 struct LoadSegment {

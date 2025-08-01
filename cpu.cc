@@ -22,10 +22,45 @@ void Executor::operator()(const InstructionR& inst) {
         using enum InstructionR::Type;
 
         case Add:
+            set_rd(rs1 + rs2);
             break;
 
+        case Sub:
+            set_rd(rs1 - rs2);
+            break;
 
-        default: throw std::runtime_error("unimplemented");
+        case Xor:
+            set_rd(rs1 ^ rs2);
+            break;
+
+        case Or:
+            set_rd(rs1 | rs2);
+            break;
+
+        case And:
+            set_rd(rs1 & rs2);
+            break;
+
+        case Sll:
+            set_rd(rs1 << rs2);
+            break;
+
+        case Srl:
+            set_rd(rs1 >> rs2);
+            break;
+
+        case Sra:
+            set_rd(sign_extend(rs1 >> rs2, sizeof(Word)*8));
+            break;
+
+        case Slt:
+            set_rd(static_cast<SignedWord>(rs1) < static_cast<SignedWord>(rs2) ? 1 : 0);
+            break;
+
+        case Sltu:
+            set_rd(rs1 < rs2 ? 1 : 0);
+            break;
+
     }
 }
 
@@ -78,14 +113,6 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(rs1 < imm ? 1 : 0);
             break;
 
-        case Ecall:
-            forward_syscall();
-            break;
-
-        case Ebreak:
-            asm volatile ("int3");
-            break;
-
         // TODO: factor out into function
         case Lb:
             set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8), 8));
@@ -111,12 +138,40 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(m_cpu.m_pc + sizeof(BinaryInstruction));
             m_cpu.m_pc = rs1 + imm;
             break;
+
+        case Ecall:
+            forward_syscall();
+            break;
+
+        case Ebreak:
+            asm volatile ("int3");
+            break;
     }
 }
 
 void Executor::operator()(const InstructionS& inst) {
-    (void) inst;
-    throw std::runtime_error("unimplemented");
+    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
+    Word rs2 = m_cpu.m_registers.get(inst.m_rs2);
+    uint16_t imm = inst.m_imm;
+
+    switch (inst.m_type) {
+        using enum InstructionS::Type;
+
+        case Sb:
+            // TODO: clear rest of bytes? test with qemu!
+            m_cpu.m_memory.set(rs1+imm, extract_bits(rs2, 0, 8));
+            break;
+
+        case Sh:
+            m_cpu.m_memory.set(rs1+imm, extract_bits(rs2, 0, 16));
+            break;
+
+        case Sw:
+            m_cpu.m_memory.set(rs1+imm, extract_bits(rs2, 0, 32));
+            break;
+
+    }
+
 }
 
 void Executor::operator()(const InstructionB& inst) {
@@ -147,8 +202,21 @@ void Executor::operator()(const InstructionU& inst) {
 }
 
 void Executor::operator()(const InstructionJ& inst) {
-    (void) inst;
-    throw std::runtime_error("unimplemented");
+    uint32_t imm = inst.m_imm;
+
+    auto set_rd = [&](Word value) {
+        m_cpu.m_registers.set(inst.m_rd, value);
+    };
+
+    switch (inst.m_type) {
+        using enum InstructionJ::Type;
+
+        case Jal:
+            set_rd(m_cpu.m_pc + sizeof(BinaryInstruction));
+            m_cpu.m_pc += imm;
+            break;
+    }
+
 }
 
 void Executor::forward_syscall() const {

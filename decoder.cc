@@ -12,7 +12,9 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
         using enum InstructionFormat;
         case RType: return decode_rtype(instruction);
         case IType: return decode_itype(instruction);
+        case SType: return decode_stype(instruction);
         case UType: return decode_utype(instruction);
+        case JType: return decode_jtype(instruction);
 
         default: throw std::runtime_error("unimplemented instruction format"); // TODO:
     }
@@ -89,6 +91,28 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     };
 }
 
+InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
+
+    return {
+        parse_jtype(raw_inst),
+        static_cast<Register>(raw_inst.rd),
+        raw_inst.imm,
+    };
+}
+
+InstructionS Decoder::decode_stype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionS>(inst);
+
+    uint16_t imm = raw_inst.imm2 << 5 | raw_inst.imm1;
+    return {
+        parse_stype(raw_inst),
+        static_cast<Register>(raw_inst.rs1),
+        static_cast<Register>(raw_inst.rs2),
+        imm
+    };
+}
+
 InstructionU Decoder::decode_utype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionU>(inst);
 
@@ -97,6 +121,29 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
         static_cast<Register>(raw_inst.rd),
         raw_inst.imm
     };
+}
+
+InstructionJ::Type Decoder::parse_jtype(RawInstructionJ inst) {
+    using enum InstructionJ::Type;
+
+    if (inst.opcode == 0b1101111)
+        return Jal;
+
+    throw DecodingException("invalid j-type instruction");
+}
+
+InstructionS::Type Decoder::parse_stype(RawInstructionS inst) {
+    using enum InstructionS::Type;
+
+    if (inst.opcode == 0b0100011) {
+        switch (inst.funct3) {
+            case 0x0: return Sb;
+            case 0x1: return Sh;
+            case 0x2: return Sw;
+        }
+    }
+
+    throw DecodingException("invalid s-type instruction");
 }
 
 InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {

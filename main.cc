@@ -54,6 +54,7 @@ struct Options {
 
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
+    // TODO: create library interface for embedding into other programs?
 
     auto opts = parse_args(argc, argv);
 

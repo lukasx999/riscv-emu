@@ -6,6 +6,7 @@
 #include "cpu.hh"
 
 class REPL {
+    static constexpr const char* m_prompt = "riscv :: ";
     CPU& m_cpu;
 
 public:

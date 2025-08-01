@@ -2,14 +2,16 @@
 #include <cstdio>
 
 #include <readline/readline.h>
+#include <readline/history.h>
 
 #include "repl.hh"
 
 void REPL::run() {
     while (true) {
-        auto line = get_line("riscv-emu> ");
+        auto line = get_line(m_prompt);
         if (!line) break;
         if (line->empty()) continue;
+        add_history(line->c_str());
         if (handle_commands(*line)) continue;
 
         execute_line(std::move(*line));

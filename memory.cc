@@ -12,6 +12,9 @@
 
 size_t Memory::translate_address(size_t guest_address) const {
 
+    // no need for translation if no segment are loaded
+    if (m_segments.empty()) return guest_address;
+
     size_t base = m_segments.front().m_virt_addr;
 
     auto find_fn = [&](const LoadSegment& segm) {

@@ -9,7 +9,6 @@
 
 #include "util.hh"
 #include "cpu.hh"
-#include "fmt.hh"
 
 void Executor::operator()(const InstructionR& inst) {
     Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
@@ -116,27 +115,24 @@ void Executor::operator()(const InstructionI& inst) {
             set_rd(rs1 < imm ? 1 : 0);
             break;
 
-        case Lb: {
-            size_t size = sizeof(uint8_t) * 8;
-            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, size), size));
-        } break;
+        case Lb:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8), 8));
+            break;
 
-        case Lh: {
-            size_t size = sizeof(uint16_t) * 8;
-            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, size), size));
-        } break;
+        case Lh:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16), 16));
+            break;
 
-        case Lw: {
-            size_t size = sizeof(uint32_t) * 8;
-            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, size), size));
-        } break;
+        case Lw:
+            set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 32), 32));
+            break;
 
         case Lbu:
-            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, sizeof(uint8_t)*8));
+            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8));
             break;
 
         case Lhu:
-            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, sizeof(uint16_t)*8));
+            set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16));
             break;
 
         case Jalr:
@@ -163,15 +159,15 @@ void Executor::operator()(const InstructionS& inst) {
         using enum InstructionS::Type;
 
         case Sb:
-            m_cpu.m_memory.set<uint8_t>(rs1+imm, extract_bits(rs2, 0, sizeof(uint8_t)*8));
+            m_cpu.m_memory.set<uint8_t>(rs1+imm, extract_bits(rs2, 0, 8));
             break;
 
         case Sh:
-            m_cpu.m_memory.set<uint16_t>(rs1+imm, extract_bits(rs2, 0, sizeof(uint16_t)*8));
+            m_cpu.m_memory.set<uint16_t>(rs1+imm, extract_bits(rs2, 0, 16));
             break;
 
         case Sw:
-            m_cpu.m_memory.set<uint32_t>(rs1+imm, extract_bits(rs2, 0, sizeof(uint32_t)*8));
+            m_cpu.m_memory.set<uint32_t>(rs1+imm, extract_bits(rs2, 0, 32));
             break;
 
     }

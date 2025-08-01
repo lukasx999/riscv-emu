@@ -29,7 +29,7 @@ public:
         load_binary();
     }
 
-    Memory() = default;
+    Memory() : m_memory(m_stack_size) { }
 
     [[nodiscard]] size_t get_stack_address() const {
         return m_stack_offset;

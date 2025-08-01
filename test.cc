@@ -9,16 +9,37 @@
 
 static void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
                            int16_t imm, Word output) {
+
+    using enum Register;
+
     auto int12_max = std::pow(2, 12)/2 - 1;
     assert(imm <= int12_max);
-    cpu.m_registers.set(Register::A1, input);
-    InstructionI inst { type, Register::A0, Register::A1, imm };
+    cpu.m_registers.set(A1, input);
+    InstructionI inst { type, A0, A1, imm };
     cpu.execute(inst);
-    REQUIRE(cpu.m_registers.get(Register::A0) == output);
+    REQUIRE(cpu.m_registers.get(A0) == output);
+}
+
+template <typename T> requires
+    std::same_as<T, uint8_t>  ||
+    std::same_as<T, uint16_t> ||
+    std::same_as<T, uint32_t>
+static void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
+                           uint16_t addr_offset, std::type_identity_t<T> value) {
+
+    using enum Register;
+
+    cpu.m_registers.set(T0, value);
+    cpu.m_registers.set(T1, address);
+    InstructionS inst(type, T1, T0, addr_offset);
+    cpu.execute(inst);
+
+    REQUIRE(cpu.m_memory.get<T>(address) == value);
 }
 
 TEST_CASE("cpu") {
     using enum InstructionI::Type;
+    using enum InstructionS::Type;
     using enum Register;
 
     Memory memory;
@@ -40,6 +61,15 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Slti, 1, 2, 1);
         test_cpu_itype(cpu, Slti, -10, 999, 1);
         test_cpu_itype(cpu, Sltiu, 10, 999, 1);
+    }
+
+    SECTION("stype") {
+        test_cpu_stype<uint8_t>(cpu, Sb, 0x0, 0, 45);
+        test_cpu_stype<uint8_t>(cpu, Sb, 0x0, 0, std::numeric_limits<uint8_t>::max());
+        test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, 123);
+        test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, std::numeric_limits<uint16_t>::max());
+        test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 45);
+        test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, std::numeric_limits<uint32_t>::max());
     }
 
 }

@@ -6,8 +6,6 @@
 #include "repl.hh"
 
 void REPL::run() {
-    std::println(stderr, "Welcome to {}.", global_data.program_name);
-
     while (true) {
         auto line = get_line("riscv-emu> ");
         if (!line) break;

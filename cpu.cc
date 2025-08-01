@@ -11,8 +11,22 @@
 #include "fmt.hh"
 
 void Executor::operator()(const InstructionR& inst) {
-    (void) inst;
-    throw std::runtime_error("unimplemented");
+    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
+    Word rs2 = m_cpu.m_registers.get(inst.m_rs2);
+
+    auto set_rd = [&](Word value) {
+        m_cpu.m_registers.set(inst.m_rd, value);
+    };
+
+    switch (inst.m_type) {
+        using enum InstructionR::Type;
+
+        case Add:
+            break;
+
+
+        default: throw std::runtime_error("unimplemented");
+    }
 }
 
 void Executor::operator()(const InstructionI& inst) {
@@ -111,15 +125,24 @@ void Executor::operator()(const InstructionB& inst) {
 }
 
 void Executor::operator()(const InstructionU& inst) {
+
+    uint32_t imm = inst.m_imm;
+
+    auto set_rd = [&](Word value) {
+        m_cpu.m_registers.set(inst.m_rd, value);
+    };
+
     switch (inst.m_type) {
         using enum InstructionU::Type;
 
-        case Auipc: {
-            auto value = m_cpu.m_pc + (inst.m_imm << 12);
-            m_cpu.m_registers.set(inst.m_rd, value);
-        } break;
+        case Lui:
+            set_rd(imm << 12);
+            break;
 
-        default: throw std::runtime_error("unimplemented");
+        case Auipc:
+            set_rd(m_cpu.m_pc + (imm << 12));
+            break;
+
     }
 }
 

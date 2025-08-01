@@ -32,8 +32,7 @@ class ElfExecutable {
 
 public:
     explicit ElfExecutable(const fs::path& path)
-    : m_bytes(load_file_binary(path))
-    {
+    : m_bytes(load_file_binary(path)) {
         parse();
         log("Parsed ELF binary ({} bytes)", m_bytes.size());
     }

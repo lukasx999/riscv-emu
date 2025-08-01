@@ -9,9 +9,7 @@ class Machine {
     CPU m_cpu{m_memory};
 
 public:
-    Machine(const ElfExecutable& exec)
-    : m_memory(exec.get_load_segments())
-    {
+    Machine(const ElfExecutable& exec) : m_memory(exec.get_load_segments()) {
         load_binary(exec);
     }
 

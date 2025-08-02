@@ -26,12 +26,11 @@ auto encode_instruction(std::string instruction)
     auto obj_path = path / "obj.o";
     auto bin_path = path / "bin";
 
-    // TODO: mute stdout
     proc::process assembler(
         ctx,
         global_data.assembler_path,
         {"-o", obj_path.c_str()},
-        proc::process_stdio(pipe, {}, {})
+        proc::process_stdio(pipe, nullptr, nullptr)
     );
 
     asio::write(pipe, asio::buffer(std::move(instruction) + "\n"));

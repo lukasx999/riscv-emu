@@ -11,14 +11,14 @@
 #include "cpu.hh"
 
 void Executor::operator()(const InstructionR& inst) {
-    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
-    Word rs2 = m_cpu.m_registers.get(inst.m_rs2);
+    Word rs1 = m_cpu.m_registers.get(inst.rs1);
+    Word rs2 = m_cpu.m_registers.get(inst.rs2);
 
     auto set_rd = [&](Word value) {
-        m_cpu.m_registers.set(inst.m_rd, value);
+        m_cpu.m_registers.set(inst.rd, value);
     };
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionR::Type;
 
         case Add:
@@ -67,14 +67,14 @@ void Executor::operator()(const InstructionR& inst) {
 
 void Executor::operator()(const InstructionI& inst) {
 
-    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
-    Word imm = sign_extend(inst.m_imm, imm_encoding_size);
+    Word rs1 = m_cpu.m_registers.get(inst.rs1);
+    Word imm = sign_extend(inst.imm, imm_encoding_size);
 
     auto set_rd = [&](Word value) {
-        m_cpu.m_registers.set(inst.m_rd, value);
+        m_cpu.m_registers.set(inst.rd, value);
     };
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionI::Type;
 
         case Addi: {
@@ -151,11 +151,11 @@ void Executor::operator()(const InstructionI& inst) {
 }
 
 void Executor::operator()(const InstructionS& inst) {
-    Word rs1 = m_cpu.m_registers.get(inst.m_rs1);
-    Word rs2 = m_cpu.m_registers.get(inst.m_rs2);
-    uint16_t imm = inst.m_imm;
+    Word rs1 = m_cpu.m_registers.get(inst.rs1);
+    Word rs2 = m_cpu.m_registers.get(inst.rs2);
+    uint16_t imm = inst.imm;
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionS::Type;
 
         case Sb:
@@ -176,11 +176,11 @@ void Executor::operator()(const InstructionS& inst) {
 
 void Executor::operator()(const InstructionB& inst) {
 
-    auto rs1 = m_cpu.m_registers.get(inst.m_rs1);
-    auto rs2 = m_cpu.m_registers.get(inst.m_rs2);
-    uint32_t imm = inst.m_imm;
+    auto rs1 = m_cpu.m_registers.get(inst.rs1);
+    auto rs2 = m_cpu.m_registers.get(inst.rs2);
+    uint32_t imm = inst.imm;
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionB::Type;
 
         case Beq:
@@ -219,13 +219,13 @@ void Executor::operator()(const InstructionB& inst) {
 
 void Executor::operator()(const InstructionU& inst) {
 
-    uint32_t imm = inst.m_imm;
+    uint32_t imm = inst.imm;
 
     auto set_rd = [&](Word value) {
-        m_cpu.m_registers.set(inst.m_rd, value);
+        m_cpu.m_registers.set(inst.rd, value);
     };
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionU::Type;
 
         case Lui:
@@ -240,13 +240,13 @@ void Executor::operator()(const InstructionU& inst) {
 }
 
 void Executor::operator()(const InstructionJ& inst) {
-    uint32_t imm = sign_extend(inst.m_imm, 20);
+    uint32_t imm = sign_extend(inst.imm, 20);
 
     auto set_rd = [&](Word value) {
-        m_cpu.m_registers.set(inst.m_rd, value);
+        m_cpu.m_registers.set(inst.rd, value);
     };
 
-    switch (inst.m_type) {
+    switch (inst.type) {
         using enum InstructionJ::Type;
 
         case Jal:

@@ -118,10 +118,10 @@ static void test_decoder_itype(std::string instruction, InstructionI::Type type,
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionI>(inst));
     auto i = std::get<InstructionI>(inst);
-    REQUIRE(i.m_imm == imm);
-    REQUIRE(i.m_type == type);
-    REQUIRE(i.m_rd == rd);
-    REQUIRE(i.m_rs1 == rs1);
+    REQUIRE(i.imm == imm);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rd == rd);
+    REQUIRE(i.rs1 == rs1);
 }
 
 static void test_decoder_rtype(std::string instruction, InstructionR::Type type,
@@ -130,10 +130,10 @@ static void test_decoder_rtype(std::string instruction, InstructionR::Type type,
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionR>(inst));
     auto i = std::get<InstructionR>(inst);
-    REQUIRE(i.m_type == type);
-    REQUIRE(i.m_rd == rd);
-    REQUIRE(i.m_rs1 == rs1);
-    REQUIRE(i.m_rs2 == rs2);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rd == rd);
+    REQUIRE(i.rs1 == rs1);
+    REQUIRE(i.rs2 == rs2);
 }
 
 static void test_decoder_stype(std::string instruction, InstructionS::Type type,
@@ -142,10 +142,10 @@ static void test_decoder_stype(std::string instruction, InstructionS::Type type,
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionS>(inst));
     auto i = std::get<InstructionS>(inst);
-    REQUIRE(i.m_type == type);
-    REQUIRE(i.m_imm == imm);
-    REQUIRE(i.m_rs1 == rs1);
-    REQUIRE(i.m_rs2 == rs2);
+    REQUIRE(i.type == type);
+    REQUIRE(i.imm == imm);
+    REQUIRE(i.rs1 == rs1);
+    REQUIRE(i.rs2 == rs2);
 }
 
 static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
@@ -154,9 +154,9 @@ static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionJ>(inst));
     auto i = std::get<InstructionJ>(inst);
-    REQUIRE(i.m_type == type);
-    REQUIRE(i.m_rd == rd);
-    REQUIRE(i.m_imm == imm);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rd == rd);
+    REQUIRE(i.imm == imm);
 }
 
 TEST_CASE("decoder") {
@@ -208,18 +208,12 @@ TEST_CASE("decoder") {
     }
 
     SECTION("jtype") {
-        // NOTE: gnu assembler generates garbage
-
-        // test_decoder_jtype("jal t0, 45", Jal, T0, 45);
-        // jal t0, 0x4
-        auto inst = Decoder::decode(0x004002ef);
-        REQUIRE(std::holds_alternative<InstructionJ>(inst));
-        auto i = std::get<InstructionJ>(inst);
-        REQUIRE(i.m_type == Jal);
-        REQUIRE(i.m_rd == T0);
-        REQUIRE(i.m_imm == 4);
+        // NOTE: assembler treats imm as aboslute address
+        test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
+        test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
+        test_decoder_jtype("jal t0, .+16", Jal, T0, 16);
+        test_decoder_jtype("jal t0, .+32", Jal, T0, 32);
+        test_decoder_jtype("jal t0, .+64", Jal, T0, 64);
     }
-
-
 
 }

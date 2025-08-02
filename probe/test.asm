@@ -9,8 +9,7 @@ len = .-str
 .global _start
 _start:
 
-jal t0, addr
-addr = .
+jal t0, .+4
 
 # # write()
 # li a0, 1

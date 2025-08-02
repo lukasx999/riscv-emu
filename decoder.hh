@@ -17,10 +17,10 @@ inline constexpr int imm_large_encoding_size = 20;
 struct InstructionR {
     enum class Type {
         Add, Sub, Xor, Or, And, Sll, Srl, Sra, Slt, Sltu
-    } m_type;
-    Register m_rd;
-    Register m_rs1;
-    Register m_rs2;
+    } type;
+    Register rd;
+    Register rs1;
+    Register rs2;
 };
 
 struct InstructionI {
@@ -33,41 +33,41 @@ struct InstructionI {
         Jalr,
         // Environment
         Ecall, Ebreak,
-    } m_type;
-    Register m_rd;
-    Register m_rs1;
+    } type;
+    Register rd;
+    Register rs1;
     // in case of Slli, Srli, and Srai, `m_imm` represents only the
     // lowest 5 bits of the 12 bit immediate value, as the others
     // are used as funct7, and therefore do not contribute
     // to the actual immediate operand
-    int16_t m_imm;
+    int16_t imm;
 };
 
 struct InstructionS {
-    enum class Type { Sb, Sh, Sw } m_type;
-    Register m_rs1;
-    Register m_rs2;
-    uint16_t m_imm;
+    enum class Type { Sb, Sh, Sw } type;
+    Register rs1;
+    Register rs2;
+    uint16_t imm;
 };
 
 struct InstructionB {
-    enum class Type { Beq, Bne, Blt, Bge, Bltu, Bgeu } m_type;
-    Register m_rs1;
-    Register m_rs2;
-    uint16_t m_imm;
+    enum class Type { Beq, Bne, Blt, Bge, Bltu, Bgeu } type;
+    Register rs1;
+    Register rs2;
+    uint16_t imm;
 };
 
 
 struct InstructionU {
-    enum class Type { Lui, Auipc } m_type;
-    Register m_rd;
-    uint32_t m_imm;
+    enum class Type { Lui, Auipc } type;
+    Register rd;
+    uint32_t imm;
 };
 
 struct InstructionJ {
-    enum class Type { Jal } m_type;
-    Register m_rd;
-    uint32_t m_imm;
+    enum class Type { Jal } type;
+    Register rd;
+    uint32_t imm;
 };
 
 struct RawInstructionR {
@@ -95,6 +95,7 @@ struct RawInstructionS {
     unsigned int rs2    : register_encoding_size;
     unsigned int imm2   : 7;
 };
+
 struct RawInstructionB {
     unsigned int opcode : opcode_encoding_size;
     // TODO: check imm bit ordering

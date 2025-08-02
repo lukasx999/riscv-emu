@@ -88,7 +88,7 @@ template <>
 struct std::formatter<InstructionI> : std::formatter<std::string> {
     auto format(const InstructionI& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, imm: {} }}",
-                               inst.m_type, inst.m_rd, inst.m_rs1, inst.m_imm);
+                               inst.type, inst.rd, inst.rs1, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
@@ -120,7 +120,7 @@ template <>
 struct std::formatter<InstructionR> : std::formatter<std::string> {
     auto format(const InstructionR& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, rs2: {} }}",
-                               inst.m_type, inst.m_rd, inst.m_rs1, inst.m_rs2);
+                               inst.type, inst.rd, inst.rs1, inst.rs2);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
@@ -142,8 +142,8 @@ struct std::formatter<InstructionU::Type> : std::formatter<std::string> {
 template <>
 struct std::formatter<InstructionU> : std::formatter<std::string> {
     auto format(const InstructionU& inst, std::format_context& ctx) const {
-        auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}", inst.m_type,
-                               inst.m_rd, inst.m_imm);
+        auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}", inst.type,
+                               inst.rd, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
@@ -167,7 +167,7 @@ template <>
 struct std::formatter<InstructionS> : std::formatter<std::string> {
     auto format(const InstructionS& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rs1: {}, rs2: {}, imm: {} }}",
-                               inst.m_type, inst.m_rs1, inst.m_rs2, inst.m_imm);
+                               inst.type, inst.rs1, inst.rs2, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
@@ -194,7 +194,7 @@ template <>
 struct std::formatter<InstructionB> : std::formatter<std::string> {
     auto format(const InstructionB& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rs1: {}, rs2: {}, imm: {} }}",
-                               inst.m_type, inst.m_rs1, inst.m_rs2, inst.m_imm);
+                               inst.type, inst.rs1, inst.rs2, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
@@ -216,7 +216,7 @@ template <>
 struct std::formatter<InstructionJ> : std::formatter<std::string> {
     auto format(const InstructionJ& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rd: {}, imm: {} }}",
-                               inst.m_type, inst.m_rd, inst.m_imm);
+                               inst.type, inst.rd, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };

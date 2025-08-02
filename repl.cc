@@ -35,14 +35,14 @@ void REPL::execute_line(std::string line) {
     auto last = Decoder::decode(instructions->back());
 
     if (std::holds_alternative<InstructionI>(last)) {
-        auto reg = std::get<InstructionI>(last).m_rd;
+        auto reg = std::get<InstructionI>(last).rd;
         Word value = m_machine.m_cpu.m_registers.get(reg);
         std::println(stderr, "{0}: {1} (unsigned), {2} (signed), {1:#x}, {1:#b}",
                      reg, value, static_cast<SignedWord>(value));
     }
 
     if (std::holds_alternative<InstructionJ>(last)) {
-        auto reg = std::get<InstructionJ>(last).m_rd;
+        auto reg = std::get<InstructionJ>(last).rd;
         Word value = m_machine.m_cpu.m_registers.get(reg);
         std::println(stderr, "{0}: {1} (unsigned), {2} (signed), {1:#x}, {1:#b}",
                      reg, value, static_cast<SignedWord>(value));

@@ -16,7 +16,7 @@ struct MemoryException : std::runtime_error {
 };
 
 class Memory {
-    static constexpr size_t m_stack_size = 4096;
+    static constexpr size_t m_stack_size = 4096 * 10;
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
     std::span<const LoadSegment> m_segments;

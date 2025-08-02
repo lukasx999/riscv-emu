@@ -9,7 +9,7 @@ len = .-str
 .global _start
 _start:
 
-beq t0, t1, .+16
+beq t0, t1, .+4
 
 # # write()
 # li a0, 1

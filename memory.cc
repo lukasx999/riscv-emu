@@ -47,7 +47,7 @@ size_t Memory::translate_address(size_t guest_address) const {
     size_t address = segment_offset+relative_offset;
 
     if (address >= m_memory.size())
-        throw MemoryException("out-of-bounds memory access");
+        throw MemoryException(std::format("out-of-bounds memory access at {:#x}", guest_address).c_str());
 
     return address;
 }

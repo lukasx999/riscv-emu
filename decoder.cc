@@ -128,8 +128,6 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
 InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
 
-    uint32_t imm = raw_inst.imm;
-
     struct Imm {
         unsigned int a : 8;
         unsigned int b : 1;
@@ -137,20 +135,13 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
         unsigned int d : 1;
     };
 
-    std::println("old: {:#b}", imm);
-    auto i = std::bit_cast<Imm>(imm);
-    auto r = i.c | i.b << 10 | i.a << 11 | i.d << 19;
-    std::println("resolved: {:#b}", r);
-
-    // uint64_t a = extract_bits(imm, 10, 10);
-    // uint64_t b = extract_bits(imm, 7, 1) << 10;
-    // uint64_t c = extract_bits(imm, 0, 7) << 11;
-    // uint64_t d = extract_bits(imm, 18, 1) << 12;
+    auto i = std::bit_cast<Imm>(raw_inst.imm);
+    auto imm = i.c << 1 | i.b << 11 | i.a << 12 | i.d << 20;
 
     return {
         parse_jtype(raw_inst),
         static_cast<Register>(raw_inst.rd),
-        static_cast<uint32_t>(r)
+        static_cast<uint32_t>(imm)
     };
 }
 

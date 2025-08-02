@@ -208,7 +208,16 @@ TEST_CASE("decoder") {
     }
 
     SECTION("jtype") {
-        test_decoder_jtype("jal t0, 45", Jal, T0, 45);
+        // NOTE: gnu assembler generates garbage
+
+        // test_decoder_jtype("jal t0, 45", Jal, T0, 45);
+        // jal t0, 0x4
+        auto inst = Decoder::decode(0x004002ef);
+        REQUIRE(std::holds_alternative<InstructionJ>(inst));
+        auto i = std::get<InstructionJ>(inst);
+        REQUIRE(i.m_type == Jal);
+        REQUIRE(i.m_rd == T0);
+        REQUIRE(i.m_imm == 4);
     }
 
 

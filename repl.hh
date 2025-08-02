@@ -3,14 +3,14 @@
 #include <string>
 #include <optional>
 
-#include "cpu.hh"
+#include "machine.hh"
 
 class REPL {
-    static constexpr const char* m_prompt = "riscv :: ";
-    CPU& m_cpu;
+    static constexpr auto m_prompt = "riscv :: ";
+    Machine& m_machine;
 
 public:
-    REPL(CPU& cpu) : m_cpu(cpu) { }
+    REPL(Machine& machine) : m_machine(machine) { }
 
     void run();
 

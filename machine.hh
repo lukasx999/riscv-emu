@@ -5,10 +5,11 @@
 #include "memory.hh"
 
 class Machine {
+public:
+
     Memory m_memory;
     CPU m_cpu{m_memory};
 
-public:
     Machine(const ElfExecutable& exec) : m_memory(exec.get_load_segments()) {
         set_elf_entrypoint(exec);
         init();

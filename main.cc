@@ -58,10 +58,8 @@ int main(int argc, char** argv) try {
     auto opts = parse_args(argc, argv);
 
     if (opts.filename == ":repl") {
-        // TODO: machine default constructor
-        Memory memory;
-        CPU cpu(memory);
-        REPL repl(cpu);
+        Machine machine;
+        REPL repl(machine);
         repl.run();
 
     } else {

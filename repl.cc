@@ -28,13 +28,13 @@ void REPL::execute_line(std::string line) {
     }
 
     for (auto& inst : *instructions) {
-        m_cpu.execute(inst);
+        m_machine.m_cpu.execute(inst);
     }
 
     auto last = Decoder::decode(instructions->back());
     if (std::holds_alternative<InstructionI>(last)) {
         auto reg = std::get<InstructionI>(last).m_rd;
-        Word value = m_cpu.m_registers.get(reg);
+        Word value = m_machine.m_cpu.m_registers.get(reg);
         std::println(stderr, "{0}: {1} (unsigned), {2} (signed), {1:#x}, {1:#b}",
                      reg, value, static_cast<SignedWord>(value));
     }
@@ -62,7 +62,8 @@ bool REPL::handle_commands(std::string line) {
 
     if (tokens.front() == ":print") {
         // TODO: printing logic
-        std::println(stderr, "T0: {}", m_cpu.m_registers.get(Register::T0));
+        // TODO: dump entire machine state?
+        std::println(stderr, "T0: {}", m_machine.m_cpu.m_registers.get(Register::T0));
         return true;
     }
 

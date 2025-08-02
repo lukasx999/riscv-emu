@@ -31,7 +31,7 @@ void REPL::execute_line(std::string line) {
         m_cpu.execute(inst);
     }
 
-    auto last = m_cpu.m_decoder.decode(instructions->back());
+    auto last = Decoder::decode(instructions->back());
     if (std::holds_alternative<InstructionI>(last)) {
         auto reg = std::get<InstructionI>(last).m_rd;
         Word value = m_cpu.m_registers.get(reg);

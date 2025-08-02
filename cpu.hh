@@ -23,17 +23,27 @@ private:
 };
 
 class CPU {
-public:
     Word m_pc;
-    RegisterFile m_registers;
-    Decoder m_decoder;
-    Memory& m_memory;
     Executor m_executor;
 
+public:
+    RegisterFile m_registers;
+    Memory& m_memory;
+
+    friend Executor;
+
     CPU(Memory& memory)
-        : m_memory(memory)
-        , m_executor(*this)
+        : m_executor(*this)
+        , m_memory(memory)
     { }
+
+    [[nodiscard]] Word get_pc() const {
+        return m_pc;
+    }
+
+    void set_pc(Word pc) {
+        m_pc = pc;
+    }
 
     void execute(const Instruction& instruction) {
         log("Running: {}", instruction);
@@ -41,7 +51,11 @@ public:
     }
 
     void execute(BinaryInstruction instruction) {
-        execute(m_decoder.decode(instruction));
+        execute(Decoder::decode(instruction));
+    }
+
+    void next_instruction() {
+        m_pc += sizeof(BinaryInstruction);
     }
 
 };

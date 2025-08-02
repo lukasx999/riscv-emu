@@ -1,7 +1,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
-#include <ranges>
 
 #include <readline/readline.h>
 #include <argparse/argparse.hpp>

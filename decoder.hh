@@ -1,20 +1,18 @@
 #pragma once
 
 #include <cassert>
-#include <format>
 #include <stdexcept>
 #include <variant>
 
 #include "util.hh"
 #include "register.hh"
 
-
-static constexpr int opcode_encoding_size    = 7;
-static constexpr int register_encoding_size  = 5;
-static constexpr int funct3_encoding_size    = 3;
-static constexpr int funct7_encoding_size    = 7;
-static constexpr int imm_encoding_size       = 12;
-static constexpr int imm_large_encoding_size = 20;
+inline constexpr int opcode_encoding_size    = 7;
+inline constexpr int register_encoding_size  = 5;
+inline constexpr int funct3_encoding_size    = 3;
+inline constexpr int funct7_encoding_size    = 7;
+inline constexpr int imm_encoding_size       = 12;
+inline constexpr int imm_large_encoding_size = 20;
 
 struct InstructionR {
     enum class Type {
@@ -23,15 +21,6 @@ struct InstructionR {
     Register m_rd;
     Register m_rs1;
     Register m_rs2;
-};
-
-struct [[gnu::packed]] RawInstructionR {
-    unsigned int opcode : opcode_encoding_size;
-    unsigned int rd     : register_encoding_size;
-    unsigned int funct3 : funct3_encoding_size;
-    unsigned int rs1    : register_encoding_size;
-    unsigned int rs2    : register_encoding_size;
-    unsigned int funct7 : funct7_encoding_size;
 };
 
 struct InstructionI {
@@ -54,21 +43,48 @@ struct InstructionI {
     int16_t m_imm;
 };
 
+struct InstructionS {
+    enum class Type { Sb, Sh, Sw } m_type;
+    Register m_rs1;
+    Register m_rs2;
+    uint16_t m_imm;
+};
+
+struct InstructionB {
+    enum class Type { Beq, Bne, Blt, Bge, Bltu, Bgeu } m_type;
+    Register m_rs1;
+    Register m_rs2;
+    uint16_t m_imm;
+};
+
+
+struct InstructionU {
+    enum class Type { Lui, Auipc } m_type;
+    Register m_rd;
+    uint32_t m_imm;
+};
+
+struct InstructionJ {
+    enum class Type { Jal } m_type;
+    Register m_rd;
+    uint32_t m_imm;
+};
+
+struct [[gnu::packed]] RawInstructionR {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int funct7 : funct7_encoding_size;
+};
+
 struct [[gnu::packed]] RawInstructionI {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
     unsigned int imm    : imm_encoding_size;
-};
-
-struct InstructionS {
-    enum class Type {
-        Sb, Sh, Sw
-    } m_type;
-    Register m_rs1;
-    Register m_rs2;
-    uint16_t m_imm;
 };
 
 struct [[gnu::packed]] RawInstructionS {
@@ -79,16 +95,6 @@ struct [[gnu::packed]] RawInstructionS {
     unsigned int rs2    : register_encoding_size;
     unsigned int imm2   : 7;
 };
-
-struct InstructionB {
-    enum class Type {
-        Beq, Bne, Blt, Bge, Bltu, Bgeu
-    } m_type;
-    Register m_rs1;
-    Register m_rs2;
-    uint16_t m_imm;
-};
-
 struct [[gnu::packed]] RawInstructionB {
     unsigned int opcode : opcode_encoding_size;
     // TODO: check imm bit ordering
@@ -99,26 +105,10 @@ struct [[gnu::packed]] RawInstructionB {
     unsigned int imm2   : 7;
 };
 
-struct InstructionU {
-    enum class Type {
-        Lui, Auipc,
-    } m_type;
-    Register m_rd;
-    uint32_t m_imm;
-};
-
 struct [[gnu::packed]] RawInstructionU {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int imm    : imm_large_encoding_size;
-};
-
-struct InstructionJ {
-    enum class Type {
-        Jal
-    } m_type;
-    Register m_rd;
-    uint32_t m_imm;
 };
 
 struct [[gnu::packed]] RawInstructionJ {
@@ -136,9 +126,7 @@ using Instruction = std::variant<
     InstructionJ
 >;
 
-enum class InstructionFormat {
-    RType, IType, SType, BType, UType, JType,
-};
+enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
 struct DecodingException : std::runtime_error {
     explicit DecodingException(const char* msg) : std::runtime_error(msg) { }
@@ -155,14 +143,14 @@ private:
     [[nodiscard]] static InstructionR decode_rtype(BinaryInstruction inst);
     [[nodiscard]] static InstructionI decode_itype(BinaryInstruction inst);
     [[nodiscard]] static InstructionS decode_stype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionB decode_btype(BinaryInstruction inst);
     [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
     [[nodiscard]] static InstructionJ decode_jtype(BinaryInstruction inst);
-    [[nodiscard]] static InstructionB decode_btype(BinaryInstruction inst);
     [[nodiscard]] static InstructionR::Type parse_rtype(RawInstructionR inst);
     [[nodiscard]] static InstructionI::Type parse_itype(RawInstructionI inst);
     [[nodiscard]] static InstructionS::Type parse_stype(RawInstructionS inst);
+    [[nodiscard]] static InstructionB::Type parse_btype(RawInstructionB inst);
     [[nodiscard]] static InstructionU::Type parse_utype(RawInstructionU inst);
     [[nodiscard]] static InstructionJ::Type parse_jtype(RawInstructionJ inst);
-    [[nodiscard]] static InstructionB::Type parse_btype(RawInstructionB inst);
 
 };

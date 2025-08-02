@@ -53,19 +53,6 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
     throw DecodingException("invalid instruction format");
 }
 
-InstructionB Decoder::decode_btype(BinaryInstruction inst) {
-    auto raw_inst = std::bit_cast<RawInstructionB>(inst);
-
-    uint16_t imm = raw_inst.imm2 << 7 | raw_inst.imm1;
-
-    return {
-        parse_btype(raw_inst),
-        static_cast<Register>(raw_inst.rs1),
-        static_cast<Register>(raw_inst.rs2),
-        imm
-    };
-}
-
 InstructionR Decoder::decode_rtype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionR>(inst);
 
@@ -103,22 +90,25 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     };
 }
 
-InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
-    auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
-
-    return {
-        parse_jtype(raw_inst),
-        static_cast<Register>(raw_inst.rd),
-        raw_inst.imm,
-    };
-}
-
 InstructionS Decoder::decode_stype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionS>(inst);
 
     uint16_t imm = raw_inst.imm2 << 5 | raw_inst.imm1;
     return {
         parse_stype(raw_inst),
+        static_cast<Register>(raw_inst.rs1),
+        static_cast<Register>(raw_inst.rs2),
+        imm
+    };
+}
+
+InstructionB Decoder::decode_btype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionB>(inst);
+
+    uint16_t imm = raw_inst.imm2 << 7 | raw_inst.imm1;
+
+    return {
+        parse_btype(raw_inst),
         static_cast<Register>(raw_inst.rs1),
         static_cast<Register>(raw_inst.rs2),
         imm
@@ -135,44 +125,14 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
     };
 }
 
-InstructionB::Type Decoder::parse_btype(RawInstructionB inst) {
-    using enum InstructionB::Type;
+InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
 
-    if (inst.opcode == 0b1100011) {
-        switch (inst.funct3) {
-            case 0x0: return Beq;
-            case 0x1: return Bne;
-            case 0x4: return Blt;
-            case 0x5: return Bge;
-            case 0x6: return Bltu;
-            case 0x7: return Bgeu;
-        }
-    }
-
-    throw DecodingException("invalid b-type instruction");
-}
-
-InstructionJ::Type Decoder::parse_jtype(RawInstructionJ inst) {
-    using enum InstructionJ::Type;
-
-    if (inst.opcode == 0b1101111)
-        return Jal;
-
-    throw DecodingException("invalid j-type instruction");
-}
-
-InstructionS::Type Decoder::parse_stype(RawInstructionS inst) {
-    using enum InstructionS::Type;
-
-    if (inst.opcode == 0b0100011) {
-        switch (inst.funct3) {
-            case 0x0: return Sb;
-            case 0x1: return Sh;
-            case 0x2: return Sw;
-        }
-    }
-
-    throw DecodingException("invalid s-type instruction");
+    return {
+        parse_jtype(raw_inst),
+        static_cast<Register>(raw_inst.rd),
+        raw_inst.imm,
+    };
 }
 
 InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {
@@ -245,6 +205,37 @@ InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
     throw DecodingException("invalid i-type instruction");
 }
 
+InstructionS::Type Decoder::parse_stype(RawInstructionS inst) {
+    using enum InstructionS::Type;
+
+    if (inst.opcode == 0b0100011) {
+        switch (inst.funct3) {
+            case 0x0: return Sb;
+            case 0x1: return Sh;
+            case 0x2: return Sw;
+        }
+    }
+
+    throw DecodingException("invalid s-type instruction");
+}
+
+InstructionB::Type Decoder::parse_btype(RawInstructionB inst) {
+    using enum InstructionB::Type;
+
+    if (inst.opcode == 0b1100011) {
+        switch (inst.funct3) {
+            case 0x0: return Beq;
+            case 0x1: return Bne;
+            case 0x4: return Blt;
+            case 0x5: return Bge;
+            case 0x6: return Bltu;
+            case 0x7: return Bgeu;
+        }
+    }
+
+    throw DecodingException("invalid b-type instruction");
+}
+
 InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
     using enum InstructionU::Type;
 
@@ -256,3 +247,11 @@ InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
     throw DecodingException("invalid u-type instruction");
 }
 
+InstructionJ::Type Decoder::parse_jtype(RawInstructionJ inst) {
+    using enum InstructionJ::Type;
+
+    if (inst.opcode == 0b1101111)
+        return Jal;
+
+    throw DecodingException("invalid j-type instruction");
+}

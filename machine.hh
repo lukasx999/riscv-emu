@@ -10,15 +10,19 @@ class Machine {
 
 public:
     Machine(const ElfExecutable& exec) : m_memory(exec.get_load_segments()) {
-        load_binary(exec);
+        set_elf_entrypoint(exec);
+        init();
     }
 
-    Machine() = default;
+    Machine() {
+        init();
+    }
 
     void run();
 
 private:
     [[nodiscard]] BinaryInstruction fetch() const;
-    void load_binary(const ElfExecutable& exec);
+    void set_elf_entrypoint(const ElfExecutable& exec);
+    void init();
 
 };

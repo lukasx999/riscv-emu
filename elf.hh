@@ -16,9 +16,9 @@ struct ElfExcecutableException : std::runtime_error {
 };
 
 struct LoadSegment {
-    std::span<char> m_span;
-    Elf64_Addr m_virt_addr;
-    Elf64_Word m_flags;
+    std::span<char> bytes;
+    Elf64_Addr virt_addr;
+    Elf64_Word flags;
 };
 
 class ElfExecutable {
@@ -35,7 +35,7 @@ public:
         log("Parsed ELF binary ({} bytes)", m_bytes.size());
     }
 
-    [[nodiscard]] std::span<const LoadSegment> get_load_segments() const {
+    [[nodiscard]] auto get_load_segments() const -> std::span<const LoadSegment> {
         return m_loadable_segments;
     }
 

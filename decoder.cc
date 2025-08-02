@@ -105,7 +105,11 @@ InstructionS Decoder::decode_stype(BinaryInstruction inst) {
 InstructionB Decoder::decode_btype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionB>(inst);
 
-    uint16_t imm = raw_inst.imm2 << 7 | raw_inst.imm1;
+    uint16_t a = extract_bits(raw_inst.imm1, 1, 4);
+    uint16_t b = extract_bits(raw_inst.imm2, 0, 6);
+    uint16_t c = extract_bits(raw_inst.imm1, 0, 1);
+    uint16_t d = extract_bits(raw_inst.imm2, 6, 1);
+    uint32_t imm = a << 1 | b << 5 | c << 11 | d << 12;
 
     return {
         parse_btype(raw_inst),

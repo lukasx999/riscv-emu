@@ -14,6 +14,9 @@ list(APPEND libs boost_process readline)
 add_executable(riscv-emu main.cc ${sources})
 target_link_libraries(riscv-emu PRIVATE ${libs})
 
+add_library(riscv-emu_shared SHARED ${sources})
+add_library(riscv-emu_static STATIC ${sources})
+
 Include(FetchContent)
 
 FetchContent_Declare(Catch2 GIT_REPOSITORY https://github.com/catchorg/Catch2.git GIT_TAG v3.8.1)

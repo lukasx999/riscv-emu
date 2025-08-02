@@ -54,7 +54,7 @@ struct InstructionB {
     enum class Type { Beq, Bne, Blt, Bge, Bltu, Bgeu } type;
     Register rs1;
     Register rs2;
-    uint16_t imm;
+    uint32_t imm;
 };
 
 

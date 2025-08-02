@@ -159,11 +159,24 @@ static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
     REQUIRE(i.imm == imm);
 }
 
+static void test_decoder_btype(std::string instruction, InstructionB::Type type,
+                               Register rs1, Register rs2, uint32_t imm) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionB>(inst));
+    auto i = std::get<InstructionB>(inst);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rs1 == rs1);
+    REQUIRE(i.rs2 == rs2);
+    REQUIRE(i.imm == imm);
+}
+
 TEST_CASE("decoder") {
     using enum InstructionI::Type;
     using enum InstructionR::Type;
     using enum InstructionS::Type;
     using enum InstructionJ::Type;
+    using enum InstructionB::Type;
     using enum Register;
 
     SECTION("rtype") {
@@ -208,12 +221,28 @@ TEST_CASE("decoder") {
     }
 
     SECTION("jtype") {
-        // NOTE: assembler treats imm as aboslute address
+        // assembler treats imm as aboslute address
         test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
         test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
         test_decoder_jtype("jal t0, .+16", Jal, T0, 16);
         test_decoder_jtype("jal t0, .+32", Jal, T0, 32);
         test_decoder_jtype("jal t0, .+64", Jal, T0, 64);
+    }
+
+    SECTION("btype") {
+        // assembler treats imm as aboslute address
+        test_decoder_btype("beq  t0, t1, .+16",  Beq,  T0, T1, 16);
+        test_decoder_btype("beq  t0, t1, .+32",  Beq,  T0, T1, 32);
+        test_decoder_btype("beq  t0, t1, .+64",  Beq,  T0, T1, 64);
+        test_decoder_btype("beq  t0, t1, .+128", Beq,  T0, T1, 128);
+        test_decoder_btype("bne  t0, t1, .+16",  Bne,  T0, T1, 16);
+        test_decoder_btype("bne  t0, t1, .+32",  Bne,  T0, T1, 32);
+        test_decoder_btype("bne  t0, t1, .+64",  Bne,  T0, T1, 64);
+        test_decoder_btype("bne  t0, t1, .+128", Bne,  T0, T1, 128);
+        test_decoder_btype("blt  t0, t1, .+16",  Blt,  T0, T1, 16);
+        test_decoder_btype("bge  t0, t1, .+16",  Bge,  T0, T1, 16);
+        test_decoder_btype("bltu t0, t1, .+16",  Bltu, T0, T1, 16);
+        test_decoder_btype("bgeu t0, t1, .+16",  Bgeu, T0, T1, 16);
     }
 
 }

@@ -70,7 +70,7 @@ struct InstructionJ {
     uint32_t m_imm;
 };
 
-struct [[gnu::packed]] RawInstructionR {
+struct RawInstructionR {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
@@ -79,7 +79,7 @@ struct [[gnu::packed]] RawInstructionR {
     unsigned int funct7 : funct7_encoding_size;
 };
 
-struct [[gnu::packed]] RawInstructionI {
+struct RawInstructionI {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
@@ -87,7 +87,7 @@ struct [[gnu::packed]] RawInstructionI {
     unsigned int imm    : imm_encoding_size;
 };
 
-struct [[gnu::packed]] RawInstructionS {
+struct RawInstructionS {
     unsigned int opcode : opcode_encoding_size;
     unsigned int imm1   : 5;
     unsigned int funct3 : funct3_encoding_size;
@@ -95,7 +95,7 @@ struct [[gnu::packed]] RawInstructionS {
     unsigned int rs2    : register_encoding_size;
     unsigned int imm2   : 7;
 };
-struct [[gnu::packed]] RawInstructionB {
+struct RawInstructionB {
     unsigned int opcode : opcode_encoding_size;
     // TODO: check imm bit ordering
     unsigned int imm1   : 5;
@@ -105,13 +105,13 @@ struct [[gnu::packed]] RawInstructionB {
     unsigned int imm2   : 7;
 };
 
-struct [[gnu::packed]] RawInstructionU {
+struct RawInstructionU {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int imm    : imm_large_encoding_size;
 };
 
-struct [[gnu::packed]] RawInstructionJ {
+struct RawInstructionJ {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int imm    : imm_large_encoding_size;

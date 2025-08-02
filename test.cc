@@ -113,7 +113,7 @@ TEST_CASE("utils") {
 }
 
 static void test_decoder_itype(std::string instruction, InstructionI::Type type,
-                               int imm, Register rd, Register rs1) {
+                               uint16_t imm, Register rd, Register rs1) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionI>(inst));
@@ -124,9 +124,60 @@ static void test_decoder_itype(std::string instruction, InstructionI::Type type,
     REQUIRE(i.m_rs1 == rs1);
 }
 
+static void test_decoder_rtype(std::string instruction, InstructionR::Type type,
+                               Register rd, Register rs1, Register rs2) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionR>(inst));
+    auto i = std::get<InstructionR>(inst);
+    REQUIRE(i.m_type == type);
+    REQUIRE(i.m_rd == rd);
+    REQUIRE(i.m_rs1 == rs1);
+    REQUIRE(i.m_rs2 == rs2);
+}
+
+static void test_decoder_stype(std::string instruction, InstructionS::Type type,
+                               Register rs2, Register rs1, uint16_t imm) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionS>(inst));
+    auto i = std::get<InstructionS>(inst);
+    REQUIRE(i.m_type == type);
+    REQUIRE(i.m_imm == imm);
+    REQUIRE(i.m_rs1 == rs1);
+    REQUIRE(i.m_rs2 == rs2);
+}
+
+static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
+                               Register rd, uint32_t imm) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionJ>(inst));
+    auto i = std::get<InstructionJ>(inst);
+    REQUIRE(i.m_type == type);
+    REQUIRE(i.m_rd == rd);
+    REQUIRE(i.m_imm == imm);
+}
+
 TEST_CASE("decoder") {
     using enum InstructionI::Type;
+    using enum InstructionR::Type;
+    using enum InstructionS::Type;
+    using enum InstructionJ::Type;
     using enum Register;
+
+    SECTION("rtype") {
+        test_decoder_rtype("add  t2, t1, t0", Add,  T2, T1, T0);
+        test_decoder_rtype("sub  t2, t1, t0", Sub,  T2, T1, T0);
+        test_decoder_rtype("xor  t2, t1, t0", Xor,  T2, T1, T0);
+        test_decoder_rtype("or   x2, t1, t0", Or,   X2, T1, T0);
+        test_decoder_rtype("and  t2, t3, t0", And,  T2, T3, T0);
+        test_decoder_rtype("sll  t2, t1, t5", Sll,  T2, T1, T5);
+        test_decoder_rtype("srl  t2, t1, t0", Srl,  T2, T1, T0);
+        test_decoder_rtype("sra  t2, t1, t0", Sra,  T2, T1, T0);
+        test_decoder_rtype("slt  t2, t1, t0", Slt,  T2, T1, T0);
+        test_decoder_rtype("sltu t2, t1, t0", Sltu, T2, T1, T0);
+    }
 
     SECTION("itype") {
         test_decoder_itype("addi  t2, t0,  45",   Addi,  45,    T2, T0);
@@ -148,6 +199,16 @@ TEST_CASE("decoder") {
 
         test_decoder_itype("ecall",  Ecall,  0x0, X0, X0);
         test_decoder_itype("ebreak", Ebreak, 0x1, X0, X0);
+    }
+
+    SECTION("stype") {
+        test_decoder_stype("sb t0, 0(t1)", Sb, T0, T1, 0);
+        test_decoder_stype("sh t0, 0(t1)", Sh, T0, T1, 0);
+        test_decoder_stype("sw a6, 0(s2)", Sw, A6, S2, 0);
+    }
+
+    SECTION("jtype") {
+        test_decoder_jtype("jal t0, 45", Jal, T0, 45);
     }
 
 

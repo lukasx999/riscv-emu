@@ -153,7 +153,7 @@ void Executor::operator()(const InstructionI& inst) {
 void Executor::operator()(const InstructionS& inst) {
     Word rs1 = m_cpu.m_registers.get(inst.rs1);
     Word rs2 = m_cpu.m_registers.get(inst.rs2);
-    uint16_t imm = inst.imm;
+    uint16_t imm = sign_extend(inst.imm, 12);
 
     switch (inst.type) {
         using enum InstructionS::Type;
@@ -178,7 +178,7 @@ void Executor::operator()(const InstructionB& inst) {
 
     auto rs1 = m_cpu.m_registers.get(inst.rs1);
     auto rs2 = m_cpu.m_registers.get(inst.rs2);
-    uint32_t imm = inst.imm;
+    uint32_t imm = sign_extend(inst.imm, 13);
 
     switch (inst.type) {
         using enum InstructionB::Type;
@@ -219,7 +219,7 @@ void Executor::operator()(const InstructionB& inst) {
 
 void Executor::operator()(const InstructionU& inst) {
 
-    uint32_t imm = inst.imm;
+    uint32_t imm = sign_extend(inst.imm, 20);
 
     auto set_rd = [&](Word value) {
         m_cpu.m_registers.set(inst.rd, value);

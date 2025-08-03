@@ -9,11 +9,13 @@
 #include "machine.hh"
 #include "repl.hh"
 
+namespace {
+
 struct Options {
     std::string filename;
 };
 
-[[nodiscard]] static Options parse_args(int argc, char **argv) {
+[[nodiscard]] Options parse_args(int argc, char **argv) {
     Options opts;
 
     argparse::ArgumentParser program(global_data.program_name);
@@ -49,6 +51,8 @@ struct Options {
     }
 
     return opts;
+}
+
 }
 
 int main(int argc, char** argv) try {

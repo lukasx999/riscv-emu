@@ -68,7 +68,7 @@ void Executor::operator()(const InstructionR& inst) {
 void Executor::operator()(const InstructionI& inst) {
 
     Word rs1 = m_cpu.m_registers.get(inst.rs1);
-    Word imm = sign_extend(inst.imm, imm_encoding_size);
+    Word imm = sign_extend(inst.imm, 12);
 
     auto set_rd = [&](Word value) {
         m_cpu.m_registers.set(inst.rd, value);

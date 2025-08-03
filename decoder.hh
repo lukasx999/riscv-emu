@@ -70,6 +70,7 @@ struct InstructionJ {
     uint32_t imm;
 };
 
+// TODO: move all of this stuff to implementation
 struct RawInstructionR {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
@@ -98,7 +99,6 @@ struct RawInstructionS {
 
 struct RawInstructionB {
     unsigned int opcode : opcode_encoding_size;
-    // TODO: check imm bit ordering
     unsigned int imm1   : 5;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;

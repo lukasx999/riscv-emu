@@ -240,7 +240,7 @@ void Executor::operator()(const InstructionU& inst) {
 }
 
 void Executor::operator()(const InstructionJ& inst) {
-    uint32_t imm = sign_extend(inst.imm, 20);
+    uint32_t imm = sign_extend(inst.imm, 21);
 
     auto set_rd = [&](Word value) {
         m_cpu.m_registers.set(inst.rd, value);

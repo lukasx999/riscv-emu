@@ -7,6 +7,9 @@ build: configure
 run: build
     ./build/riscv-emu ./probe/bin-asm -v
 
+time: build
+    time ./build/riscv-emu ./probe/bin-asm
+
 repl: build
     ./build/riscv-emu :repl
 

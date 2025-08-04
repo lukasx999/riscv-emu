@@ -9,9 +9,6 @@ len = .-str
 .global _start
 _start:
 
-li t0, 64
-sb t0, 0(sp)
-
 # # write()
 # li a0, 1
 # la a1, str

@@ -4,6 +4,185 @@
 
 #include "decoder.hh"
 
+namespace {
+
+constexpr int opcode_encoding_size    = 7;
+constexpr int register_encoding_size  = 5;
+constexpr int funct3_encoding_size    = 3;
+constexpr int funct7_encoding_size    = 7;
+constexpr int imm_encoding_size       = 12;
+constexpr int imm_large_encoding_size = 20;
+
+struct RawInstructionR {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int funct7 : funct7_encoding_size;
+};
+
+struct RawInstructionI {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int imm    : imm_encoding_size;
+};
+
+struct RawInstructionS {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int imm1   : 5;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int imm2   : 7;
+};
+
+struct RawInstructionB {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int imm1   : 5;
+    unsigned int funct3 : funct3_encoding_size;
+    unsigned int rs1    : register_encoding_size;
+    unsigned int rs2    : register_encoding_size;
+    unsigned int imm2   : 7;
+};
+
+struct RawInstructionU {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int imm    : imm_large_encoding_size;
+};
+
+struct RawInstructionJ {
+    unsigned int opcode : opcode_encoding_size;
+    unsigned int rd     : register_encoding_size;
+    unsigned int imm    : imm_large_encoding_size;
+};
+
+[[nodiscard]] InstructionR::Type parse_rtype(RawInstructionR inst) {
+    using enum InstructionR::Type;
+
+    if (inst.opcode == 0b0110011) {
+        switch (inst.funct3) {
+            case 0x0:
+                if      (inst.funct7 == 0x00) return Add;
+                else if (inst.funct7 == 0x20) return Sub;
+            case 0x4: return Xor;
+            case 0x6: return Or;
+            case 0x7: return And;
+            case 0x1: return Sll;
+            case 0x5:
+                if      (inst.funct7 == 0x00) return Srl;
+                else if (inst.funct7 == 0x20) return Sra;
+            case 0x2: return Slt;
+            case 0x3: return Sltu;
+
+        }
+    }
+
+    throw DecodingException("invalid r-type instruction");
+}
+
+[[nodiscard]] InstructionI::Type parse_itype(RawInstructionI inst) {
+    using enum InstructionI::Type;
+
+    switch (inst.opcode) {
+        case 0b0010011:
+            switch (inst.funct3) {
+                case 0x0: return Addi;
+                case 0x4: return Xori;
+                case 0x6: return Ori;
+                case 0x7: return Andi;
+                case 0x1:
+                    if (extract_bits(inst.imm, 5, 7) == 0x00) return Slli;
+                case 0x5:
+                    if      (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
+                    else if (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
+                case 0x2: return Slti;
+                case 0x3: return Sltiu;
+            }
+            break;
+
+        case 0b0000011:
+            switch (inst.funct3) {
+                case 0x0: return Lb;
+                case 0x1: return Lh;
+                case 0x2: return Lw;
+                case 0x4: return Lbu;
+                case 0x5: return Lhu;
+            }
+            break;
+
+        case 0b1110011:
+            switch (inst.funct3) {
+                case 0x0:
+                    if      (inst.imm == 0x0) return Ecall;
+                    else if (inst.imm == 0x1) return Ebreak;
+            }
+            break;
+
+        case 0b1100111:
+            if (inst.funct3 == 0x0)
+                return Jalr;
+    }
+
+    throw DecodingException("invalid i-type instruction");
+}
+
+[[nodiscard]] InstructionS::Type parse_stype(RawInstructionS inst) {
+    using enum InstructionS::Type;
+
+    if (inst.opcode == 0b0100011) {
+        switch (inst.funct3) {
+            case 0x0: return Sb;
+            case 0x1: return Sh;
+            case 0x2: return Sw;
+        }
+    }
+
+    throw DecodingException("invalid s-type instruction");
+}
+
+[[nodiscard]] InstructionB::Type parse_btype(RawInstructionB inst) {
+    using enum InstructionB::Type;
+
+    if (inst.opcode == 0b1100011) {
+        switch (inst.funct3) {
+            case 0x0: return Beq;
+            case 0x1: return Bne;
+            case 0x4: return Blt;
+            case 0x5: return Bge;
+            case 0x6: return Bltu;
+            case 0x7: return Bgeu;
+        }
+    }
+
+    throw DecodingException("invalid b-type instruction");
+}
+
+[[nodiscard]] InstructionU::Type parse_utype(RawInstructionU inst) {
+    using enum InstructionU::Type;
+
+    switch (inst.opcode) {
+        case 0b0110111: return Lui;
+        case 0b0010111: return Auipc;
+    }
+
+    throw DecodingException("invalid u-type instruction");
+}
+
+[[nodiscard]] InstructionJ::Type parse_jtype(RawInstructionJ inst) {
+    using enum InstructionJ::Type;
+
+    if (inst.opcode == 0b1101111)
+        return Jal;
+
+    throw DecodingException("invalid j-type instruction");
+}
+
+}
+
 Instruction Decoder::decode(BinaryInstruction instruction) {
 
     auto format = decode_format(instruction);
@@ -147,125 +326,4 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
         static_cast<Register>(raw_inst.rd),
         static_cast<uint32_t>(imm)
     };
-}
-
-InstructionR::Type Decoder::parse_rtype(RawInstructionR inst) {
-    using enum InstructionR::Type;
-
-    if (inst.opcode == 0b0110011) {
-        switch (inst.funct3) {
-            case 0x0:
-                if      (inst.funct7 == 0x00) return Add;
-                else if (inst.funct7 == 0x20) return Sub;
-            case 0x4: return Xor;
-            case 0x6: return Or;
-            case 0x7: return And;
-            case 0x1: return Sll;
-            case 0x5:
-                if      (inst.funct7 == 0x00) return Srl;
-                else if (inst.funct7 == 0x20) return Sra;
-            case 0x2: return Slt;
-            case 0x3: return Sltu;
-
-        }
-    }
-
-    throw DecodingException("invalid r-type instruction");
-}
-
-InstructionI::Type Decoder::parse_itype(RawInstructionI inst) {
-    using enum InstructionI::Type;
-
-    switch (inst.opcode) {
-        case 0b0010011:
-            switch (inst.funct3) {
-                case 0x0: return Addi;
-                case 0x4: return Xori;
-                case 0x6: return Ori;
-                case 0x7: return Andi;
-                case 0x1:
-                    if (extract_bits(inst.imm, 5, 7) == 0x00) return Slli;
-                case 0x5:
-                    if      (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
-                    else if (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
-                case 0x2: return Slti;
-                case 0x3: return Sltiu;
-            }
-            break;
-
-        case 0b0000011:
-            switch (inst.funct3) {
-                case 0x0: return Lb;
-                case 0x1: return Lh;
-                case 0x2: return Lw;
-                case 0x4: return Lbu;
-                case 0x5: return Lhu;
-            }
-            break;
-
-        case 0b1110011:
-            switch (inst.funct3) {
-                case 0x0:
-                    if      (inst.imm == 0x0) return Ecall;
-                    else if (inst.imm == 0x1) return Ebreak;
-            }
-            break;
-
-        case 0b1100111:
-            if (inst.funct3 == 0x0)
-                return Jalr;
-    }
-
-    throw DecodingException("invalid i-type instruction");
-}
-
-InstructionS::Type Decoder::parse_stype(RawInstructionS inst) {
-    using enum InstructionS::Type;
-
-    if (inst.opcode == 0b0100011) {
-        switch (inst.funct3) {
-            case 0x0: return Sb;
-            case 0x1: return Sh;
-            case 0x2: return Sw;
-        }
-    }
-
-    throw DecodingException("invalid s-type instruction");
-}
-
-InstructionB::Type Decoder::parse_btype(RawInstructionB inst) {
-    using enum InstructionB::Type;
-
-    if (inst.opcode == 0b1100011) {
-        switch (inst.funct3) {
-            case 0x0: return Beq;
-            case 0x1: return Bne;
-            case 0x4: return Blt;
-            case 0x5: return Bge;
-            case 0x6: return Bltu;
-            case 0x7: return Bgeu;
-        }
-    }
-
-    throw DecodingException("invalid b-type instruction");
-}
-
-InstructionU::Type Decoder::parse_utype(RawInstructionU inst) {
-    using enum InstructionU::Type;
-
-    switch (inst.opcode) {
-        case 0b0110111: return Lui;
-        case 0b0010111: return Auipc;
-    }
-
-    throw DecodingException("invalid u-type instruction");
-}
-
-InstructionJ::Type Decoder::parse_jtype(RawInstructionJ inst) {
-    using enum InstructionJ::Type;
-
-    if (inst.opcode == 0b1101111)
-        return Jal;
-
-    throw DecodingException("invalid j-type instruction");
 }

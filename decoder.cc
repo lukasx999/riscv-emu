@@ -60,6 +60,13 @@ struct RawInstructionJ {
     unsigned int imm    : imm_large_encoding_size;
 };
 
+static_assert(sizeof(RawInstructionR) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionI) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionS) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionB) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionU) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
+
 [[nodiscard]] InstructionR::Type parse_rtype(RawInstructionR inst) {
     using enum InstructionR::Type;
 

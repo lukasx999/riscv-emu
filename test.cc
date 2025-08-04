@@ -52,6 +52,7 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Addi, 0, -2047, -2047);
         test_cpu_itype(cpu, Addi, 0, -2048, -2048);
         test_cpu_itype(cpu, Addi, 0, 2047, 2047);
+        test_cpu_itype(cpu, Addi, 47, 2000, 2047);
         test_cpu_itype(cpu, Addi, -5, -3, -8);
         test_cpu_itype(cpu, Xori, 5, 3, 6);
         test_cpu_itype(cpu, Ori, 5, 7, 7);

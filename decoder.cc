@@ -27,7 +27,7 @@ struct RawInstructionI {
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
-    unsigned int imm    : imm_encoding_size;
+    signed int imm    : imm_encoding_size;
 };
 
 struct RawInstructionS {

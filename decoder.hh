@@ -53,13 +53,13 @@ struct InstructionB {
 struct InstructionU {
     enum class Type { Lui, Auipc } type;
     Register rd;
-    int32_t imm;
+    Immediate20Bit imm;
 };
 
 struct InstructionJ {
     enum class Type { Jal } type;
     Register rd;
-    int32_t imm;
+    Immediate21Bit imm;
 };
 
 using Instruction = std::variant<

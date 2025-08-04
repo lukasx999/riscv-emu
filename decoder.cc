@@ -11,7 +11,6 @@ constexpr int register_encoding_size  = 5;
 constexpr int funct3_encoding_size    = 3;
 constexpr int funct7_encoding_size    = 7;
 constexpr int imm_encoding_size       = 12;
-constexpr int imm_large_encoding_size = 20;
 
 struct RawInstructionR {
     unsigned int opcode : opcode_encoding_size;
@@ -51,13 +50,13 @@ struct RawInstructionB {
 struct RawInstructionU {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
-    unsigned int imm    : imm_large_encoding_size;
+    signed   int imm    : 20;
 };
 
 struct RawInstructionJ {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
-    unsigned int imm    : imm_large_encoding_size;
+    signed   int imm    : 20;
 };
 
 static_assert(sizeof(RawInstructionR) == sizeof(BinaryInstruction));
@@ -319,14 +318,17 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
 
     struct Imm {
-        unsigned int a : 8;
-        unsigned int b : 1;
-        unsigned int c : 10;
-        unsigned int d : 1;
+        signed int a : 8;
+        signed int b : 1;
+        signed int c : 10;
+        signed int d : 1;
     };
 
-    auto i = std::bit_cast<Imm>(raw_inst.imm);
-    int32_t imm = i.c << 1 | i.b << 11 | i.a << 12 | i.d << 20;
+    auto raw_imm = std::bit_cast<Imm>(raw_inst.imm);
+    Immediate21Bit imm = raw_imm.c << 1  |
+                         raw_imm.b << 11 |
+                         raw_imm.a << 12 |
+                         raw_imm.d << 20;
 
     return {
         parse_jtype(raw_inst),

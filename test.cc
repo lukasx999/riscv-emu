@@ -206,7 +206,7 @@ void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
 }
 
 void test_decoder_btype(std::string instruction, InstructionB::Type type,
-                               Register rs1, Register rs2, int32_t imm) {
+                        Register rs1, Register rs2, Immediate13Bit imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionB>(inst));
@@ -217,14 +217,26 @@ void test_decoder_btype(std::string instruction, InstructionB::Type type,
     REQUIRE(i.imm == imm);
 }
 
+void test_decoder_utype(std::string instruction, InstructionU::Type type,
+                        Register rd, Immediate20Bit imm) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionU>(inst));
+    auto i = std::get<InstructionU>(inst);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rd == rd);
+    REQUIRE(i.imm == imm);
+}
+
 }
 
 TEST_CASE("decoder") {
-    using enum InstructionI::Type;
     using enum InstructionR::Type;
+    using enum InstructionI::Type;
     using enum InstructionS::Type;
-    using enum InstructionJ::Type;
     using enum InstructionB::Type;
+    using enum InstructionU::Type;
+    using enum InstructionJ::Type;
     using enum Register;
 
     SECTION("rtype") {
@@ -268,17 +280,9 @@ TEST_CASE("decoder") {
 
     SECTION("stype") {
         test_decoder_stype("sb t0, 0(t1)", Sb, T0, T1, 0);
+        test_decoder_stype("sb t0, -5(t1)", Sb, T0, T1, -5);
         test_decoder_stype("sh t0, 0(t1)", Sh, T0, T1, 0);
         test_decoder_stype("sw a6, 0(s2)", Sw, A6, S2, 0);
-    }
-
-    SECTION("jtype") {
-        // assembler treats imm as aboslute address
-        test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
-        test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
-        test_decoder_jtype("jal t0, .+16", Jal, T0, 16);
-        test_decoder_jtype("jal t0, .+32", Jal, T0, 32);
-        test_decoder_jtype("jal t0, .+64", Jal, T0, 64);
     }
 
     SECTION("btype") {
@@ -296,5 +300,24 @@ TEST_CASE("decoder") {
         test_decoder_btype("bltu t0, t1, .+16",  Bltu, T0, T1, 16);
         test_decoder_btype("bgeu t0, t1, .+16",  Bgeu, T0, T1, 16);
     }
+
+    SECTION("utype") {
+        test_decoder_utype("lui t0, 1", Lui, T0, 1);
+        test_decoder_utype("lui t0, 524287", Lui, T0, 524287);
+        test_decoder_utype("auipc t0, 1", Auipc, T0, 1);
+    }
+
+    SECTION("jtype") {
+        // assembler treats imm as aboslute address
+        test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
+        test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
+        test_decoder_jtype("jal t0, .+16", Jal, T0, 16);
+        test_decoder_jtype("jal t0, .+32", Jal, T0, 32);
+        test_decoder_jtype("jal t0, .+64", Jal, T0, 64);
+        test_decoder_jtype("jal t0, .+128", Jal, T0, 128);
+        test_decoder_jtype("jal t0, .-128", Jal, T0, -128);
+        test_decoder_jtype("jal t0, .-64", Jal, T0, -64);
+    }
+
 
 }

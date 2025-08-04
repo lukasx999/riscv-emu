@@ -73,7 +73,7 @@ uint64_t extract_bits(uint64_t value, int start, int size) {
 uint64_t set_bits(uint64_t value, int start, int size, bool bit) {
     uint64_t mask = 0;
     for (auto i = 0; i < size; ++i)
-        mask |= 1ul << (i + start);
+        mask |= uint64_t(1) << (i + start);
 
     if (bit)
         return value | mask;

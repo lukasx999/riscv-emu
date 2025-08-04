@@ -281,10 +281,9 @@ InstructionS Decoder::decode_stype(BinaryInstruction inst) {
     int imm1_size = 5;
 
     // implicit sign-extension of imm1 will set leading bits to 1,
-    // which will mess up the bitwise or
-    // TODO: 64
-    // make set_bits() a template
-    auto imm1 = set_bits(raw_inst.imm1, imm1_size, 64-imm1_size, false);
+    // which will mess up the bitwise OR
+    // TODO: use generic version of set_bits()
+    auto imm1 = set_bits(raw_inst.imm1, imm1_size, sizeof(uint64_t)*8-imm1_size, false);
     Immediate12Bit imm = raw_inst.imm2 << imm1_size | imm1;
 
     return {

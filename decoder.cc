@@ -31,11 +31,11 @@ struct RawInstructionI {
 
 struct RawInstructionS {
     unsigned int opcode : opcode_encoding_size;
-    unsigned int imm1   : 5;
+    signed   int imm1   : 5;
     unsigned int funct3 : funct3_encoding_size;
     unsigned int rs1    : register_encoding_size;
     unsigned int rs2    : register_encoding_size;
-    unsigned int imm2   : 7;
+    signed   int imm2   : 7;
 };
 
 struct RawInstructionB {
@@ -278,7 +278,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
 InstructionS Decoder::decode_stype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionS>(inst);
 
-    int16_t imm = raw_inst.imm2 << 5 | raw_inst.imm1;
+    Immediate12Bit imm = raw_inst.imm2 << 5 | raw_inst.imm1;
     return {
         parse_stype(raw_inst),
         static_cast<Register>(raw_inst.rs1),

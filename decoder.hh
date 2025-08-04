@@ -40,7 +40,7 @@ struct InstructionS {
     enum class Type { Sb, Sh, Sw } type;
     Register rs1;
     Register rs2;
-    int16_t imm;
+    Immediate12Bit imm;
 };
 
 struct InstructionB {

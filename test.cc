@@ -6,6 +6,7 @@
 
 #include "decoder.hh"
 #include "cpu.hh"
+#include "machine.hh"
 #include "memory.hh"
 #include "util.hh"
 
@@ -34,6 +35,18 @@ void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> va
     cpu.execute(inst);
 
     REQUIRE(static_cast<T>(cpu.m_registers.get(T0)) == value);
+}
+
+void test_cpu_rtype(CPU& cpu, InstructionR::Type type, Word input1,
+                           Word input2, Word output) {
+
+    using enum Register;
+
+    cpu.m_registers.set(A1, input1);
+    cpu.m_registers.set(A2, input2);
+    InstructionR inst { type, A0, A1, A2 };
+    cpu.execute(inst);
+    REQUIRE(cpu.m_registers.get(A0) == output);
 }
 
 void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
@@ -69,18 +82,36 @@ void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
 }
 
 TEST_CASE("cpu") {
+    using enum InstructionR::Type;
     using enum InstructionI::Type;
     using enum InstructionS::Type;
     using enum Register;
 
-    Memory memory;
-    CPU cpu(memory);
+    Machine machine;
+    auto& cpu = machine.m_cpu;
+
+    SECTION("rtype") {
+        test_cpu_rtype(cpu, Add, 5, 3, 8);
+        test_cpu_rtype(cpu, Add, std::numeric_limits<Word>::max(), 1, 0);
+        test_cpu_rtype(cpu, Add, 5, -3, 2);
+        test_cpu_rtype(cpu, Add, 0, -2048, -2048);
+        test_cpu_rtype(cpu, Add, 0, 2047, 2047);
+        test_cpu_rtype(cpu, Add, 47, 2000, 2047);
+        test_cpu_rtype(cpu, Add, -5, -3, -8);
+        test_cpu_rtype(cpu, Sll, 16, 1, 32);
+        test_cpu_rtype(cpu, Srl, 16, 1, 8);
+        test_cpu_rtype(cpu, Sll, 78, 6, 4992);
+        test_cpu_rtype(cpu, Sra, -66, 5, -3);
+        test_cpu_rtype(cpu, Slt, 1, 1, 0);
+        test_cpu_rtype(cpu, Slt, 1, 2, 1);
+        test_cpu_rtype(cpu, Slt, -10, 999, 1);
+        test_cpu_rtype(cpu, Sltu, 10, 999, 1);
+    }
 
     SECTION("itype") {
         test_cpu_itype(cpu, Addi, 5, 3, 8);
         test_cpu_itype(cpu, Addi, std::numeric_limits<Word>::max(), 1, 0);
         test_cpu_itype(cpu, Addi, 5, -3, 2);
-        test_cpu_itype(cpu, Addi, 0, -2047, -2047);
         test_cpu_itype(cpu, Addi, 0, -2048, -2048);
         test_cpu_itype(cpu, Addi, 0, 2047, 2047);
         test_cpu_itype(cpu, Addi, 47, 2000, 2047);
@@ -114,7 +145,6 @@ TEST_CASE("cpu") {
         test_cpu_load<uint16_t>(cpu, Lhu, 45);
         test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::max());
         test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::min());
-
 
     }
 
@@ -335,6 +365,12 @@ TEST_CASE("decoder") {
         test_decoder_jtype("jal t0, .+128", Jal, T0, 128);
         test_decoder_jtype("jal t0, .-128", Jal, T0, -128);
         test_decoder_jtype("jal t0, .-64", Jal, T0, -64);
+        test_decoder_jtype("jal t0, .+256", Jal, T0, 256);
+        test_decoder_jtype("jal t0, .+512", Jal, T0, 512);
+
+        // TODO:
+        // test_decoder_jtype("jal t0, .+1024", Jal, T0, 1024);
+        // test_decoder_jtype("jal t0, .+1048575", Jal, T0, 1048575);
     }
 
 

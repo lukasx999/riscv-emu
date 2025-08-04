@@ -50,12 +50,11 @@ struct Executor {
                 break;
 
             case Sra:
-                set_rd(sign_extend(rs1 >> rs2, sizeof(Word)*8));
+                set_rd(static_cast<SignedWord>(rs1) >> rs2);
                 break;
 
             case Slt:
-                set_rd(static_cast<SignedWord>(rs1) <
-                       static_cast<SignedWord>(rs2) ? 1 : 0);
+                set_rd(static_cast<SignedWord>(rs1) < static_cast<SignedWord>(rs2) ? 1 : 0);
                 break;
 
             case Sltu:
@@ -150,23 +149,23 @@ struct Executor {
     }
 
     void operator()(const InstructionS& inst) {
-        Word rs1 = m_cpu.m_registers.get(inst.rs1);
-        Word rs2 = m_cpu.m_registers.get(inst.rs2);
-        uint16_t imm = sign_extend(inst.imm, 12);
+        Word address = m_cpu.m_registers.get(inst.rs1);
+        Word value = m_cpu.m_registers.get(inst.rs2);
+        SignedWord offset = inst.imm;
 
         switch (inst.type) {
             using enum InstructionS::Type;
 
             case Sb:
-                m_cpu.m_memory.set<uint8_t>(rs1+imm, extract_bits(rs2, 0, 8));
+                m_cpu.m_memory.set<uint8_t>(address+offset, value);
                 break;
 
             case Sh:
-                m_cpu.m_memory.set<uint16_t>(rs1+imm, extract_bits(rs2, 0, 16));
+                m_cpu.m_memory.set<uint16_t>(address+offset, value);
                 break;
 
             case Sw:
-                m_cpu.m_memory.set<uint32_t>(rs1+imm, extract_bits(rs2, 0, 32));
+                m_cpu.m_memory.set<uint32_t>(address+offset, value);
                 break;
 
         }

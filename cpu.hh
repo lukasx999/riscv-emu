@@ -11,11 +11,12 @@
 class CPU {
     Word m_pc;
 
+    friend struct Executor;
+
 public:
     RegisterFile m_registers;
     Memory& m_memory;
 
-    friend struct Executor;
 
     CPU(Memory& memory)
         : m_memory(memory)

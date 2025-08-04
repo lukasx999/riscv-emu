@@ -301,6 +301,7 @@ InstructionB Decoder::decode_btype(BinaryInstruction inst) {
     uint16_t b = extract_bits(raw_inst.imm2, 0, 6);
     uint16_t c = extract_bits(raw_inst.imm1, 0, 1);
     uint16_t d = extract_bits(raw_inst.imm2, 6, 1);
+    // TODO: clear bits to counteract implicit sign extension
     int32_t imm = a << 1 | b << 5 | c << 11 | d << 12;
 
     return {
@@ -332,6 +333,7 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     };
 
     auto raw_imm = std::bit_cast<Imm>(raw_inst.imm);
+    // TODO: fix implicit sign extension
     Immediate21Bit imm = raw_imm.c << 1  |
                          raw_imm.b << 11 |
                          raw_imm.a << 12 |

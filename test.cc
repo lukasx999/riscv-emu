@@ -242,6 +242,7 @@ TEST_CASE("decoder") {
 
     SECTION("itype") {
         test_decoder_itype("addi  t2, t0,  45",   Addi,  45,    T2, T0);
+        test_decoder_itype("addi  t2, t0,  -45",   Addi,  -45,    T2, T0);
         test_decoder_itype("xori  s2, s11, 2000", Xori,  2000,  S2, S11);
         test_decoder_itype("ori   s0, s1,  167",  Ori,   167,   S0, S1);
         test_decoder_itype("andi  t2, a2,  1000", Andi,  1000,  T2, A2);

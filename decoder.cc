@@ -278,7 +278,15 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
 InstructionS Decoder::decode_stype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionS>(inst);
 
-    Immediate12Bit imm = raw_inst.imm2 << 5 | raw_inst.imm1;
+    int imm1_size = 5;
+
+    // implicit sign-extension of imm1 will set leading bits to 1,
+    // which will mess up the bitwise or
+    // TODO: 64
+    // make set_bits() a template
+    auto imm1 = set_bits(raw_inst.imm1, imm1_size, 64-imm1_size, false);
+    Immediate12Bit imm = raw_inst.imm2 << imm1_size | imm1;
+
     return {
         parse_stype(raw_inst),
         static_cast<Register>(raw_inst.rs1),

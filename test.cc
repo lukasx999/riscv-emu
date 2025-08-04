@@ -281,8 +281,16 @@ TEST_CASE("decoder") {
     SECTION("stype") {
         test_decoder_stype("sb t0, 0(t1)", Sb, T0, T1, 0);
         test_decoder_stype("sb t0, -5(t1)", Sb, T0, T1, -5);
+        test_decoder_stype("sb t0, 5(t1)", Sb, T0, T1, 5);
         test_decoder_stype("sh t0, 0(t1)", Sh, T0, T1, 0);
+        test_decoder_stype("sh t0, -123(t1)", Sh, T0, T1, -123);
+        test_decoder_stype("sh t0, -65(t1)", Sh, T0, T1, -65);
         test_decoder_stype("sw a6, 0(s2)", Sw, A6, S2, 0);
+        test_decoder_stype("sw a6, -1000(s2)", Sw, A6, S2, -1000);
+        test_decoder_stype("sw a6, -2048(s2)", Sw, A6, S2, -2048);
+        test_decoder_stype("sw a6, 5(s2)", Sw, A6, S2, 5);
+        test_decoder_stype("sw a6, 50(s2)", Sw, A6, S2, 50);
+        test_decoder_stype("sw a6, 2047(s2)", Sw, A6, S2, 2047);
     }
 
     SECTION("btype") {

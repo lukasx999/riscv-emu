@@ -103,13 +103,18 @@ TEST_CASE("cpu") {
         test_cpu_load<uint8_t>(cpu, Lb, std::numeric_limits<int8_t>::max());
         test_cpu_load<int8_t>(cpu, Lb, std::numeric_limits<int8_t>::min());
         test_cpu_load<uint16_t>(cpu, Lh, 45);
-        // test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
         test_cpu_load<uint32_t>(cpu, Lw, 45);
-        // test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::max());
+        test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
+        test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::min());
+        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::max());
+        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::min());
         test_cpu_load<uint8_t>(cpu, Lbu, 45);
         test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::max());
+        test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::min());
         test_cpu_load<uint16_t>(cpu, Lhu, 45);
         test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::max());
+        test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::min());
+
 
     }
 

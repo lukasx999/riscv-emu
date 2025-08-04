@@ -115,23 +115,23 @@ struct Executor {
                 break;
 
             case Lb:
-                set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8), 8));
+                set_rd(m_cpu.m_memory.get<int8_t>(rs1 + imm));
                 break;
 
             case Lh:
-                set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16), 16));
+                set_rd(m_cpu.m_memory.get<int16_t>(rs1 + imm));
                 break;
 
             case Lw:
-                set_rd(sign_extend(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 32), 32));
+                set_rd(m_cpu.m_memory.get<int32_t>(rs1 + imm));
                 break;
 
             case Lbu:
-                set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 8));
+                set_rd(m_cpu.m_memory.get<uint8_t>(rs1 + imm));
                 break;
 
             case Lhu:
-                set_rd(extract_bits(m_cpu.m_memory.get(rs1 + imm), 0, 16));
+                set_rd(m_cpu.m_memory.get<uint16_t>(rs1 + imm));
                 break;
 
             case Jalr:

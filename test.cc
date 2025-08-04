@@ -159,7 +159,7 @@ TEST_CASE("utils") {
 namespace {
 
 void test_decoder_itype(std::string instruction, InstructionI::Type type,
-                               uint16_t imm, Register rd, Register rs1) {
+                               Immediate12Bit imm, Register rd, Register rs1) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionI>(inst));
@@ -183,7 +183,7 @@ void test_decoder_rtype(std::string instruction, InstructionR::Type type,
 }
 
 void test_decoder_stype(std::string instruction, InstructionS::Type type,
-                               Register rs2, Register rs1, uint16_t imm) {
+                               Register rs2, Register rs1, Immediate12Bit imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionS>(inst));
@@ -195,7 +195,7 @@ void test_decoder_stype(std::string instruction, InstructionS::Type type,
 }
 
 void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
-                               Register rd, int32_t imm) {
+                               Register rd, Immediate21Bit imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionJ>(inst));
@@ -241,15 +241,18 @@ TEST_CASE("decoder") {
     }
 
     SECTION("itype") {
-        test_decoder_itype("addi  t2, t0,  45",   Addi,  45,    T2, T0);
-        test_decoder_itype("addi  t2, t0,  -45",  Addi, -45,    T2, T0);
-        test_decoder_itype("xori  s2, s11, 2000", Xori,  2000,  S2, S11);
-        test_decoder_itype("ori   s0, s1,  167",  Ori,   167,   S0, S1);
-        test_decoder_itype("andi  t2, a2,  1000", Andi,  1000,  T2, A2);
-        test_decoder_itype("srli  t4, t1,  0x2",  Srli,  2,     T4, T1);
-        test_decoder_itype("srai  t5, t1,  0x2",  Srai,  2,     T5, T1);
-        test_decoder_itype("slti  t0, t1,  2045", Slti,  2045,  T0, T1);
-        test_decoder_itype("sltiu t0, t1,  2045", Sltiu, 2045,  T0, T1);
+        test_decoder_itype("addi  t2, t0,  45",    Addi,  45,    T2, T0);
+        test_decoder_itype("addi  t2, t0,  -45",   Addi, -45,    T2, T0);
+        test_decoder_itype("addi  t2, t0,  2047",  Addi,  2047,  T2, T0);
+        test_decoder_itype("addi  t2, t0,  -2047", Addi, -2047,  T2, T0);
+        test_decoder_itype("addi  t2, t0,  -2048", Addi, -2048,  T2, T0);
+        test_decoder_itype("xori  s2, s11, 2000",  Xori,  2000,  S2, S11);
+        test_decoder_itype("ori   s0, s1,  167",   Ori,   167,   S0, S1);
+        test_decoder_itype("andi  t2, a2,  1000",  Andi,  1000,  T2, A2);
+        test_decoder_itype("srli  t4, t1,  0x2",   Srli,  2,     T4, T1);
+        test_decoder_itype("srai  t5, t1,  0x2",   Srai,  2,     T5, T1);
+        test_decoder_itype("slti  t0, t1,  2045",  Slti,  2045,  T0, T1);
+        test_decoder_itype("sltiu t0, t1,  2045",  Sltiu, 2045,  T0, T1);
 
         test_decoder_itype("lb  t0, 0(t1)", Lb,  0, T0, T1);
         test_decoder_itype("lh  t0, 0(t1)", Lh,  0, T0, T1);

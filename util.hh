@@ -10,6 +10,8 @@
 using Word = uint64_t;
 using SignedWord = int64_t;
 using BinaryInstruction = uint32_t;
+using Immediate12Bit = int16_t;
+using Immediate21Bit = int32_t;
 
 struct GlobalData {
     static constexpr std::string program_name = "riscv-emu";

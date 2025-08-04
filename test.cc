@@ -1,4 +1,6 @@
 #include <cmath>
+#include <ranges>
+#include <algorithm>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -7,7 +9,31 @@
 #include "memory.hh"
 #include "util.hh"
 
-static void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
+namespace {
+
+template <typename T> requires
+    std::same_as<T, uint8_t>  ||
+    std::same_as<T, uint16_t> ||
+    std::same_as<T, uint32_t>
+void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> value) {
+
+    using enum InstructionI::Type;
+    using enum Register;
+
+    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu };
+    assert(std::ranges::any_of(valid_types, [&](InstructionI::Type t) {
+        return t == type;
+    }));
+
+    cpu.m_memory.set<T>(0x0, value);
+    cpu.m_registers.set(T1, 0x0);
+    InstructionI inst(type, T0, T1, 0);
+    cpu.execute(inst);
+
+    REQUIRE(cpu.m_registers.get(T0) == value);
+}
+
+void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
                            int16_t imm, Word output) {
 
     using enum Register;
@@ -24,7 +50,7 @@ template <typename T> requires
     std::same_as<T, uint8_t>  ||
     std::same_as<T, uint16_t> ||
     std::same_as<T, uint32_t>
-static void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
+void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
                            uint16_t addr_offset, std::type_identity_t<T> value) {
 
     using enum Register;
@@ -35,6 +61,8 @@ static void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
     cpu.execute(inst);
 
     REQUIRE(cpu.m_memory.get<T>(address) == value);
+}
+
 }
 
 TEST_CASE("cpu") {
@@ -66,6 +94,18 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Slti, 1, 2, 1);
         test_cpu_itype(cpu, Slti, -10, 999, 1);
         test_cpu_itype(cpu, Sltiu, 10, 999, 1);
+
+        test_cpu_load<uint8_t>(cpu, Lb, 45);
+        test_cpu_load<uint8_t>(cpu, Lb, std::numeric_limits<int8_t>::max());
+        test_cpu_load<uint16_t>(cpu, Lh, 45);
+        // test_cpu_load<uint16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
+        test_cpu_load<uint32_t>(cpu, Lw, 45);
+        // test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::max());
+        test_cpu_load<uint8_t>(cpu, Lbu, 45);
+        test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::max());
+        test_cpu_load<uint16_t>(cpu, Lhu, 45);
+        test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::max());
+
     }
 
     SECTION("stype") {
@@ -116,7 +156,9 @@ TEST_CASE("utils") {
 
 }
 
-static void test_decoder_itype(std::string instruction, InstructionI::Type type,
+namespace {
+
+void test_decoder_itype(std::string instruction, InstructionI::Type type,
                                uint16_t imm, Register rd, Register rs1) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
@@ -128,7 +170,7 @@ static void test_decoder_itype(std::string instruction, InstructionI::Type type,
     REQUIRE(i.rs1 == rs1);
 }
 
-static void test_decoder_rtype(std::string instruction, InstructionR::Type type,
+void test_decoder_rtype(std::string instruction, InstructionR::Type type,
                                Register rd, Register rs1, Register rs2) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
@@ -140,7 +182,7 @@ static void test_decoder_rtype(std::string instruction, InstructionR::Type type,
     REQUIRE(i.rs2 == rs2);
 }
 
-static void test_decoder_stype(std::string instruction, InstructionS::Type type,
+void test_decoder_stype(std::string instruction, InstructionS::Type type,
                                Register rs2, Register rs1, uint16_t imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
@@ -152,7 +194,7 @@ static void test_decoder_stype(std::string instruction, InstructionS::Type type,
     REQUIRE(i.rs2 == rs2);
 }
 
-static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
+void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
                                Register rd, int32_t imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
@@ -163,7 +205,7 @@ static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
     REQUIRE(i.imm == imm);
 }
 
-static void test_decoder_btype(std::string instruction, InstructionB::Type type,
+void test_decoder_btype(std::string instruction, InstructionB::Type type,
                                Register rs1, Register rs2, int32_t imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
@@ -173,6 +215,8 @@ static void test_decoder_btype(std::string instruction, InstructionB::Type type,
     REQUIRE(i.rs1 == rs1);
     REQUIRE(i.rs2 == rs2);
     REQUIRE(i.imm == imm);
+}
+
 }
 
 TEST_CASE("decoder") {

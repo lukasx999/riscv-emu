@@ -103,7 +103,7 @@ struct Executor {
 
             case Srai: {
                 uint8_t operand = extract_bits(imm, 0, 5);
-                set_rd(sign_extend(rs1 >> operand, sizeof(Word)*8-operand));
+                set_rd(static_cast<SignedWord>(rs1) >> operand);
             } break;
 
             case Slti:

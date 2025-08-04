@@ -247,7 +247,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
     auto type = parse_itype(raw_inst);
-    uint16_t imm = raw_inst.imm;
+    int16_t imm = raw_inst.imm;
 
     switch (type) {
         using enum InstructionI::Type;
@@ -265,14 +265,14 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
         type,
         static_cast<Register>(raw_inst.rd),
         static_cast<Register>(raw_inst.rs1),
-        static_cast<int16_t>(imm)
+        imm
     };
 }
 
 InstructionS Decoder::decode_stype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionS>(inst);
 
-    uint16_t imm = raw_inst.imm2 << 5 | raw_inst.imm1;
+    int16_t imm = raw_inst.imm2 << 5 | raw_inst.imm1;
     return {
         parse_stype(raw_inst),
         static_cast<Register>(raw_inst.rs1),
@@ -288,7 +288,7 @@ InstructionB Decoder::decode_btype(BinaryInstruction inst) {
     uint16_t b = extract_bits(raw_inst.imm2, 0, 6);
     uint16_t c = extract_bits(raw_inst.imm1, 0, 1);
     uint16_t d = extract_bits(raw_inst.imm2, 6, 1);
-    uint32_t imm = a << 1 | b << 5 | c << 11 | d << 12;
+    int32_t imm = a << 1 | b << 5 | c << 11 | d << 12;
 
     return {
         parse_btype(raw_inst),
@@ -319,11 +319,11 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     };
 
     auto i = std::bit_cast<Imm>(raw_inst.imm);
-    auto imm = i.c << 1 | i.b << 11 | i.a << 12 | i.d << 20;
+    int32_t imm = i.c << 1 | i.b << 11 | i.a << 12 | i.d << 20;
 
     return {
         parse_jtype(raw_inst),
         static_cast<Register>(raw_inst.rd),
-        static_cast<uint32_t>(imm)
+        imm
     };
 }

@@ -40,27 +40,26 @@ struct InstructionS {
     enum class Type { Sb, Sh, Sw } type;
     Register rs1;
     Register rs2;
-    // TODO: store as signed int
-    uint16_t imm;
+    int16_t imm;
 };
 
 struct InstructionB {
     enum class Type { Beq, Bne, Blt, Bge, Bltu, Bgeu } type;
     Register rs1;
     Register rs2;
-    uint32_t imm;
+    int32_t imm;
 };
 
 struct InstructionU {
     enum class Type { Lui, Auipc } type;
     Register rd;
-    uint32_t imm;
+    int32_t imm;
 };
 
 struct InstructionJ {
     enum class Type { Jal } type;
     Register rd;
-    uint32_t imm;
+    int32_t imm;
 };
 
 using Instruction = std::variant<

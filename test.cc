@@ -152,7 +152,7 @@ static void test_decoder_stype(std::string instruction, InstructionS::Type type,
 }
 
 static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
-                               Register rd, uint32_t imm) {
+                               Register rd, int32_t imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionJ>(inst));
@@ -163,7 +163,7 @@ static void test_decoder_jtype(std::string instruction, InstructionJ::Type type,
 }
 
 static void test_decoder_btype(std::string instruction, InstructionB::Type type,
-                               Register rs1, Register rs2, uint32_t imm) {
+                               Register rs1, Register rs2, int32_t imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionB>(inst));

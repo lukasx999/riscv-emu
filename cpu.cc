@@ -68,7 +68,7 @@ struct Executor {
     void operator()(const InstructionI& inst) {
 
         Word rs1 = m_cpu.m_registers.get(inst.rs1);
-        Word imm = sign_extend(inst.imm, 12);
+        SignedWord imm = inst.imm;
 
         auto set_rd = [&](Word value) {
             m_cpu.m_registers.set(inst.rd, value);
@@ -107,12 +107,11 @@ struct Executor {
             } break;
 
             case Slti:
-                set_rd(static_cast<SignedWord>(rs1) <
-                       static_cast<SignedWord>(imm) ? 1 : 0);
+                set_rd(static_cast<SignedWord>(rs1) < imm ? 1 : 0);
                 break;
 
             case Sltiu:
-                set_rd(rs1 < imm ? 1 : 0);
+                set_rd(rs1 < static_cast<Word>(imm) ? 1 : 0);
                 break;
 
             case Lb:

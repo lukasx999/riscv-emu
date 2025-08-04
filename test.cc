@@ -14,7 +14,10 @@ namespace {
 template <typename T> requires
     std::same_as<T, uint8_t>  ||
     std::same_as<T, uint16_t> ||
-    std::same_as<T, uint32_t>
+    std::same_as<T, uint32_t> ||
+    std::same_as<T, int8_t>   ||
+    std::same_as<T, int16_t>  ||
+    std::same_as<T, int32_t>
 void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> value) {
 
     using enum InstructionI::Type;
@@ -30,7 +33,7 @@ void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> va
     InstructionI inst(type, T0, T1, 0);
     cpu.execute(inst);
 
-    REQUIRE(cpu.m_registers.get(T0) == value);
+    REQUIRE(static_cast<T>(cpu.m_registers.get(T0)) == value);
 }
 
 void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
@@ -96,9 +99,11 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Sltiu, 10, 999, 1);
 
         test_cpu_load<uint8_t>(cpu, Lb, 45);
+        test_cpu_load<int8_t>(cpu, Lb, -45);
         test_cpu_load<uint8_t>(cpu, Lb, std::numeric_limits<int8_t>::max());
+        test_cpu_load<int8_t>(cpu, Lb, std::numeric_limits<int8_t>::min());
         test_cpu_load<uint16_t>(cpu, Lh, 45);
-        // test_cpu_load<uint16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
+        // test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
         test_cpu_load<uint32_t>(cpu, Lw, 45);
         // test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::max());
         test_cpu_load<uint8_t>(cpu, Lbu, 45);

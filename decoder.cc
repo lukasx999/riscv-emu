@@ -280,10 +280,9 @@ InstructionS Decoder::decode_stype(BinaryInstruction inst) {
 
     int imm1_size = 5;
 
-    // implicit sign-extension of imm1 will set leading bits to 1,
+    // NOTE: implicit sign-extension of imm1 will set leading bits to 1,
     // which will mess up the bitwise OR
-    // TODO: use generic version of set_bits()
-    auto imm1 = set_bits(raw_inst.imm1, imm1_size, sizeof(uint64_t)*8-imm1_size, false);
+    auto imm1 = extract_bits(raw_inst.imm1, 0, imm1_size);
     Immediate12Bit imm = raw_inst.imm2 << imm1_size | imm1;
 
     return {
@@ -333,10 +332,12 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     };
 
     auto raw_imm = std::bit_cast<Imm>(raw_inst.imm);
-    // TODO: fix implicit sign extension
-    Immediate21Bit imm = raw_imm.c << 1  |
-                         raw_imm.b << 11 |
-                         raw_imm.a << 12 |
+
+    // NOTE: extracting bits to prevent implicit sign extension of signed
+    // integer of setting every bit in bitwise OR to 1
+    Immediate21Bit imm = extract_bits(raw_imm.c, 0, 10) << 1  |
+                         extract_bits(raw_imm.b, 0, 1)  << 11 |
+                         extract_bits(raw_imm.a, 0, 8)  << 12 |
                          raw_imm.d << 20;
 
     return {

@@ -14,6 +14,9 @@ repl: build
     ./build/riscv-emu :repl
 
 test: build
+    ./build/tests
+
+ctest: build
     ctest --test-dir ./build/
 
 rerun:

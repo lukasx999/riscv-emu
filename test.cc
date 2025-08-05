@@ -331,6 +331,7 @@ TEST_CASE("decoder") {
         test_decoder_stype("sw a6, 5(s2)", Sw, A6, S2, 5);
         test_decoder_stype("sw a6, 50(s2)", Sw, A6, S2, 50);
         test_decoder_stype("sw a6, 2047(s2)", Sw, A6, S2, 2047);
+        test_decoder_stype("sw a6, 1943(s2)", Sw, A6, S2, 1943);
     }
 
     SECTION("btype") {
@@ -367,10 +368,10 @@ TEST_CASE("decoder") {
         test_decoder_jtype("jal t0, .-64", Jal, T0, -64);
         test_decoder_jtype("jal t0, .+256", Jal, T0, 256);
         test_decoder_jtype("jal t0, .+512", Jal, T0, 512);
-
-        // TODO:
-        // test_decoder_jtype("jal t0, .+1024", Jal, T0, 1024);
-        // test_decoder_jtype("jal t0, .+1048575", Jal, T0, 1048575);
+        test_decoder_jtype("jal t0, .+1024", Jal, T0, 1024);
+        test_decoder_jtype("jal t0, .+2048", Jal, T0, 2048);
+        test_decoder_jtype("jal t0, .+4096", Jal, T0, 4096);
+        test_decoder_jtype("jal t0, .+1048574", Jal, T0, 1048574);
     }
 
 

@@ -67,7 +67,7 @@ template <typename T> requires
     std::same_as<T, uint16_t> ||
     std::same_as<T, uint32_t>
 void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
-                           uint16_t addr_offset, std::type_identity_t<T> value) {
+                    Immediate12Bit addr_offset, std::type_identity_t<T> value) {
 
     using enum Register;
 
@@ -79,15 +79,26 @@ void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
     REQUIRE(cpu.m_memory.get<T>(address) == value);
 }
 
+void test_cpu_jtype(CPU& cpu, InstructionJ::Type type, Immediate21Bit imm) {
+    using enum Register;
+
+    auto old_pc = cpu.get_pc();
+    InstructionJ inst(type, S7, imm);
+    cpu.execute(inst);
+
+    REQUIRE(cpu.m_registers.get(S7) == old_pc + sizeof(BinaryInstruction));
+    REQUIRE(cpu.get_pc() == old_pc + imm);
+
+}
+
 }
 
 TEST_CASE("cpu") {
     using enum InstructionR::Type;
     using enum InstructionI::Type;
     using enum InstructionS::Type;
+    using enum InstructionJ::Type;
     using enum Register;
-
-    // TODO: jtype
 
     Machine machine;
     auto& cpu = machine.m_cpu;
@@ -157,6 +168,12 @@ TEST_CASE("cpu") {
         test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, std::numeric_limits<uint16_t>::max());
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 423);
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, std::numeric_limits<uint32_t>::max());
+    }
+
+    SECTION("jtype") {
+        test_cpu_jtype(cpu, Jal, 1);
+        test_cpu_jtype(cpu, Jal, 1000);
+        test_cpu_jtype(cpu, Jal, -1000);
     }
 
 }
@@ -338,18 +355,25 @@ TEST_CASE("decoder") {
 
     SECTION("btype") {
         // assembler treats imm as aboslute address
-        test_decoder_btype("beq  t0, t1, .+16",  Beq,  T0, T1, 16);
-        test_decoder_btype("beq  t0, t1, .+32",  Beq,  T0, T1, 32);
-        test_decoder_btype("beq  t0, t1, .+64",  Beq,  T0, T1, 64);
-        test_decoder_btype("beq  t0, t1, .+128", Beq,  T0, T1, 128);
-        test_decoder_btype("bne  t0, t1, .+16",  Bne,  T0, T1, 16);
-        test_decoder_btype("bne  t0, t1, .+32",  Bne,  T0, T1, 32);
-        test_decoder_btype("bne  t0, t1, .+64",  Bne,  T0, T1, 64);
-        test_decoder_btype("bne  t0, t1, .+128", Bne,  T0, T1, 128);
-        test_decoder_btype("blt  t0, t1, .+16",  Blt,  T0, T1, 16);
-        test_decoder_btype("bge  t0, t1, .+16",  Bge,  T0, T1, 16);
-        test_decoder_btype("bltu t0, t1, .+16",  Bltu, T0, T1, 16);
-        test_decoder_btype("bgeu t0, t1, .+16",  Bgeu, T0, T1, 16);
+        test_decoder_btype("beq  t0, t1, .+16",   Beq,  T0, T1, 16);
+        test_decoder_btype("beq  t0, t1, .-16",   Beq,  T0, T1, -16);
+        test_decoder_btype("beq  t0, t1, .+32",   Beq,  T0, T1, 32);
+        test_decoder_btype("beq  t0, t1, .+64",   Beq,  T0, T1, 64);
+        test_decoder_btype("beq  t0, t1, .+1024", Beq,  T0, T1, 1024);
+        test_decoder_btype("beq  t0, t1, .+2048", Beq,  T0, T1, 2048);
+        test_decoder_btype("beq  t0, t1, .-2048", Beq,  T0, T1, -2048);
+        test_decoder_btype("beq  t0, t1, .+4094", Beq,  T0, T1, 4094);
+        test_decoder_btype("beq  t0, t1, .-4094", Beq,  T0, T1, -4094);
+        test_decoder_btype("beq  t0, t1, .+128",  Beq,  T0, T1, 128);
+        test_decoder_btype("beq  t0, t1, .-128",  Beq,  T0, T1, -128);
+        test_decoder_btype("bne  t0, t1, .+16",   Bne,  T0, T1, 16);
+        test_decoder_btype("bne  t0, t1, .+32",   Bne,  T0, T1, 32);
+        test_decoder_btype("bne  t0, t1, .+64",   Bne,  T0, T1, 64);
+        test_decoder_btype("bne  t0, t1, .+128",  Bne,  T0, T1, 128);
+        test_decoder_btype("blt  t0, t1, .+16",   Blt,  T0, T1, 16);
+        test_decoder_btype("bge  t0, t1, .+16",   Bge,  T0, T1, 16);
+        test_decoder_btype("bltu t0, t1, .+16",   Bltu, T0, T1, 16);
+        test_decoder_btype("bgeu t0, t1, .+16",   Bgeu, T0, T1, 16);
     }
 
     SECTION("utype") {

@@ -296,12 +296,23 @@ InstructionS Decoder::decode_stype(BinaryInstruction inst) {
 InstructionB Decoder::decode_btype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionB>(inst);
 
-    uint16_t a = extract_bits(raw_inst.imm1, 1, 4);
-    uint16_t b = extract_bits(raw_inst.imm2, 0, 6);
-    uint16_t c = extract_bits(raw_inst.imm1, 0, 1);
-    uint16_t d = extract_bits(raw_inst.imm2, 6, 1);
-    // TODO: clear bits to counteract implicit sign extension
-    int32_t imm = a << 1 | b << 5 | c << 11 | d << 12;
+    struct Imm1 {
+        signed int a : 1;
+        signed int b : 4;
+    };
+
+    struct Imm2 {
+        signed int a : 6;
+        signed int b : 1;
+    };
+
+    auto imm1 = std::bit_cast<Imm1>(raw_inst.imm1);
+    auto imm2 = std::bit_cast<Imm2>(raw_inst.imm2);
+
+    Immediate13Bit imm = extract_bits(imm1.b, 0, 4) << 1 |
+        extract_bits(imm2.a, 0, 6) << 5 |
+        extract_bits(imm1.a, 0, 1) << 11 |
+        imm2.b << 12;
 
     return {
         parse_btype(raw_inst),

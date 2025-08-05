@@ -87,6 +87,8 @@ TEST_CASE("cpu") {
     using enum InstructionS::Type;
     using enum Register;
 
+    // TODO: jtype
+
     Machine machine;
     auto& cpu = machine.m_cpu;
 

@@ -96,6 +96,16 @@ void test_cpu_btype(CPU& cpu, InstructionB::Type type, Word num1, Word num2,
 
 }
 
+void test_cpu_utype(CPU& cpu, InstructionU::Type type, Register rd, Immediate32Bit imm, Word output) {
+    using enum Register;
+
+    InstructionU inst(type, rd, imm);
+    cpu.execute(inst);
+
+    REQUIRE(cpu.m_registers.get(rd) == output);
+
+}
+
 void test_cpu_jtype(CPU& cpu, InstructionJ::Type type, Immediate21Bit imm) {
     using enum Register;
 
@@ -115,6 +125,7 @@ TEST_CASE("cpu") {
     using enum InstructionI::Type;
     using enum InstructionS::Type;
     using enum InstructionB::Type;
+    using enum InstructionU::Type;
     using enum InstructionJ::Type;
     using enum Register;
 
@@ -199,6 +210,14 @@ TEST_CASE("cpu") {
         test_cpu_btype(cpu, Bge, 7, 2, 5, true);
         test_cpu_btype(cpu, Bltu, 7, 2, 5, false);
         test_cpu_btype(cpu, Bgeu, 1, 2, 5, false);
+    }
+
+    SECTION("utype") {
+        test_cpu_utype(cpu, Lui, T0, 1, 1 << 12);
+        test_cpu_utype(cpu, Lui, T0, 1024, 1024 << 12);
+        test_cpu_utype(cpu, Lui, T0, -1024, -1024 << 12);
+        test_cpu_utype(cpu, Auipc, T0, 1, cpu.get_pc() + (1 << 12));
+        test_cpu_utype(cpu, Auipc, T0, -64, cpu.get_pc() + (-64 << 12));
     }
 
     SECTION("jtype") {
@@ -308,7 +327,7 @@ void test_decoder_btype(std::string instruction, InstructionB::Type type,
 }
 
 void test_decoder_utype(std::string instruction, InstructionU::Type type,
-                        Register rd, Immediate20Bit imm) {
+                        Register rd, Immediate32Bit imm) {
     auto raw_inst = encode_instruction(std::move(instruction));
     auto inst = Decoder::decode(raw_inst->front());
     REQUIRE(std::holds_alternative<InstructionU>(inst));
@@ -408,13 +427,15 @@ TEST_CASE("decoder") {
     }
 
     SECTION("utype") {
-        test_decoder_utype("lui t0, 1", Lui, T0, 1);
-        test_decoder_utype("lui t0, 524287", Lui, T0, 524287);
-        test_decoder_utype("auipc t0, 1", Auipc, T0, 1);
+        test_decoder_utype("lui t0, 1", Lui, T0, 1 << 12);
+        test_decoder_utype("lui t0, 1000", Lui, T0, 1000 << 12);
+        test_decoder_utype("lui t0, 524287", Lui, T0, 524287 << 12);
+        test_decoder_utype("auipc t0, 1", Auipc, T0, 1 << 12);
+        test_decoder_utype("auipc t0, 524287", Auipc, T0, 524287 << 12);
     }
 
     SECTION("jtype") {
-        // assembler treats imm as aboslute address
+        // assembler treats imm as absolute address
         test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
         test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
         test_decoder_jtype("jal t0, .+16", Jal, T0, 16);

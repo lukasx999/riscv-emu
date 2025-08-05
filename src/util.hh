@@ -13,7 +13,7 @@ using SignedWord = int64_t;
 using BinaryInstruction = uint32_t;
 using Immediate12Bit = int16_t;
 using Immediate13Bit = int16_t;
-using Immediate20Bit = int32_t;
+using Immediate32Bit = int32_t;
 using Immediate21Bit = int32_t;
 
 struct GlobalData {

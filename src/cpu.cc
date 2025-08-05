@@ -217,7 +217,7 @@ struct Executor {
 
     void operator()(const InstructionU& inst) {
 
-        uint32_t imm = sign_extend(inst.imm, 20);
+        SignedWord imm = inst.imm;
 
         auto set_rd = [&](Word value) {
             m_cpu.m_registers.set(inst.rd, value);

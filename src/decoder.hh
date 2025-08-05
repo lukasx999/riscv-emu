@@ -53,7 +53,7 @@ struct InstructionB {
 struct InstructionU {
     enum class Type { Lui, Auipc } type;
     Register rd;
-    Immediate20Bit imm;
+    Immediate32Bit imm;
 };
 
 struct InstructionJ {

@@ -328,7 +328,7 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
     return {
         parse_utype(raw_inst),
         static_cast<Register>(raw_inst.rd),
-        raw_inst.imm
+        raw_inst.imm << 12
     };
 }
 

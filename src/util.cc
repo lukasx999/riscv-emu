@@ -12,8 +12,6 @@ namespace fs = std::filesystem;
 namespace asio = boost::asio;
 namespace proc = boost::process;
 
-GlobalData global_data;
-
 auto encode_instruction(std::string instruction)
 -> std::optional<std::vector<BinaryInstruction>> {
 

@@ -21,7 +21,7 @@ struct GlobalData {
     std::string assembler_path = "/usr/bin/riscv64-elf-as";
     std::string objcopy_path = "/usr/bin/riscv64-elf-objcopy";
     bool enable_logging = false;
-} extern global_data;
+} inline global_data;
 
 template <typename... Args> inline
 void log(std::format_string<Args...> fmt, Args&& ...args) {

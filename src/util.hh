@@ -37,18 +37,3 @@ void log(std::format_string<Args...> fmt, Args&& ...args) {
 [[nodiscard]] uint64_t extract_bits(uint64_t value, int start, int size);
 [[nodiscard]] uint64_t set_bits(uint64_t value, int start, int size, bool bit);
 [[nodiscard]] uint64_t sign_extend(uint64_t value, int size_bits);
-
-// TODO: replace uses of non-generic version with this
-template <typename T> requires std::is_arithmetic_v<T>
-[[nodiscard]] constexpr inline
-T set_bits_generic(std::type_identity_t<T> value, int start, int size, bool bit) {
-    T mask = 0;
-    for (auto i = 0; i < size; ++i)
-        mask |= T(1) << (i + start);
-
-    if (bit)
-        return value | mask;
-    else
-        return value & ~mask;
-}
-

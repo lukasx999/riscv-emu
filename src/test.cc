@@ -79,6 +79,23 @@ void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
     REQUIRE(cpu.m_memory.get<T>(address) == value);
 }
 
+void test_cpu_btype(CPU& cpu, InstructionB::Type type, Word num1, Word num2,
+                    Immediate13Bit imm, bool should_branch) {
+    using enum Register;
+
+    auto old_pc = cpu.get_pc();
+    cpu.m_registers.set(S0, num1);
+    cpu.m_registers.set(S1, num2);
+    InstructionB inst(type, S0, S1, imm);
+    cpu.execute(inst);
+
+    if (should_branch)
+        REQUIRE(cpu.get_pc() == old_pc + imm);
+    else
+        REQUIRE(cpu.get_pc() == old_pc);
+
+}
+
 void test_cpu_jtype(CPU& cpu, InstructionJ::Type type, Immediate21Bit imm) {
     using enum Register;
 
@@ -97,6 +114,7 @@ TEST_CASE("cpu") {
     using enum InstructionR::Type;
     using enum InstructionI::Type;
     using enum InstructionS::Type;
+    using enum InstructionB::Type;
     using enum InstructionJ::Type;
     using enum Register;
 
@@ -168,6 +186,19 @@ TEST_CASE("cpu") {
         test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, std::numeric_limits<uint16_t>::max());
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 423);
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, std::numeric_limits<uint32_t>::max());
+    }
+
+    SECTION("btype") {
+        test_cpu_btype(cpu, Beq, 1, 2, 5, false);
+        test_cpu_btype(cpu, Beq, 1, 2, -5, false);
+        test_cpu_btype(cpu, Beq, 55, 55, 999, true);
+        test_cpu_btype(cpu, Beq, 55, 55, -999, true);
+        test_cpu_btype(cpu, Bne, 1, 2, 5, true);
+        test_cpu_btype(cpu, Blt, 1, 2, 5, true);
+        test_cpu_btype(cpu, Bge, 1, 2, 5, false);
+        test_cpu_btype(cpu, Bge, 7, 2, 5, true);
+        test_cpu_btype(cpu, Bltu, 7, 2, 5, false);
+        test_cpu_btype(cpu, Bgeu, 1, 2, 5, false);
     }
 
     SECTION("jtype") {

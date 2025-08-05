@@ -174,9 +174,9 @@ struct Executor {
 
     void operator()(const InstructionB& inst) {
 
-        auto rs1 = m_cpu.m_registers.get(inst.rs1);
-        auto rs2 = m_cpu.m_registers.get(inst.rs2);
-        uint32_t imm = sign_extend(inst.imm, 13);
+        Word rs1 = m_cpu.m_registers.get(inst.rs1);
+        Word rs2 = m_cpu.m_registers.get(inst.rs2);
+        SignedWord imm = inst.imm;
 
         switch (inst.type) {
             using enum InstructionB::Type;

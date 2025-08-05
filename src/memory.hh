@@ -20,6 +20,7 @@ class Memory {
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
     std::span<const LoadSegment> m_segments;
+    // TODO: place stack at the top
 
 public:
     Memory(std::span<const LoadSegment> segments)

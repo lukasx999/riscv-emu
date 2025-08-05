@@ -11,12 +11,6 @@ Linux Userspace emulator for RV64I ELF binaries.
 - Ninja (optional, for faster builds)
 - Just (optional, for more convenient running of builds/tests)
 
-#### Installing via pacman
-
-```console
-# pacman -S cmake ninja gcc just
-```
-
 ### Build
 
 ```console

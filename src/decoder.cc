@@ -115,6 +115,7 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x0: return Lb;
                 case 0x1: return Lh;
                 case 0x2: return Lw;
+                case 0x3: return Ld;
                 case 0x4: return Lbu;
                 case 0x5: return Lhu;
             }
@@ -144,6 +145,7 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
             case 0x0: return Sb;
             case 0x1: return Sh;
             case 0x2: return Sw;
+            case 0x3: return Sd;
         }
     }
 
@@ -210,6 +212,7 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
 InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
     uint8_t opcode = extract_bits(inst, 0, opcode_encoding_size);
+    std::println("{:#b}", opcode); // TODO: remove
 
     switch (opcode) {
         case 0b0110011:
@@ -253,7 +256,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionI>(inst);
 
     auto type = parse_itype(raw_inst);
-    int16_t imm = raw_inst.imm;
+    Immediate12Bit imm = raw_inst.imm;
 
     switch (type) {
         using enum InstructionI::Type;

@@ -3,7 +3,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <ranges>
 #include <utility>
 #include <array>
 

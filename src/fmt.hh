@@ -73,6 +73,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
                 case Lb:     return STRINGIFY(Lb);
                 case Lh:     return STRINGIFY(Lh);
                 case Lw:     return STRINGIFY(Lw);
+                case Ld:     return STRINGIFY(Ld);
                 case Lbu:    return STRINGIFY(Lbu);
                 case Lhu:    return STRINGIFY(Lhu);
                 case Jalr:   return STRINGIFY(Jalr);
@@ -157,6 +158,7 @@ struct std::formatter<InstructionS::Type> : std::formatter<std::string> {
                 case Sb: return STRINGIFY(Sb);
                 case Sh: return STRINGIFY(Sh);
                 case Sw: return STRINGIFY(Sw);
+                case Sd: return STRINGIFY(Sd);
             };
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);

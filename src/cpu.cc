@@ -76,9 +76,9 @@ struct Executor {
         switch (inst.type) {
             using enum InstructionI::Type;
 
-            case Addi: {
+            case Addi:
                 set_rd(rs1 + imm);
-            } break;
+                break;
 
             case Xori:
                 set_rd(rs1 ^ imm);
@@ -125,6 +125,10 @@ struct Executor {
                 set_rd(m_cpu.m_memory.get<int32_t>(rs1 + imm));
                 break;
 
+            case Ld:
+                set_rd(m_cpu.m_memory.get<uint64_t>(rs1 + imm));
+                break;
+
             case Lbu:
                 set_rd(m_cpu.m_memory.get<uint8_t>(rs1 + imm));
                 break;
@@ -166,6 +170,10 @@ struct Executor {
 
             case Sw:
                 m_cpu.m_memory.set<uint32_t>(address+offset, value);
+                break;
+
+            case Sd:
+                m_cpu.m_memory.set<uint64_t>(address+offset, value);
                 break;
 
         }

@@ -62,6 +62,7 @@ int main(int argc, char** argv) try {
     auto opts = parse_args(argc, argv);
 
     // TODO: fix bin-c invalid memory access (git bisect)
+    // fix stack address translation
     if (opts.filename == ":repl") {
         Machine machine;
         REPL repl(machine);

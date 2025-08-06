@@ -16,15 +16,17 @@ template <typename T> requires
     std::same_as<T, uint8_t>  ||
     std::same_as<T, uint16_t> ||
     std::same_as<T, uint32_t> ||
+    std::same_as<T, uint64_t> ||
     std::same_as<T, int8_t>   ||
     std::same_as<T, int16_t>  ||
-    std::same_as<T, int32_t>
+    std::same_as<T, int32_t>  ||
+    std::same_as<T, int64_t>
 void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> value) {
 
     using enum InstructionI::Type;
     using enum Register;
 
-    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu };
+    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu, Ld };
     assert(std::ranges::any_of(valid_types, [&](InstructionI::Type t) {
         return t == type;
     }));
@@ -65,7 +67,8 @@ void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
 template <typename T> requires
     std::same_as<T, uint8_t>  ||
     std::same_as<T, uint16_t> ||
-    std::same_as<T, uint32_t>
+    std::same_as<T, uint32_t> ||
+    std::same_as<T, uint64_t>
 void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
                     Immediate12Bit addr_offset, std::type_identity_t<T> value) {
 
@@ -150,6 +153,7 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Sltu, 10, 999, 1);
     }
 
+
     SECTION("itype") {
         test_cpu_itype(cpu, Addi, 5, 3, 8);
         test_cpu_itype(cpu, Addi, std::numeric_limits<Word>::max(), 1, 0);
@@ -179,8 +183,10 @@ TEST_CASE("cpu") {
         test_cpu_load<uint32_t>(cpu, Lw, 45);
         test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::max());
         test_cpu_load<int16_t>(cpu, Lh, std::numeric_limits<int16_t>::min());
-        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::max());
-        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<int32_t>::min());
+        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<uint32_t>::max());
+        test_cpu_load<uint32_t>(cpu, Lw, std::numeric_limits<uint32_t>::min());
+        test_cpu_load<uint64_t>(cpu, Ld, std::numeric_limits<uint64_t>::max());
+        test_cpu_load<uint64_t>(cpu, Ld, std::numeric_limits<uint64_t>::min());
         test_cpu_load<uint8_t>(cpu, Lbu, 45);
         test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::max());
         test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::min());
@@ -197,6 +203,8 @@ TEST_CASE("cpu") {
         test_cpu_stype<uint16_t>(cpu, Sh, 0x0, 0, std::numeric_limits<uint16_t>::max());
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, 423);
         test_cpu_stype<uint32_t>(cpu, Sw, 0x0, 0, std::numeric_limits<uint32_t>::max());
+        test_cpu_stype<uint64_t>(cpu, Sd, 0x0, 0, 432);
+        test_cpu_stype<uint64_t>(cpu, Sd, 0x0, 0, std::numeric_limits<uint64_t>::max());
     }
 
     SECTION("btype") {
@@ -378,6 +386,7 @@ TEST_CASE("decoder") {
         test_decoder_itype("lb  t0, 0(t1)", Lb,  0, T0, T1);
         test_decoder_itype("lh  t0, 0(t1)", Lh,  0, T0, T1);
         test_decoder_itype("lw  t0, 0(t1)", Lw,  0, T0, T1);
+        test_decoder_itype("ld  t0, 0(t1)", Ld,  0, T0, T1);
         test_decoder_itype("lbu t0, 0(t1)", Lbu, 0, T0, T1);
         test_decoder_itype("lhu t0, 0(t1)", Lhu, 0, T0, T1);
 
@@ -401,6 +410,7 @@ TEST_CASE("decoder") {
         test_decoder_stype("sw a6, 50(s2)", Sw, A6, S2, 50);
         test_decoder_stype("sw a6, 2047(s2)", Sw, A6, S2, 2047);
         test_decoder_stype("sw a6, 1943(s2)", Sw, A6, S2, 1943);
+        test_decoder_stype("sd a6, 1943(s2)", Sd, A6, S2, 1943);
     }
 
     SECTION("btype") {

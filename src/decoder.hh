@@ -21,7 +21,7 @@ struct InstructionI {
         // Arithmetic Immediate
         Addi, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
         // Load
-        Lb, Lh, Lw, Lbu, Lhu,
+        Lb, Lh, Lw, Lbu, Lhu, Ld,
         // Jump
         Jalr,
         // Environment
@@ -33,11 +33,11 @@ struct InstructionI {
     // lowest 5 bits of the 12 bit immediate value, as the others
     // are used as funct7, and therefore do not contribute
     // to the actual immediate operand
-    int16_t imm;
+    Immediate12Bit imm;
 };
 
 struct InstructionS {
-    enum class Type { Sb, Sh, Sw } type;
+    enum class Type { Sb, Sh, Sw, Sd } type;
     Register rs1;
     Register rs2;
     Immediate12Bit imm;

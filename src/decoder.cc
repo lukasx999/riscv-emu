@@ -212,7 +212,6 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
 InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
     uint8_t opcode = extract_bits(inst, 0, opcode_encoding_size);
-    std::println("{:#b}", opcode); // TODO: remove
 
     switch (opcode) {
         case 0b0110011:

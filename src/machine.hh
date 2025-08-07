@@ -5,8 +5,9 @@
 #include "memory.hh"
 
 class Machine {
-public:
+    size_t m_program_offset = 0;
 
+public:
     Memory m_memory;
     CPU m_cpu{m_memory};
 

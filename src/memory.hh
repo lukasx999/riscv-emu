@@ -14,7 +14,7 @@ struct MemoryException : std::runtime_error {
 };
 
 class Memory {
-    static constexpr size_t m_stack_size = 4096 * 10;
+    static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
     std::span<const LoadSegment> m_segments;
@@ -46,8 +46,7 @@ public:
         return reinterpret_cast<const T&>(m_memory[addr]);
     }
 
-    // TODO: what about stack addresses?
-    // if adjacent segment is not found, or none exist, just return stack offset?
+    // TODO: what about heap addresses from host mmap()?
 
     // translates a virtual address from the guest binary to the corresponding
     // address of the emulator memory

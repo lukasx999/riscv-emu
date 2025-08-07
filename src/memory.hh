@@ -16,7 +16,7 @@ struct MemoryException : std::runtime_error {
 // TODO: place stack at top
 
 class Memory {
-    static constexpr size_t m_stack_size = 4096;
+    static constexpr size_t m_stack_size = 4096 * 2;
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
     const std::span<const LoadSegment> m_segments;

@@ -293,6 +293,6 @@ private:
 };
 
 void CPU::execute(const Instruction& instruction) {
-    log("Running: {}", instruction);
+    log("Running: {} at {:#x}", instruction, m_pc);
     std::visit(Executor(*this), instruction);
 }

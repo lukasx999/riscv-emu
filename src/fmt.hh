@@ -6,6 +6,17 @@
 #include "decoder.hh"
 #include "register.hh"
 
+#define COLOR_RED "\033[1;31m"
+#define COLOR_BLUE "\033[1;34m"
+#define COLOR_MAGENTA "\033[1;35m"
+#define COLOR_END "\033[0m"
+
+#define COLOR_IMM COLOR_BLUE
+#define COLOR_TYPE COLOR_RED
+#define COLOR_RD COLOR_MAGENTA
+#define COLOR_RS1 COLOR_MAGENTA
+#define COLOR_RS2 COLOR_MAGENTA
+
 // "use" the value by casting to void, so language servers will
 // rename the argument of the macro
 #define STRINGIFY(value) (static_cast<void>(value), #value)
@@ -88,6 +99,9 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
 template <>
 struct std::formatter<InstructionI> : std::formatter<std::string> {
     auto format(const InstructionI& inst, std::format_context& ctx) const {
+        // TODO:
+        // auto fmt = std::format("{{ type: " COLOR_TYPE "{}" COLOR_END ", rd: " COLOR_RD "{}" COLOR_END ", rs1: " COLOR_RS1 "{}" COLOR_END ", imm: " COLOR_IMM "{}" COLOR_END " }}",
+        //                        inst.type, inst.rd, inst.rs1, inst.imm);
         auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, imm: {} }}",
                                inst.type, inst.rd, inst.rs1, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);

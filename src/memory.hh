@@ -10,9 +10,7 @@
 #include "util.hh"
 
 struct MemoryException : std::runtime_error {
-    explicit MemoryException(const char* msg)
-    : std::runtime_error(msg)
-    { }
+    explicit MemoryException(const char* msg) : std::runtime_error(msg) { }
 };
 
 class Memory {
@@ -20,10 +18,9 @@ class Memory {
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
     std::span<const LoadSegment> m_segments;
-    // TODO: place stack at the top
 
 public:
-    Memory(std::span<const LoadSegment> segments)
+    explicit Memory(std::span<const LoadSegment> segments)
         : m_memory(m_stack_size)
         , m_segments(segments)
     {

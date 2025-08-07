@@ -53,20 +53,18 @@ size_t Memory::translate_address(size_t guest_address) const {
 }
 
 void Memory::load_binary() {
-    size_t stack_offset = 0;
+    size_t offset = 0;
 
     for (auto& segment : m_segments) {
         size_t size = segment.bytes.size();
         m_memory.resize(m_memory.size()+size);
-        std::memcpy(m_memory.data()+stack_offset, segment.bytes.data(), size);
-        stack_offset += size;
+        std::memcpy(m_memory.data()+offset, segment.bytes.data(), size);
+        offset += size;
 
         log("Loaded segment with address {:#x} ({} bytes)",
             segment.virt_addr, segment.bytes.size());
     }
 
+    m_stack_offset = offset + m_stack_size;
     log("{} Segment(s) loaded", m_segments.size());
-
-    m_stack_offset = stack_offset;
-    log("Stack placed at {:#x}", m_stack_offset); // TODO: remove
 }

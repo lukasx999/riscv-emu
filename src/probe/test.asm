@@ -16,6 +16,6 @@ addi t0, zero, 0
 
 
 # exit()
-# li a0, 0
-# li a7, 93
-# ecall
+li a0, 0
+li a7, 93
+ecall

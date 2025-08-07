@@ -437,11 +437,11 @@ TEST_CASE("decoder") {
     }
 
     SECTION("utype") {
-        test_decoder_utype("lui t0, 1", Lui, T0, 1 << 12);
-        test_decoder_utype("lui t0, 1000", Lui, T0, 1000 << 12);
-        test_decoder_utype("lui t0, 524287", Lui, T0, 524287 << 12);
-        test_decoder_utype("auipc t0, 1", Auipc, T0, 1 << 12);
-        test_decoder_utype("auipc t0, 524287", Auipc, T0, 524287 << 12);
+        test_decoder_utype("lui t0, 1", Lui, T0, 1);
+        test_decoder_utype("lui t0, 1000", Lui, T0, 1000);
+        test_decoder_utype("lui t0, 524287", Lui, T0, 524287);
+        test_decoder_utype("auipc t0, 1", Auipc, T0, 1);
+        test_decoder_utype("auipc t0, 524287", Auipc, T0, 524287);
     }
 
     SECTION("jtype") {

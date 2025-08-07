@@ -23,13 +23,13 @@ void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
     auto segments = exec.get_load_segments();
     size_t program_offset = segments.front().virt_addr;
 
-    m_cpu.set_pc(m_memory.translate_address(exec.get_entry_point() - program_offset));
+    m_cpu.set_pc(exec.get_entry_point() - program_offset);
     log("Beginning execution at {:#x}", m_cpu.get_pc());
 
 }
 
 void Machine::init() {
-    size_t stack = m_memory.get_stack_address();
+    size_t stack = m_memory.get_stack_end_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
 }

@@ -13,11 +13,13 @@ struct MemoryException : std::runtime_error {
     explicit MemoryException(const char* msg) : std::runtime_error(msg) { }
 };
 
+// TODO: place stack at top
+
 class Memory {
     static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
     size_t m_stack_offset = 0;
-    std::span<const LoadSegment> m_segments;
+    const std::span<const LoadSegment> m_segments;
 
 public:
     explicit Memory(std::span<const LoadSegment> segments)
@@ -29,7 +31,9 @@ public:
 
     Memory() : m_memory(m_stack_size) { }
 
-    [[nodiscard]] size_t get_stack_address() const {
+    // stack pointer should point to end of stack because it gets more
+    // negative as the stack grows
+    [[nodiscard]] size_t get_stack_end_address() const {
         return m_stack_offset;
     }
 

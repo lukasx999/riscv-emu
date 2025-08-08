@@ -61,7 +61,7 @@ int main(int argc, char** argv) try {
 
     auto opts = parse_args(argc, argv);
 
-    // TODO: fix aboslute addresses in programs as supposed to ones relative to program offset
+    // TODO: fix absolute addresses in programs as supposed to ones relative to program offset
 
     if (opts.filename == ":repl") {
         Machine machine;

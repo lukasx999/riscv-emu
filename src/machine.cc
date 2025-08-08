@@ -6,9 +6,14 @@
 
 void Machine::run() {
     while (true) {
-        log("{}: {:#x}", m_instruction_counter, m_cpu.get_pc() + m_program_offset);
-        m_cpu.execute(fetch());
-        m_cpu.next_instruction();
+        log("{}: {:#x}", m_instruction_counter, m_cpu.get_pc());
+        auto instr = Decoder::decode(fetch());
+
+        m_cpu.execute(instr);
+
+        if (!is_instruction_jump(instr))
+            m_cpu.next_instruction();
+
         m_instruction_counter++;
     }
 }

@@ -9,7 +9,7 @@
 #include "fmt.hh"
 
 class CPU {
-    Word m_pc;
+    Word m_pc = 0x0;
 
     friend struct Executor;
 
@@ -17,10 +17,7 @@ public:
     RegisterFile m_registers;
     Memory& m_memory;
 
-
-    CPU(Memory& memory)
-        : m_memory(memory)
-    { }
+    CPU(Memory& memory) : m_memory(memory) { }
 
     [[nodiscard]] Word get_pc() const {
         return m_pc;

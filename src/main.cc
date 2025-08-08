@@ -67,7 +67,6 @@ int main(int argc, char** argv) try {
         repl.run();
 
     } else {
-        // TODO: destroy after loading (or just mmap read only)
         ElfExecutable elf(opts.filename);
         Machine machine(elf);
         machine.run();

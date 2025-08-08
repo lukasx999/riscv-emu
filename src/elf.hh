@@ -21,6 +21,8 @@ struct LoadSegment {
     Elf64_Word flags;
 };
 
+// TODO: destroy after loading (or just mmap read only)
+
 class ElfExecutable {
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;

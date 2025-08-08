@@ -25,7 +25,7 @@ void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
     auto segments = exec.get_load_segments();
     m_program_offset = segments.front().virt_addr;
 
-    m_cpu.set_pc(exec.get_entry_point() - m_program_offset);
+    m_cpu.set_pc(exec.get_entry_point());
     log("Program Offset: {:#x}", m_program_offset);
     log("Beginning execution at {:#x}", m_cpu.get_pc());
 

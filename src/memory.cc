@@ -15,13 +15,11 @@ size_t Memory::translate_address(size_t guest_address) const {
     // no need for translation if no segments are loaded
     if (m_segments.empty()) return guest_address;
 
-    size_t program_offset = m_segments.front().virt_addr;
-
     // guest address is assumed to be absolute
-    guest_address -= program_offset;
+    guest_address -= m_program_offset;
 
     auto find_fn = [&](const LoadSegment& segm) {
-        return guest_address >= segm.virt_addr-program_offset;
+        return guest_address >= segm.virt_addr-m_program_offset;
     };
 
     // find the segment the address belongs to
@@ -45,7 +43,7 @@ size_t Memory::translate_address(size_t guest_address) const {
         acc_fn
     );
 
-    size_t relative_offset = guest_address - (adjacent_segm->virt_addr - program_offset);
+    size_t relative_offset = guest_address - (adjacent_segm->virt_addr - m_program_offset);
 
     size_t address = segment_offset+relative_offset;
 
@@ -68,7 +66,9 @@ void Memory::load_binary() {
             segment.virt_addr, segment.bytes.size());
     }
 
-    m_stack_offset = offset + m_stack_size;
+    m_stack_offset = offset + m_stack_size + m_program_offset;
+
+    log("Program Offset: {:#x}", m_program_offset);
     log("{} Segment(s) loaded", m_segments.size());
     log("Memory: {} bytes", m_memory.size());
 }

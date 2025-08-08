@@ -18,13 +18,15 @@ struct MemoryException : std::runtime_error {
 class Memory {
     static constexpr size_t m_stack_size = 4096 * 2;
     std::vector<char> m_memory;
-    size_t m_stack_offset = 0;
     const std::span<const LoadSegment> m_segments;
+    size_t m_stack_offset = 0;
+    size_t m_program_offset = 0;
 
 public:
     explicit Memory(std::span<const LoadSegment> segments)
         : m_memory(m_stack_size)
         , m_segments(segments)
+        , m_program_offset(m_segments.front().virt_addr)
     {
         load_binary();
     }

@@ -5,7 +5,6 @@
 #include "memory.hh"
 
 class Machine {
-    size_t m_program_offset = 0;
     size_t m_instruction_counter = 0;
 
 public:

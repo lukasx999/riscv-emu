@@ -27,11 +27,7 @@ void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
     // virtual addresses, in ascending order, so we can take the address
     // of the first one as an offset
 
-    auto segments = exec.get_load_segments();
-    m_program_offset = segments.front().virt_addr;
-
     m_cpu.set_pc(exec.get_entry_point());
-    log("Program Offset: {:#x}", m_program_offset);
     log("Beginning execution at {:#x}", m_cpu.get_pc());
 
 }
@@ -40,4 +36,5 @@ void Machine::init() {
     size_t stack = m_memory.get_stack_end_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
+    log("Stack Pointer placed at {:#x}", stack);
 }

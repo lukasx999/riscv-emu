@@ -15,10 +15,13 @@ size_t Memory::translate_address(size_t guest_address) const {
     // no need for translation if no segment are loaded
     if (m_segments.empty()) return guest_address;
 
-    size_t base = m_segments.front().virt_addr;
+    size_t program_offset = m_segments.front().virt_addr;
+
+    // if (guest_address > program_offset)
+    //     guest_address -= program_offset;
 
     auto find_fn = [&](const LoadSegment& segm) {
-        return guest_address >= segm.virt_addr-base;
+        return guest_address >= segm.virt_addr-program_offset;
     };
 
     // find the segment the address belongs to
@@ -42,7 +45,7 @@ size_t Memory::translate_address(size_t guest_address) const {
         acc_fn
     );
 
-    size_t relative_offset = guest_address - (adjacent_segm->virt_addr - base);
+    size_t relative_offset = guest_address - (adjacent_segm->virt_addr - program_offset);
 
     size_t address = segment_offset+relative_offset;
 

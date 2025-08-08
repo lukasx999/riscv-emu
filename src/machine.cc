@@ -6,9 +6,10 @@
 
 void Machine::run() {
     while (true) {
-        log("{:#x}", m_cpu.get_pc() + m_program_offset);
+        log("{}: {:#x}", m_instruction_counter, m_cpu.get_pc() + m_program_offset);
         m_cpu.execute(fetch());
         m_cpu.next_instruction();
+        m_instruction_counter++;
     }
 }
 
@@ -25,6 +26,7 @@ void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
     m_program_offset = segments.front().virt_addr;
 
     m_cpu.set_pc(exec.get_entry_point() - m_program_offset);
+    log("Program Offset: {:#x}", m_program_offset);
     log("Beginning execution at {:#x}", m_cpu.get_pc());
 
 }

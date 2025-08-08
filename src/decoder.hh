@@ -71,7 +71,8 @@ using Instruction = std::variant<
     InstructionJ
 >;
 
-[[nodiscard]] constexpr inline bool is_instruction_jump(const Instruction& instr) {
+[[nodiscard]] constexpr inline
+bool is_instruction_jump(const Instruction& instr) {
     bool is_jalr = false;
 
     if (std::holds_alternative<InstructionI>(instr)) {

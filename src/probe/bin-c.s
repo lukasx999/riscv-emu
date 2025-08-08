@@ -17,23 +17,34 @@ _start:
 	sd	ra,24(sp)	#,
 	sd	s0,16(sp)	#,
 	addi	s0,sp,32	#,,
-# test.c:2:     int x = 45;
+# test.c:6:     int x = 45;
 	li	a5,45		# tmp134,
 	sw	a5,-20(s0)	# tmp134, x
-# test.c:3:     asm volatile ("li a0, 0");
+# test.c:8:     if (x) {
+	lw	a5,-20(s0)		# tmp136, x
+	sext.w	a5,a5	# tmp137, tmp135
+	beq	a5,zero,.L2	#, tmp137,,
+# test.c:9:         __asm__ volatile ("li a0, 0");
  #APP
-# 3 "test.c" 1
+# 9 "test.c" 1
 	li a0, 0
 # 0 "" 2
-# test.c:4:     asm volatile ("li a7, 93");
-# 4 "test.c" 1
+ #NO_APP
+.L2:
+# test.c:13:     __asm__ volatile ("li a0, 0");
+ #APP
+# 13 "test.c" 1
+	li a0, 0
+# 0 "" 2
+# test.c:14:     __asm__ volatile ("li a7, 93");
+# 14 "test.c" 1
 	li a7, 93
 # 0 "" 2
-# test.c:5:     asm volatile ("ecall");
-# 5 "test.c" 1
+# test.c:15:     __asm__ volatile ("ecall");
+# 15 "test.c" 1
 	ecall
 # 0 "" 2
-# test.c:6: }
+# test.c:16: }
  #NO_APP
 	nop	
 	ld	ra,24(sp)		#,

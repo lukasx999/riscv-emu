@@ -9,7 +9,7 @@
 
 struct InstructionR {
     enum class Type {
-        Add, Sub, Xor, Or, And, Sll, Srl, Sra, Slt, Sltu
+        Add, Sub, Xor, Or, And, Sll, Sllw, Srl, Sra, Slt, Sltu
     } type;
     Register rd;
     Register rs1;

@@ -69,23 +69,29 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
 [[nodiscard]] InstructionR::Type parse_rtype(RawInstructionR inst) {
     using enum InstructionR::Type;
 
-    if (inst.opcode == 0b0110011) {
-        switch (inst.funct3) {
-            case 0x0:
-                if      (inst.funct7 == 0x00) return Add;
-                else if (inst.funct7 == 0x20) return Sub;
-            case 0x4: return Xor;
-            case 0x6: return Or;
-            case 0x7: return And;
-            case 0x1: return Sll;
-            case 0x5:
-                if      (inst.funct7 == 0x00) return Srl;
-                else if (inst.funct7 == 0x20) return Sra;
-            case 0x2: return Slt;
-            case 0x3: return Sltu;
+    switch (inst.opcode) {
+        case 0b0110011:
+            switch (inst.funct3) {
+                case 0x0:
+                    if      (inst.funct7 == 0x00) return Add;
+                    else if (inst.funct7 == 0x20) return Sub;
+                case 0x4: return Xor;
+                case 0x6: return Or;
+                case 0x7: return And;
+                case 0x1: return Sll;
+                case 0x5:
+                    if      (inst.funct7 == 0x00) return Srl;
+                    else if (inst.funct7 == 0x20) return Sra;
+                case 0x2: return Slt;
+                case 0x3: return Sltu;
 
-        }
+            } break;
+
+        case 0b111011:
+            if (inst.funct3 == 0x1)
+                return Sllw;
     }
+
 
     throw DecodingException("invalid r-type instruction");
 }
@@ -219,6 +225,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
     switch (opcode) {
         case 0b0110011:
+        case 0b0111011:
             return InstructionFormat::RType;
 
         case 0b0010011:

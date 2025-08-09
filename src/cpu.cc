@@ -45,6 +45,10 @@ struct Executor {
                 set_rd(rs1 << rs2);
                 break;
 
+            case Sllw:
+                set_rd(static_cast<uint32_t>(rs1 << extract_bits(rs2, 0, 5)));
+                break;
+
             case Srl:
                 set_rd(rs1 >> rs2);
                 break;

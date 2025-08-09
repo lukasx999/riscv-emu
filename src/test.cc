@@ -144,8 +144,10 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Add, 47, 2000, 2047);
         test_cpu_rtype(cpu, Add, -5, -3, -8);
         test_cpu_rtype(cpu, Sll, 16, 1, 32);
-        test_cpu_rtype(cpu, Srl, 16, 1, 8);
+        test_cpu_rtype(cpu, Sllw, 16, 1, 32);
+        test_cpu_rtype(cpu, Sllw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<uint32_t>::max());
         test_cpu_rtype(cpu, Sll, 78, 6, 4992);
+        test_cpu_rtype(cpu, Srl, 16, 1, 8);
         test_cpu_rtype(cpu, Sra, -66, 5, -3);
         test_cpu_rtype(cpu, Slt, 1, 1, 0);
         test_cpu_rtype(cpu, Slt, 1, 2, 1);
@@ -365,6 +367,7 @@ TEST_CASE("decoder") {
         test_decoder_rtype("or   x2, t1, t0", Or,   X2, T1, T0);
         test_decoder_rtype("and  t2, t3, t0", And,  T2, T3, T0);
         test_decoder_rtype("sll  t2, t1, t5", Sll,  T2, T1, T5);
+        test_decoder_rtype("sllw t2, t1, t5", Sllw, T2, T1, T5);
         test_decoder_rtype("srl  t2, t1, t0", Srl,  T2, T1, T0);
         test_decoder_rtype("sra  t2, t1, t0", Sra,  T2, T1, T0);
         test_decoder_rtype("slt  t2, t1, t0", Slt,  T2, T1, T0);

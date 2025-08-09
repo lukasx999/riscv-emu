@@ -122,6 +122,7 @@ struct std::formatter<InstructionR::Type> : std::formatter<std::string> {
                 case Or:   return STRINGIFY(Or);
                 case And:  return STRINGIFY(And);
                 case Sll:  return STRINGIFY(Sll);
+                case Sllw: return STRINGIFY(Sllw);
                 case Srl:  return STRINGIFY(Srl);
                 case Sra:  return STRINGIFY(Sra);
                 case Slt:  return STRINGIFY(Slt);

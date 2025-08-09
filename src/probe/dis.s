@@ -14,7 +14,7 @@ Disassembly of section .text:
    10100:	fec42783          	lw	a5,-20(s0)
    10104:	0007879b          	addiw	a5,a5,0
    10108:	00078463          	beq	a5,zero,10110 <_start+0x28>
-   1010c:	00000513          	addi	a0,zero,0
+   1010c:	00000013          	addi	zero,zero,0
    10110:	00000513          	addi	a0,zero,0
    10114:	05d00893          	addi	a7,zero,93
    10118:	00000073          	ecall

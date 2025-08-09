@@ -153,7 +153,6 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Sltu, 10, 999, 1);
     }
 
-
     SECTION("itype") {
         test_cpu_itype(cpu, Addi, 5, 3, 8);
         test_cpu_itype(cpu, Addi, std::numeric_limits<Word>::max(), 1, 0);
@@ -161,6 +160,9 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Addi, 0, -2048, -2048);
         test_cpu_itype(cpu, Addi, 0, 2047, 2047);
         test_cpu_itype(cpu, Addi, 47, 2000, 2047);
+        test_cpu_itype(cpu, Addiw, 47, 2000, 2047);
+        test_cpu_itype(cpu, Addiw, -1, 1, 0);
+        test_cpu_itype(cpu, Addiw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<uint32_t>::max());
         test_cpu_itype(cpu, Addi, -5, -3, -8);
         test_cpu_itype(cpu, Xori, 5, 3, 6);
         test_cpu_itype(cpu, Ori, 5, 7, 7);
@@ -375,6 +377,7 @@ TEST_CASE("decoder") {
         test_decoder_itype("addi  t2, t0,  2047",  Addi,  2047,  T2, T0);
         test_decoder_itype("addi  t2, t0,  -2047", Addi, -2047,  T2, T0);
         test_decoder_itype("addi  t2, t0,  -2048", Addi, -2048,  T2, T0);
+        test_decoder_itype("addiw t2, t0,  -2048", Addiw, -2048,  T2, T0);
         test_decoder_itype("xori  s2, s11, 2000",  Xori,  2000,  S2, S11);
         test_decoder_itype("ori   s0, s1,  167",   Ori,   167,   S0, S1);
         test_decoder_itype("andi  t2, a2,  1000",  Andi,  1000,  T2, A2);
@@ -414,7 +417,7 @@ TEST_CASE("decoder") {
     }
 
     SECTION("btype") {
-        // assembler treats imm as aboslute address
+        // assembler treats imm as absolute address
         test_decoder_btype("beq  t0, t1, .+16",   Beq,  T0, T1, 16);
         test_decoder_btype("beq  t0, t1, .-16",   Beq,  T0, T1, -16);
         test_decoder_btype("beq  t0, t1, .+32",   Beq,  T0, T1, 32);

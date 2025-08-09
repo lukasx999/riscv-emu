@@ -132,6 +132,10 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
         case 0b1100111:
             if (inst.funct3 == 0x0)
                 return Jalr;
+
+        case 0b0011011:
+            if (inst.funct3 == 0x0)
+                return Addiw;
     }
 
     throw DecodingException("invalid i-type instruction");
@@ -221,6 +225,7 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
         case 0b0000011:
         case 0b1100111:
         case 0b1110011:
+        case 0b0011011:
             return InstructionFormat::IType;
 
         case 0b0100011:

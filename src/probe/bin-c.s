@@ -24,27 +24,27 @@ _start:
 	lw	a5,-20(s0)		# tmp136, x
 	sext.w	a5,a5	# tmp137, tmp135
 	beq	a5,zero,.L2	#, tmp137,,
-# test.c:9:         __asm__ volatile ("li a0, 0");
+# test.c:9:         __asm__ volatile ("nop");
  #APP
 # 9 "test.c" 1
-	li a0, 0
+	nop
 # 0 "" 2
  #NO_APP
 .L2:
-# test.c:13:     __asm__ volatile ("li a0, 0");
+# test.c:11:     __asm__ volatile ("li a0, 0");
  #APP
-# 13 "test.c" 1
+# 11 "test.c" 1
 	li a0, 0
 # 0 "" 2
-# test.c:14:     __asm__ volatile ("li a7, 93");
-# 14 "test.c" 1
+# test.c:12:     __asm__ volatile ("li a7, 93");
+# 12 "test.c" 1
 	li a7, 93
 # 0 "" 2
-# test.c:15:     __asm__ volatile ("ecall");
-# 15 "test.c" 1
+# test.c:13:     __asm__ volatile ("ecall");
+# 13 "test.c" 1
 	ecall
 # 0 "" 2
-# test.c:16: }
+# test.c:14: }
  #NO_APP
 	nop	
 	ld	ra,24(sp)		#,

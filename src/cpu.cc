@@ -80,6 +80,10 @@ struct Executor {
                 set_rd(rs1 + imm);
                 break;
 
+            case Addiw:
+                set_rd(static_cast<uint32_t>(rs1 + imm));
+                break;
+
             case Xori:
                 set_rd(rs1 ^ imm);
                 break;

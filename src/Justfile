@@ -10,9 +10,6 @@ run: build
 c: build
     ./build/riscv-emu ./probe/bin-c -v
 
-time: build
-    time ./build/riscv-emu ./probe/bin-asm
-
 repl: build
     ./build/riscv-emu :repl
 

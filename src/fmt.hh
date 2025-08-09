@@ -73,6 +73,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
             switch (type) {
                 using enum InstructionI::Type;
                 case Addi:   return STRINGIFY(Addi);
+                case Addiw:  return STRINGIFY(Addiw);
                 case Xori:   return STRINGIFY(Xori);
                 case Ori:    return STRINGIFY(Ori);
                 case Andi:   return STRINGIFY(Andi);

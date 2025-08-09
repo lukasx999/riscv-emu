@@ -1,3 +1,5 @@
+#include <thread>
+#include <chrono>
 #include <cstdlib>
 #include <cstring>
 
@@ -6,12 +8,18 @@
 
 void Machine::run() {
     while (true) {
-        log("{}: {:#x}", m_instruction_counter, m_cpu.get_pc());
+        auto pc = m_cpu.get_pc();
+        log("{}: {:#x}", m_instruction_counter, pc);
         auto instr = Decoder::decode(fetch());
 
-        m_cpu.execute(instr);
+        // std::chrono::duration<float> dur(0.5);
+        // std::this_thread::sleep_for(dur);
 
-        if (!is_instruction_jump(instr))
+        m_cpu.execute(instr);
+        auto new_pc = m_cpu.get_pc();
+
+        bool did_jump = pc != new_pc;
+        if (!did_jump)
             m_cpu.next_instruction();
 
         m_instruction_counter++;

@@ -10,47 +10,20 @@
 # options passed: -mabi=lp64 -misa-spec=20191213 -march=rv64i -O0
 	.text
 	.align	2
-	.globl	_start
-	.type	_start, @function
-_start:
-	addi	sp,sp,-32	#,,
-	sd	ra,24(sp)	#,
-	sd	s0,16(sp)	#,
-	addi	s0,sp,32	#,,
-# test.c:6:     int x = 45;
-	li	a5,45		# tmp134,
-	sw	a5,-20(s0)	# tmp134, x
-# test.c:8:     if (x) {
-	lw	a5,-20(s0)		# tmp136, x
-	sext.w	a5,a5	# tmp137, tmp135
-	beq	a5,zero,.L2	#, tmp137,,
-# test.c:9:         __asm__ volatile ("nop");
- #APP
-# 9 "test.c" 1
-	nop
-# 0 "" 2
- #NO_APP
-.L2:
-# test.c:11:     __asm__ volatile ("li a0, 0");
- #APP
-# 11 "test.c" 1
-	li a0, 0
-# 0 "" 2
-# test.c:12:     __asm__ volatile ("li a7, 93");
-# 12 "test.c" 1
-	li a7, 93
-# 0 "" 2
-# test.c:13:     __asm__ volatile ("ecall");
-# 13 "test.c" 1
-	ecall
-# 0 "" 2
-# test.c:14: }
- #NO_APP
-	nop	
-	ld	ra,24(sp)		#,
-	ld	s0,16(sp)		#,
-	addi	sp,sp,32	#,,
+	.globl	main
+	.type	main, @function
+main:
+	addi	sp,sp,-16	#,,
+	sd	ra,8(sp)	#,
+	sd	s0,0(sp)	#,
+	addi	s0,sp,16	#,,
+	li	a5,0		# _1,
+# test.c:2: }
+	mv	a0,a5	#, <retval>
+	ld	ra,8(sp)		#,
+	ld	s0,0(sp)		#,
+	addi	sp,sp,16	#,,
 	jr	ra		#
-	.size	_start, .-_start
+	.size	main, .-main
 	.ident	"GCC: (g1b306039a) 15.1.0"
 	.section	.note.GNU-stack,"",@progbits

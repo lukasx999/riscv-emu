@@ -71,6 +71,7 @@ using Instruction = std::variant<
     InstructionJ
 >;
 
+// TODO: remove?
 [[nodiscard]] constexpr inline
 bool is_instruction_jump(const Instruction& instr) {
     bool is_jalr = false;

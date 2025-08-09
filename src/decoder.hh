@@ -71,22 +71,6 @@ using Instruction = std::variant<
     InstructionJ
 >;
 
-// TODO: remove?
-[[nodiscard]] constexpr inline
-bool is_instruction_jump(const Instruction& instr) {
-    bool is_jalr = false;
-
-    if (std::holds_alternative<InstructionI>(instr)) {
-        if (std::get<InstructionI>(instr).type == InstructionI::Type::Jalr)
-            is_jalr = true;
-    }
-
-    return is_jalr ||
-    std::holds_alternative<InstructionJ>(instr) ||
-    std::holds_alternative<InstructionB>(instr);
-
-}
-
 enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
 struct DecodingException : std::runtime_error {

@@ -164,7 +164,8 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Addi, 47, 2000, 2047);
         test_cpu_itype(cpu, Addiw, 47, 2000, 2047);
         test_cpu_itype(cpu, Addiw, -1, 1, 0);
-        test_cpu_itype(cpu, Addiw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<uint32_t>::max());
+        test_cpu_itype(cpu, Addiw, -500, 1, -499);
+        test_cpu_itype(cpu, Addiw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<Word>::max());
         test_cpu_itype(cpu, Addi, -5, -3, -8);
         test_cpu_itype(cpu, Xori, 5, 3, 6);
         test_cpu_itype(cpu, Ori, 5, 7, 7);

@@ -85,7 +85,7 @@ struct Executor {
                 break;
 
             case Addiw:
-                set_rd(static_cast<uint32_t>(rs1 + imm));
+                set_rd(static_cast<int32_t>(extract_bits(rs1 + imm, 0, 32)));
                 break;
 
             case Xori:

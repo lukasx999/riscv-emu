@@ -101,7 +101,12 @@ struct Executor {
                 break;
 
             case Slli:
+                // TODO: dont extract bits, has already been done in decoder
                 set_rd(rs1 << extract_bits(imm, 0, 5));
+                break;
+
+            case Slliw:
+                set_rd(static_cast<int32_t>(extract_bits(rs1 << imm, 0, 32)));
                 break;
 
             case Srli:

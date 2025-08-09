@@ -140,8 +140,11 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 return Jalr;
 
         case 0b0011011:
-            if (inst.funct3 == 0x0)
-                return Addiw;
+            switch (inst.funct3) {
+                case 0x0: return Addiw;
+                case 0x1: return Slliw;
+            }
+            break;
     }
 
     throw DecodingException("invalid i-type instruction");
@@ -272,6 +275,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
     switch (type) {
         using enum InstructionI::Type;
         case Slli:
+        case Slliw:
         case Srli:
         case Srai:
             imm = extract_bits(imm, 0, 5);

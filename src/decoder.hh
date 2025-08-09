@@ -19,7 +19,7 @@ struct InstructionR {
 struct InstructionI {
     enum class Type {
         // Arithmetic Immediate
-        Addi, Addiw, Xori, Ori, Andi, Slli, Srli, Srai, Slti, Sltiu,
+        Addi, Addiw, Xori, Ori, Andi, Slli, Slliw, Srli, Srai, Slti, Sltiu,
         // Load
         Lb, Lh, Lw, Lbu, Lhu, Ld,
         // Jump
@@ -29,7 +29,7 @@ struct InstructionI {
     } type;
     Register rd;
     Register rs1;
-    // in case of Slli, Srli, and Srai, `m_imm` represents only the
+    // in case of Slli, Srli, Slliw, and Srai, `m_imm` represents only the
     // lowest 5 bits of the 12 bit immediate value, as the others
     // are used as funct7, and therefore do not contribute
     // to the actual immediate operand

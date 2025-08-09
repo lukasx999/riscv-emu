@@ -172,6 +172,7 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Andi, 123, 6, 2);
         test_cpu_itype(cpu, Slli, 16, 1, 32);
         test_cpu_itype(cpu, Slli, 78, 6, 4992);
+        test_cpu_itype(cpu, Slliw, 78, 6, 4992);
         test_cpu_itype(cpu, Srli, 16, 1, 8);
         test_cpu_itype(cpu, Srli, 432432, 12, 105);
         test_cpu_itype(cpu, Srai, -66, 5, -3);
@@ -385,6 +386,9 @@ TEST_CASE("decoder") {
         test_decoder_itype("xori  s2, s11, 2000",  Xori,  2000,  S2, S11);
         test_decoder_itype("ori   s0, s1,  167",   Ori,   167,   S0, S1);
         test_decoder_itype("andi  t2, a2,  1000",  Andi,  1000,  T2, A2);
+        test_decoder_itype("slli  t2, a2,  5",     Slli,  5,  T2, A2);
+        test_decoder_itype("slliw t2, a2,  0",     Slliw, 0,  T2, A2);
+        test_decoder_itype("slliw t2, a2,  31",    Slliw, 31,  T2, A2);
         test_decoder_itype("srli  t4, t1,  0x2",   Srli,  2,     T4, T1);
         test_decoder_itype("srai  t5, t1,  0x2",   Srai,  2,     T5, T1);
         test_decoder_itype("slti  t0, t1,  2045",  Slti,  2045,  T0, T1);

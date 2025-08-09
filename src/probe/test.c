@@ -5,10 +5,11 @@
 
 int main(void) {
 
-    printf("Hello, Emu!");
+    // printf("Hello, Emu!");
 
-    // const char *message = "Hello Emu!\n";
-    // write(STDOUT_FILENO, message, strlen(message));
+    // TODO: fix broken strlen()
+    const char *message = "Hello Emu!\n";
+    write(STDOUT_FILENO, message, strlen(message));
 
     // __asm__ volatile ("li a0, 0");
     // __asm__ volatile ("li a7, 93");

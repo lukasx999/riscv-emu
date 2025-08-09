@@ -101,8 +101,8 @@ struct Executor {
                 break;
 
             case Slli:
-                // TODO: dont extract bits, has already been done in decoder
-                set_rd(rs1 << extract_bits(imm, 0, 5));
+                // NOTE: extracting lower 5 bits has already been done in decoder
+                set_rd(rs1 << imm);
                 break;
 
             case Slliw:
@@ -110,13 +110,12 @@ struct Executor {
                 break;
 
             case Srli:
-                set_rd(rs1 >> extract_bits(imm, 0, 5));
+                set_rd(rs1 >> imm);
                 break;
 
-            case Srai: {
-                uint8_t operand = extract_bits(imm, 0, 5);
-                set_rd(static_cast<SignedWord>(rs1) >> operand);
-            } break;
+            case Srai:
+                set_rd(static_cast<SignedWord>(rs1) >> imm);
+                break;
 
             case Slti:
                 set_rd(static_cast<SignedWord>(rs1) < imm ? 1 : 0);

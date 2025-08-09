@@ -8,7 +8,7 @@ run: build
     ./build/riscv-emu ./probe/bin-asm -v
 
 c: build
-    ./build/riscv-emu ./probe/bin-c -v
+    ./build/riscv-emu ./probe/bin-c
 
 repl: build
     ./build/riscv-emu :repl

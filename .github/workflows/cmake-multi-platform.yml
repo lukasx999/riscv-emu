@@ -2,6 +2,10 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms
 
+defaults:
+  run:
+    working-directory: ./src/
+
 on:
   push:
     branches: [ "main" ]
@@ -36,7 +40,6 @@ jobs:
       id: strings
       shell: bash
       run: |
-        cd src/
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake

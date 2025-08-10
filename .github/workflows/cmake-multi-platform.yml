@@ -2,10 +2,6 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
 name: CMake on multiple platforms
 
-defaults:
-  run:
-    working-directory: ./src/
-
 on:
   push:
     branches: [ "main" ]
@@ -14,6 +10,12 @@ on:
 
 jobs:
   build:
+
+
+    defaults:
+      run:
+        working-directory: ./src/
+
     runs-on: ${{ matrix.os }}
 
     strategy:

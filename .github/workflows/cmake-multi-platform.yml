@@ -11,11 +11,6 @@ on:
 jobs:
   build:
 
-
-    defaults:
-      run:
-        working-directory: ./src/
-
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -41,6 +36,7 @@ jobs:
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
+      working-directory: ./src/
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 

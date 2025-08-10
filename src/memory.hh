@@ -39,16 +39,25 @@ public:
         return m_stack_offset;
     }
 
+    // NOTE: dont return by reference as binding a reference or accessing memory
+    // from an unaligned address is UB
+    // same goes for set()
     template <typename T=char>
-    void set(size_t guest_address, T value) {
+    [[nodiscard]] T get(size_t guest_address) const {
         size_t addr = translate_address(guest_address);
-        reinterpret_cast<T&>(m_memory[addr]) = std::move(value);
+        return reinterpret_cast<const T&>(m_memory[addr]);
     }
 
     template <typename T=char>
-    [[nodiscard]] const T& get(size_t guest_address) const {
+    void set(size_t guest_address, const T& value) {
         size_t addr = translate_address(guest_address);
-        return reinterpret_cast<const T&>(m_memory[addr]);
+        std::memcpy(&m_memory[addr], &value, sizeof(T));
+    }
+
+    // get a pointer to the byte inside of the memory container from a guest address
+    [[nodiscard]] const char* get_host_ptr(size_t guest_address) const {
+        size_t addr = translate_address(guest_address);
+        return &m_memory[addr];
     }
 
     // TODO: what about heap addresses from host mmap()?

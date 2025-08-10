@@ -297,7 +297,7 @@ private:
                 int    fd   = arg0;
                 size_t buf  = arg1;
                 size_t len  = arg2;
-                write(fd, &m_cpu.m_memory.get(buf), len);
+                write(fd, m_cpu.m_memory.get_host_ptr(buf), len);
             } break;
         }
     }

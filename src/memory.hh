@@ -43,7 +43,6 @@ public:
     void set(size_t guest_address, T value) {
         size_t addr = translate_address(guest_address);
         reinterpret_cast<T&>(m_memory[addr]) = std::move(value);
-        log("Memory Write ({}) at {:#x}", value, guest_address);
     }
 
     template <typename T=char>

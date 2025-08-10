@@ -9,39 +9,37 @@
 # GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 # options passed: -mabi=lp64 -misa-spec=20191213 -march=rv64i -O0
 	.text
-	.section	.rodata
-	.align	3
-.LC0:
-	.string	"Hello Emu!\n"
-	.text
+	.align	2
+	.type	foo, @function
+foo:
+	addi	sp,sp,-16	#,,
+	sd	ra,8(sp)	#,
+	sd	s0,0(sp)	#,
+	addi	s0,sp,16	#,,
+# test.c:7: }
+	nop	
+	ld	ra,8(sp)		#,
+	ld	s0,0(sp)		#,
+	addi	sp,sp,16	#,,
+	jr	ra		#
+	.size	foo, .-foo
 	.align	2
 	.globl	main
 	.type	main, @function
 main:
-	addi	sp,sp,-32	#,,
-	sd	ra,24(sp)	#,
-	sd	s0,16(sp)	#,
-	addi	s0,sp,32	#,,
-# test.c:11:     const char *message = "Hello Emu!\n";
-	lui	a5,%hi(.LC0)	# tmp138,
-	addi	a5,a5,%lo(.LC0)	# tmp137, tmp138,
-	sd	a5,-24(s0)	# tmp137, message
-# test.c:12:     write(STDOUT_FILENO, message, strlen(message));
-	ld	a0,-24(s0)		#, message
-	call	strlen		#
-	mv	a5,a0	# _1,
-# test.c:12:     write(STDOUT_FILENO, message, strlen(message));
-	mv	a2,a5	#, _1
-	ld	a1,-24(s0)		#, message
-	li	a0,1		#,
-	call	write		#
-# test.c:18:     return 0;
-	li	a5,0		# _5,
-# test.c:20: }
+	addi	sp,sp,-16	#,,
+	sd	ra,8(sp)	#,
+	sd	s0,0(sp)	#,
+	addi	s0,sp,16	#,,
+# test.c:11:     foo();
+	call	foo		#
+# test.c:23:     return 0;
+	li	a5,0		# _3,
+# test.c:25: }
 	mv	a0,a5	#, <retval>
-	ld	ra,24(sp)		#,
-	ld	s0,16(sp)		#,
-	addi	sp,sp,32	#,,
+	ld	ra,8(sp)		#,
+	ld	s0,0(sp)		#,
+	addi	sp,sp,16	#,,
 	jr	ra		#
 	.size	main, .-main
 	.ident	"GCC: (g1b306039a) 15.1.0"

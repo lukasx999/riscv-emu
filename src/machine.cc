@@ -9,7 +9,7 @@
 void Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
-        log("{}: {:#x}", m_instruction_counter, pc);
+        // log("{}: {:#x}", m_instruction_counter, pc);
         auto instr = Decoder::decode(fetch());
 
         // std::chrono::duration<float> dur(0.5);
@@ -21,6 +21,8 @@ void Machine::run() {
         bool did_jump = pc != new_pc;
         if (!did_jump)
             m_cpu.next_instruction();
+
+        // std::println("GP: {:#x}", m_cpu.m_registers.get(Register::Gp));
 
         m_instruction_counter++;
     }

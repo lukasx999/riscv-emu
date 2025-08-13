@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
+#include <fstream>
 
 #include <readline/readline.h>
 #include <argparse/argparse.hpp>
@@ -59,19 +60,27 @@ struct Options {
     return opts;
 }
 
-void dump_signature(const ElfExecutable& elf) {
+void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
+    static constexpr const char* symbol_name_sig_begin = "signature_begin";
+    static constexpr const char* symbol_name_sig_end = "signature_end";
 
-    auto begin = elf.locate_symbol("signature_begin");
+    auto begin = elf.locate_symbol(symbol_name_sig_begin);
     if (!begin) {
-        std::println(stderr, "could not find symbol `signature_begin`");
+        std::println(stderr, "could not find symbol `{}`", symbol_name_sig_begin);
         exit(EXIT_FAILURE);
     }
 
-    auto end = elf.locate_symbol("signature_end");
+    auto end = elf.locate_symbol(symbol_name_sig_end);
     if (!end) {
-        std::println(stderr, "could not find symbol `signature_end`");
+        std::println(stderr, "could not find symbol `{}`", symbol_name_sig_end);
         exit(EXIT_FAILURE);
     }
+
+    size_t size = end->st_value - begin->st_value;
+    auto start = mem.get_host_ptr(begin->st_value);
+
+    std::ofstream file(filename);
+    file.write(start, size);
 
 }
 
@@ -99,7 +108,7 @@ int main(int argc, char** argv) try {
         machine.run();
 
         if (!opts.signature_path.empty())
-            dump_signature(elf);
+            dump_signature(elf, machine.m_memory, opts.signature_path);
 
     }
 

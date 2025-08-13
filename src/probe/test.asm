@@ -66,19 +66,18 @@ libc_strlen:
 _start:
 
 
-# write()
-
-la a0, string
-jal ra, libc_strlen
-
-mv a2, a0
-# li a2, string_len
-
-li a0, 1
-la a1, string
-
-li a7, 64
-ecall
+# # write()
+# la a0, string
+# jal ra, libc_strlen
+# 
+# mv a2, a0
+# # li a2, string_len
+# 
+# li a0, 1
+# la a1, string
+# 
+# li a7, 64
+# ecall
 
 # exit()
 li a0, 0

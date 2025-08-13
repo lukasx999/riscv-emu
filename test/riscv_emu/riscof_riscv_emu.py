@@ -150,8 +150,7 @@ class riscv_emu(pluginTemplate):
 	  # the "else" clause is executed below assigning the sim command to simple no action
 	  # echo statement.
           if self.target_run:
-                # TODO: signature
-            simcmd = self.dut_exe + '{0}'.format(elf)
+            simcmd = self.dut_exe + '{0} --signature={1}'.format(elf, sig_file)
           else:
             simcmd = 'echo "NO RUN"'
 

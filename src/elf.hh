@@ -26,9 +26,9 @@ struct LoadSegment {
 class ElfExecutable {
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;
+    Elf64_Addr m_entry_point;
     std::vector<Elf64_Phdr> m_program_headers;
     std::vector<LoadSegment> m_loadable_segments;
-    Elf64_Addr m_entry_point;
 
 public:
     explicit ElfExecutable(const fs::path& path)

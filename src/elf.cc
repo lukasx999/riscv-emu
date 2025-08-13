@@ -13,15 +13,55 @@
 void ElfExecutable::parse() {
 
     m_elf_header = *reinterpret_cast<Elf64_Ehdr*>(m_bytes.data());
-
     m_entry_point = m_elf_header.e_entry;
 
     load_program_headers();
     load_section_headers();
 
-    load_loadable_segments();
+    load_symbol_table();
+    load_symbol_string_table();
 
+    std::println("Symbol Table Entries: {}", m_symbol_table.size());
+    for (auto& symbol : m_symbol_table) {
+        size_t idx = symbol.st_name;
+        std::println("{}", idx);
+        // puts(strtab+idx);
+    }
+
+    load_loadable_segments();
     verify_elf_integrity();
+}
+
+void ElfExecutable::load_symbol_table() {
+
+    auto symtab_sect = std::ranges::find_if(m_section_headers, [](const Elf64_Shdr& hdr) {
+        return hdr.sh_type == SHT_SYMTAB;
+    });
+
+    if (symtab_sect == m_section_headers.end())
+        throw ElfExcecutableException("binary does not contain a symbol table");
+
+    auto sect = *symtab_sect;
+
+    size_t entries = sect.sh_size / sizeof(Elf64_Sym);
+    m_symbol_table.resize(entries);
+
+    for (size_t i=0; i < entries; ++i) {
+        auto src = m_bytes.data() + sect.sh_offset + i * sizeof(Elf64_Sym);
+        m_symbol_table[i] = *reinterpret_cast<Elf64_Sym*>(src);
+    }
+
+}
+
+void ElfExecutable::load_symbol_string_table() {
+    auto strtab_sect = std::ranges::find_if(m_section_headers, [](const Elf64_Shdr& hdr) {
+        return hdr.sh_type == SHT_STRTAB;
+    });
+
+    if (strtab_sect == m_section_headers.end())
+        throw ElfExcecutableException("binary does not contain a symbol string table");
+
+    m_symbol_string_table = &m_bytes[strtab_sect->sh_offset];
 }
 
 void ElfExecutable::load_loadable_segments() {

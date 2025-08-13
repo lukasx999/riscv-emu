@@ -35,6 +35,8 @@ class ElfExecutable {
     std::vector<Elf64_Phdr> m_program_headers;
     std::vector<Elf64_Shdr> m_section_headers;
     std::vector<LoadSegment> m_loadable_segments;
+    std::vector<Elf64_Sym> m_symbol_table;
+    const char* m_symbol_string_table;
 
 public:
     explicit ElfExecutable(const fs::path& path)
@@ -52,6 +54,8 @@ public:
     }
 
 private:
+    void load_symbol_string_table();
+    void load_symbol_table();
     void load_loadable_segments();
     void load_section_headers();
     void load_program_headers();

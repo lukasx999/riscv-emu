@@ -3,6 +3,10 @@ string:
 .ascii "foobarbazquxquux12345\n\0"
 string_len = .-string
 
+foo:
+.ascii "abcdef"
+bar:
+
 .text
 
 libc_strlen:

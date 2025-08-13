@@ -146,11 +146,8 @@ class riscv_emu(pluginTemplate):
           # function
           cmd = self.compile_cmd.format(testentry['isa'].lower(), self.xlen, test, elf, compile_macros)
 
-	  # if the user wants to disable running the tests and only compile the tests, then
-	  # the "else" clause is executed below assigning the sim command to simple no action
-	  # echo statement.
           if self.target_run:
-            simcmd = self.dut_exe + '{0} --signature={1}'.format(elf, sig_file)
+            simcmd = self.dut_exe + ' {0} --signature={1}'.format(elf, sig_file)
           else:
             simcmd = 'echo "NO RUN"'
 
@@ -160,10 +157,6 @@ class riscv_emu(pluginTemplate):
           # create a target. The makeutil will create a target with the name "TARGET<num>" where num
           # starts from 0 and increments automatically for each new target that is added
           make.add_target(execute)
-
-      # if you would like to exit the framework once the makefile generation is complete uncomment the
-      # following line. Note this will prevent any signature checking or report generation.
-      #raise SystemExit
 
       # once the make-targets are done and the makefile has been created, run all the targets in
       # parallel using the make command set above.

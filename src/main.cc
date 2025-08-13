@@ -61,8 +61,8 @@ struct Options {
 }
 
 void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
-    static constexpr const char* symbol_name_sig_begin = "signature_begin";
-    static constexpr const char* symbol_name_sig_end = "signature_end";
+    static constexpr const char* symbol_name_sig_begin = "begin_signature";
+    static constexpr const char* symbol_name_sig_end = "end_signature";
 
     auto begin = elf.locate_symbol(symbol_name_sig_begin);
     if (!begin) {

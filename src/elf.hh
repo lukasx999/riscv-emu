@@ -4,6 +4,7 @@
 #include <print>
 #include <filesystem>
 #include <vector>
+#include <optional>
 
 #include <elf.h>
 
@@ -52,6 +53,8 @@ public:
     [[nodiscard]] auto get_entry_point() const {
         return m_entry_point;
     }
+
+    [[nodiscard]] auto locate_symbol(std::string_view name) const -> std::optional<Elf64_Sym>;
 
 private:
     void load_symbol_string_table();

@@ -21,14 +21,20 @@ void ElfExecutable::parse() {
     load_symbol_table();
     load_symbol_string_table();
 
-    std::println("Symbol Table Entries: {}", m_symbol_table.size());
-    for (auto& symbol : m_symbol_table) {
-        size_t idx = symbol.st_name;
-        std::println("{}", m_symbol_string_table+idx);
-    }
-
     load_loadable_segments();
     verify_elf_integrity();
+}
+
+std::optional<Elf64_Sym> ElfExecutable::locate_symbol(std::string_view name) const {
+
+    auto symbol = std::ranges::find_if(m_symbol_table, [&](const Elf64_Sym& symbol) {
+        return m_symbol_string_table + symbol.st_name == name;
+    });
+
+    if (symbol == m_symbol_table.end())
+        return {};
+
+    return *symbol;
 }
 
 void ElfExecutable::load_symbol_table() {

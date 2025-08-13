@@ -13,6 +13,7 @@ namespace {
 
 struct Options {
     std::string filename;
+    std::string signature_path;
 };
 
 [[nodiscard]] Options parse_args(int argc, char **argv) {
@@ -36,6 +37,11 @@ struct Options {
         .store_into(global_data.objcopy_path);
 
     program
+        .add_argument("--signature")
+        .help("specify the filename of the signature to be generated")
+        .store_into(opts.signature_path);
+
+    program
         .add_argument("-v", "--verbose")
         .help("show logging information")
         .flag()
@@ -53,6 +59,22 @@ struct Options {
     return opts;
 }
 
+void dump_signature(const ElfExecutable& elf) {
+
+    auto begin = elf.locate_symbol("signature_begin");
+    if (!begin) {
+        std::println(stderr, "could not find symbol `signature_begin`");
+        exit(EXIT_FAILURE);
+    }
+
+    auto end = elf.locate_symbol("signature_end");
+    if (!end) {
+        std::println(stderr, "could not find symbol `signature_end`");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 }
 
 int main(int argc, char** argv) try {
@@ -62,6 +84,11 @@ int main(int argc, char** argv) try {
     auto opts = parse_args(argc, argv);
 
     if (opts.filename == ":repl") {
+        if (!opts.signature_path.empty()) {
+            std::println(stderr, "cannot generate signature in REPL mode");
+            return EXIT_FAILURE;
+        }
+
         Machine machine;
         REPL repl(machine);
         repl.run();
@@ -70,6 +97,9 @@ int main(int argc, char** argv) try {
         ElfExecutable elf(opts.filename);
         Machine machine(elf);
         machine.run();
+
+        if (!opts.signature_path.empty())
+            dump_signature(elf);
 
     }
 

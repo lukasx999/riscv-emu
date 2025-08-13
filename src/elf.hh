@@ -23,6 +23,11 @@ struct LoadSegment {
 
 // TODO: destroy after loading (or just mmap read only)
 
+/*
+    TODO: find signature symbols and dump memory to file for riscof tests
+    begin_signature
+    end_signature
+*/
 class ElfExecutable {
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;

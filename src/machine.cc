@@ -9,7 +9,7 @@
 void Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
-        log("{}: {:#x}", m_instruction_counter, pc);
+        // log("{}: {:#x}", m_instruction_counter, pc);
         auto instr = Decoder::decode(fetch());
 
         // std::chrono::duration<float> dur(0.5);

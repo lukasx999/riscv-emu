@@ -24,8 +24,7 @@ void ElfExecutable::parse() {
     std::println("Symbol Table Entries: {}", m_symbol_table.size());
     for (auto& symbol : m_symbol_table) {
         size_t idx = symbol.st_name;
-        std::println("{}", idx);
-        // puts(strtab+idx);
+        std::println("{}", m_symbol_string_table+idx);
     }
 
     load_loadable_segments();

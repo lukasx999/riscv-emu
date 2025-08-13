@@ -19,7 +19,7 @@ struct InstructionR {
 struct InstructionI {
     enum class Type {
         // Arithmetic Immediate
-        Addi, Addiw, Xori, Ori, Andi, Slli, Slliw, Srli, Srai, Slti, Sltiu,
+        Addi, Addiw, Xori, Ori, Andi, Slli, Slliw, Srli, Srai, Sraiw, Slti, Sltiu,
         // Load
         Lb, Lh, Lw, Lbu, Lhu, Ld,
         // Jump

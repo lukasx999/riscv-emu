@@ -148,6 +148,7 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
             switch (inst.funct3) {
                 case 0x0: return Addiw;
                 case 0x1: return Slliw;
+                case 0x5: return Sraiw;
             }
             break;
     }
@@ -283,6 +284,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
         case Slliw:
         case Srli:
         case Srai:
+        case Sraiw:
             imm = extract_bits(imm, 0, 5);
             break;
 

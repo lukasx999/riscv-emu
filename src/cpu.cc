@@ -106,7 +106,7 @@ struct Executor {
                 break;
 
             case Slliw:
-                set_rd(static_cast<int32_t>(extract_bits(rs1 << imm, 0, 32)));
+                set_rd(static_cast<int32_t>(rs1 << imm));
                 break;
 
             case Srli:
@@ -115,6 +115,10 @@ struct Executor {
 
             case Srai:
                 set_rd(static_cast<SignedWord>(rs1) >> imm);
+                break;
+
+            case Sraiw:
+                set_rd(static_cast<int32_t>(rs1) >> imm);
                 break;
 
             case Slti:

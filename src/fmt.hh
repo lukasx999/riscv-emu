@@ -81,6 +81,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
                 case Slliw:  return STRINGIFY(Slliw);
                 case Srli:   return STRINGIFY(Srli);
                 case Srai:   return STRINGIFY(Srai);
+                case Sraiw:  return STRINGIFY(Sraiw);
                 case Slti:   return STRINGIFY(Slti);
                 case Sltiu:  return STRINGIFY(Sltiu);
                 case Lb:     return STRINGIFY(Lb);

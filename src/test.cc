@@ -176,6 +176,8 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Srli, 16, 1, 8);
         test_cpu_itype(cpu, Srli, 432432, 12, 105);
         test_cpu_itype(cpu, Srai, -66, 5, -3);
+        test_cpu_itype(cpu, Sraiw, 8, 1, 4);
+        test_cpu_itype(cpu, Sraiw, -66, 5, -3);
         test_cpu_itype(cpu, Slti, 1, 1, 0);
         test_cpu_itype(cpu, Slti, 1, 2, 1);
         test_cpu_itype(cpu, Slti, -10, 999, 1);
@@ -194,6 +196,7 @@ TEST_CASE("cpu") {
         test_cpu_load<uint64_t>(cpu, Ld, std::numeric_limits<uint64_t>::max());
         test_cpu_load<uint64_t>(cpu, Ld, std::numeric_limits<uint64_t>::min());
         test_cpu_load<uint8_t>(cpu, Lbu, 45);
+        test_cpu_load<uint8_t>(cpu, Lbu, 200);
         test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::max());
         test_cpu_load<uint8_t>(cpu, Lbu, std::numeric_limits<uint8_t>::min());
         test_cpu_load<uint16_t>(cpu, Lhu, 45);
@@ -228,6 +231,7 @@ TEST_CASE("cpu") {
 
     SECTION("utype") {
         test_cpu_utype(cpu, Lui, T0, 1, 1 << 12);
+        test_cpu_utype(cpu, Lui, T0, 0b1111, 0b1111000000000000);
         test_cpu_utype(cpu, Lui, T0, 1024, 1024 << 12);
         test_cpu_utype(cpu, Lui, T0, -1024, -1024 << 12);
         test_cpu_utype(cpu, Auipc, T0, 1, cpu.get_pc() + (1 << 12));
@@ -382,15 +386,17 @@ TEST_CASE("decoder") {
         test_decoder_itype("addi  t2, t0,  2047",  Addi,  2047,  T2, T0);
         test_decoder_itype("addi  t2, t0,  -2047", Addi, -2047,  T2, T0);
         test_decoder_itype("addi  t2, t0,  -2048", Addi, -2048,  T2, T0);
-        test_decoder_itype("addiw t2, t0,  -2048", Addiw, -2048,  T2, T0);
+        test_decoder_itype("addiw t2, t0,  -2048", Addiw, -2048, T2, T0);
         test_decoder_itype("xori  s2, s11, 2000",  Xori,  2000,  S2, S11);
         test_decoder_itype("ori   s0, s1,  167",   Ori,   167,   S0, S1);
         test_decoder_itype("andi  t2, a2,  1000",  Andi,  1000,  T2, A2);
-        test_decoder_itype("slli  t2, a2,  5",     Slli,  5,  T2, A2);
-        test_decoder_itype("slliw t2, a2,  0",     Slliw, 0,  T2, A2);
-        test_decoder_itype("slliw t2, a2,  31",    Slliw, 31,  T2, A2);
+        test_decoder_itype("slli  t2, a2,  5",     Slli,  5,     T2, A2);
+        test_decoder_itype("slliw t2, a2,  0",     Slliw, 0,     T2, A2);
+        test_decoder_itype("slliw t2, a2,  31",    Slliw, 31,    T2, A2);
         test_decoder_itype("srli  t4, t1,  0x2",   Srli,  2,     T4, T1);
         test_decoder_itype("srai  t5, t1,  0x2",   Srai,  2,     T5, T1);
+        test_decoder_itype("sraiw t5, t1,  0x2",   Sraiw, 2,     T5, T1);
+        test_decoder_itype("sraiw t5, t1,  15",    Sraiw, 15,    T5, T1);
         test_decoder_itype("slti  t0, t1,  2045",  Slti,  2045,  T0, T1);
         test_decoder_itype("sltiu t0, t1,  2045",  Sltiu, 2045,  T0, T1);
 
@@ -457,19 +463,19 @@ TEST_CASE("decoder") {
 
     SECTION("jtype") {
         // assembler treats imm as absolute address
-        test_decoder_jtype("jal t0, .+2", Jal, T0, 2);
-        test_decoder_jtype("jal t0, .+4", Jal, T0, 4);
-        test_decoder_jtype("jal t0, .+16", Jal, T0, 16);
-        test_decoder_jtype("jal t0, .+32", Jal, T0, 32);
-        test_decoder_jtype("jal t0, .+64", Jal, T0, 64);
-        test_decoder_jtype("jal t0, .+128", Jal, T0, 128);
-        test_decoder_jtype("jal t0, .-128", Jal, T0, -128);
-        test_decoder_jtype("jal t0, .-64", Jal, T0, -64);
-        test_decoder_jtype("jal t0, .+256", Jal, T0, 256);
-        test_decoder_jtype("jal t0, .+512", Jal, T0, 512);
-        test_decoder_jtype("jal t0, .+1024", Jal, T0, 1024);
-        test_decoder_jtype("jal t0, .+2048", Jal, T0, 2048);
-        test_decoder_jtype("jal t0, .+4096", Jal, T0, 4096);
+        test_decoder_jtype("jal t0, .+2",       Jal, T0, 2);
+        test_decoder_jtype("jal t0, .+4",       Jal, T0, 4);
+        test_decoder_jtype("jal t0, .+16",      Jal, T0, 16);
+        test_decoder_jtype("jal t0, .+32",      Jal, T0, 32);
+        test_decoder_jtype("jal t0, .+64",      Jal, T0, 64);
+        test_decoder_jtype("jal t0, .+128",     Jal, T0, 128);
+        test_decoder_jtype("jal t0, .-128",     Jal, T0, -128);
+        test_decoder_jtype("jal t0, .-64",      Jal, T0, -64);
+        test_decoder_jtype("jal t0, .+256",     Jal, T0, 256);
+        test_decoder_jtype("jal t0, .+512",     Jal, T0, 512);
+        test_decoder_jtype("jal t0, .+1024",    Jal, T0, 1024);
+        test_decoder_jtype("jal t0, .+2048",    Jal, T0, 2048);
+        test_decoder_jtype("jal t0, .+4096",    Jal, T0, 4096);
         test_decoder_jtype("jal t0, .+1048574", Jal, T0, 1048574);
     }
 

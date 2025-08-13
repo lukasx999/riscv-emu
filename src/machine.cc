@@ -25,6 +25,8 @@ void Machine::run() {
         // std::println("GP: {:#x}", m_cpu.m_registers.get(Register::Gp));
 
         m_instruction_counter++;
+
+        if (m_cpu.should_exit()) break;
     }
 }
 

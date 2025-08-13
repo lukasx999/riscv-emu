@@ -10,6 +10,8 @@
 
 class CPU {
     Word m_pc = 0x0;
+    // TODO: use an exception instead?
+    bool m_should_exit = false;
 
     friend struct Executor;
 
@@ -21,6 +23,10 @@ public:
 
     [[nodiscard]] Word get_pc() const {
         return m_pc;
+    }
+
+    [[nodiscard]] bool should_exit() const {
+        return m_should_exit;
     }
 
     void set_pc(Word pc) {

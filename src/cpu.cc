@@ -294,7 +294,8 @@ private:
             case Syscall::Exit: {
                 int status = arg0;
                 log("Guest exited with status {}", status);
-                exit(status);
+                // TODO: propagate exit code
+                m_cpu.m_should_exit = true;
             } break;
 
             case Syscall::Write: {

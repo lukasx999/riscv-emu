@@ -58,7 +58,10 @@ struct RawInstructionU {
 struct RawInstructionJ {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
-    signed   int imm    : 20;
+    signed   int imm1   : 8;
+    signed   int imm2   : 1;
+    signed   int imm3   : 10;
+    signed   int imm4   : 1;
 };
 
 static_assert(sizeof(RawInstructionR) == sizeof(BinaryInstruction));
@@ -342,21 +345,12 @@ InstructionU Decoder::decode_utype(BinaryInstruction inst) {
 InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     auto raw_inst = std::bit_cast<RawInstructionJ>(inst);
 
-    struct Imm {
-        signed int a : 8;
-        signed int b : 1;
-        signed int c : 10;
-        signed int d : 1;
-    };
-
-    auto raw_imm = std::bit_cast<Imm>(raw_inst.imm);
-
     // NOTE: extracting bits to prevent implicit sign extension of signed
     // integer of setting every bit in bitwise OR to 1
-    Immediate21Bit imm = extract_bits(raw_imm.c, 0, 10) << 1  |
-                         extract_bits(raw_imm.b, 0, 1)  << 11 |
-                         extract_bits(raw_imm.a, 0, 8)  << 12 |
-                         raw_imm.d << 20;
+    Immediate21Bit imm = extract_bits(raw_inst.imm3, 0, 10) << 1  |
+                         extract_bits(raw_inst.imm2, 0, 1)  << 11 |
+                         extract_bits(raw_inst.imm1, 0, 8)  << 12 |
+                         raw_inst.imm4 << 20;
 
     return {
         parse_jtype(raw_inst),

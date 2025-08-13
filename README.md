@@ -44,6 +44,7 @@ just test
 - [RISCV Instruction Documentation 2](https://msyksphinz-self.github.io/riscv-isadoc/html/index.html)
 - [RISCV Linux Syscalls](https://jborza.com/post/2021-05-11-riscv-linux-syscalls/)
 - [RISCV Overview Slides](http://www.ee.ic.ac.uk/pcheung/teaching/eie2-iac/Lecture%206%20-%20RISC-V%20Instruction%20Set%20Overview%20(notes).pdf)
+- [RISCV Official ISA Documentation](https://drive.google.com/file/d/1uviu1nH-tScFfgrovvFCrj7Omv8tFtkp/view)
 
 #### Building Crosscompiler for RV64I
 

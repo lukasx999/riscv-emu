@@ -33,6 +33,7 @@ class ElfExecutable {
     Elf64_Ehdr m_elf_header;
     Elf64_Addr m_entry_point;
     std::vector<Elf64_Phdr> m_program_headers;
+    std::vector<Elf64_Shdr> m_section_headers;
     std::vector<LoadSegment> m_loadable_segments;
 
 public:
@@ -51,6 +52,9 @@ public:
     }
 
 private:
+    void load_loadable_segments();
+    void load_section_headers();
+    void load_program_headers();
     void parse();
     [[nodiscard]] static std::vector<char> load_file_binary(const fs::path& path);
     void verify_elf_integrity() const;

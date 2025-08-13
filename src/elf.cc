@@ -8,7 +8,7 @@
 
 #include "elf.hh"
 
-// http://www.skyfree.org/linux/references/ELF_Format.pdf
+// https://refspecs.linuxfoundation.org/elf/elf.pdf
 
 void ElfExecutable::parse() {
 
@@ -16,16 +16,15 @@ void ElfExecutable::parse() {
 
     m_entry_point = m_elf_header.e_entry;
 
-    auto prog_hdr_entries = m_elf_header.e_phnum;
-    auto prog_hdr_offset = m_elf_header.e_phoff;
+    load_program_headers();
+    load_section_headers();
 
-    m_program_headers.resize(prog_hdr_entries);
+    load_loadable_segments();
 
-    for (size_t i=0; i < prog_hdr_entries; ++i) {
-        auto src = m_bytes.data() + prog_hdr_offset + i*sizeof(Elf64_Phdr);
-        m_program_headers[i] = *reinterpret_cast<Elf64_Phdr*>(src);
-    }
+    verify_elf_integrity();
+}
 
+void ElfExecutable::load_loadable_segments() {
     for (auto& hdr : m_program_headers) {
         if (hdr.p_type != PT_LOAD) continue;
         auto offset = hdr.p_offset;
@@ -33,8 +32,30 @@ void ElfExecutable::parse() {
         LoadSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr, hdr.p_flags);
         m_loadable_segments.push_back(seg);
     }
+}
 
-    verify_elf_integrity();
+void ElfExecutable::load_section_headers() {
+    auto entries = m_elf_header.e_shnum;
+    auto offset = m_elf_header.e_shoff;
+
+    m_section_headers.resize(entries);
+
+    for (size_t i=0; i < entries; ++i) {
+        auto src = m_bytes.data() + offset + i*sizeof(Elf64_Shdr);
+        m_section_headers[i] = *reinterpret_cast<Elf64_Shdr*>(src);
+    }
+}
+
+void ElfExecutable::load_program_headers() {
+    auto entries = m_elf_header.e_phnum;
+    auto offset = m_elf_header.e_phoff;
+
+    m_program_headers.resize(entries);
+
+    for (size_t i=0; i < entries; ++i) {
+        auto src = m_bytes.data() + offset + i*sizeof(Elf64_Phdr);
+        m_program_headers[i] = *reinterpret_cast<Elf64_Phdr*>(src);
+    }
 }
 
 std::vector<char> ElfExecutable::load_file_binary(const fs::path& path) {
@@ -75,6 +96,7 @@ void ElfExecutable::verify_elf_integrity() const {
 
     if (m_elf_header.e_ehsize != sizeof(Elf64_Ehdr) ||
         m_elf_header.e_phentsize != sizeof(Elf64_Phdr) ||
+        m_elf_header.e_shentsize != sizeof(Elf64_Shdr) ||
         m_elf_header.e_phoff == 0)
         throw ElfExcecutableException("internal elf error");
 }

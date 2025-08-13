@@ -25,6 +25,7 @@ void Machine::run() {
         m_instruction_counter++;
 
         if (m_cpu.should_exit()) break;
+
     }
 }
 

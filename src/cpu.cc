@@ -305,6 +305,6 @@ private:
 };
 
 void CPU::execute(const Instruction& instruction) {
-    // log("{}", instruction);
+    log("{}", instruction);
     std::visit(Executor(*this), instruction);
 }

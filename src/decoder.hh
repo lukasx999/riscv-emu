@@ -9,7 +9,7 @@
 
 struct InstructionR {
     enum class Type {
-        Add, Sub, Xor, Or, And, Sll, Sllw, Srl, Sra, Slt, Sltu
+        Add, Addw, Sub, Subw, Xor, Or, And, Sll, Sllw, Srl, Sra, Slt, Sltu
     } type;
     Register rd;
     Register rs1;
@@ -19,9 +19,9 @@ struct InstructionR {
 struct InstructionI {
     enum class Type {
         // Arithmetic Immediate
-        Addi, Addiw, Xori, Ori, Andi, Slli, Slliw, Srli, Srai, Sraiw, Slti, Sltiu,
+        Addi, Addiw, Xori, Ori, Andi, Slli, Slliw, Srli, Srliw, Srai, Sraiw, Slti, Sltiu,
         // Load
-        Lb, Lh, Lw, Lbu, Lhu, Ld,
+        Lb, Lh, Lw, Lbu, Lhu, Lwu, Ld,
         // Jump
         Jalr,
         // Environment

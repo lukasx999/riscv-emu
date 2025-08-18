@@ -6,44 +6,16 @@
 #include "machine.hh"
 #include "fmt.hh"
 
-// void Machine::run() {
-//     while (true) {
-//         auto pc = m_cpu.get_pc();
-//         log("{}: {:#x}", m_instruction_counter, pc);
-//         auto instr = Decoder::decode(fetch());
-//
-//         // std::chrono::duration<float> dur(0.5);
-//         // std::this_thread::sleep_for(dur);
-//
-//         m_cpu.execute(instr);
-//         auto new_pc = m_cpu.get_pc();
-//
-//         bool did_jump = pc != new_pc;
-//         if (!did_jump)
-//             m_cpu.next_instruction();
-//
-//         m_instruction_counter++;
-//
-//         if (m_cpu.should_exit()) break;
-//
-//     }
-// }
-
-// TODO: remove
 void Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
         log("{}: {:#x}", m_instruction_counter, pc);
-        try {
-            auto instr = Decoder::decode(fetch());
+        auto instr = Decoder::decode(fetch());
 
-            // std::chrono::duration<float> dur(0.5);
-            // std::this_thread::sleep_for(dur);
+        // std::chrono::duration<float> dur(0.5);
+        // std::this_thread::sleep_for(dur);
 
-            m_cpu.execute(instr);
-        } catch (...) {
-            return;
-        }
+        m_cpu.execute(instr);
         auto new_pc = m_cpu.get_pc();
 
         bool did_jump = pc != new_pc;

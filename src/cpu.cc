@@ -25,8 +25,16 @@ struct Executor {
                 set_rd(rs1 + rs2);
                 break;
 
+            case Addw:
+                set_rd(static_cast<uint32_t>(rs1 + rs2));
+                break;
+
             case Sub:
                 set_rd(rs1 - rs2);
+                break;
+
+            case Subw:
+                set_rd(static_cast<uint32_t>(rs1 - rs2));
                 break;
 
             case Xor:
@@ -113,6 +121,10 @@ struct Executor {
                 set_rd(rs1 >> imm);
                 break;
 
+            case Srliw:
+                set_rd(static_cast<uint32_t>(rs1) >> imm);
+                break;
+
             case Srai:
                 set_rd(static_cast<SignedWord>(rs1) >> imm);
                 break;
@@ -151,6 +163,10 @@ struct Executor {
 
             case Lhu:
                 set_rd(m_cpu.m_memory.get<uint16_t>(rs1 + imm));
+                break;
+
+            case Lwu:
+                set_rd(m_cpu.m_memory.get<uint32_t>(rs1 + imm));
                 break;
 
             case Jalr:

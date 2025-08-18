@@ -26,7 +26,7 @@ void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> va
     using enum InstructionI::Type;
     using enum Register;
 
-    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu, Ld };
+    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu, Lwu, Ld };
     assert(std::ranges::any_of(valid_types, [&](InstructionI::Type t) {
         return t == type;
     }));
@@ -142,7 +142,10 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Add, 0, -2048, -2048);
         test_cpu_rtype(cpu, Add, 0, 2047, 2047);
         test_cpu_rtype(cpu, Add, 47, 2000, 2047);
+        test_cpu_rtype(cpu, Addw, 5, 3, 8);
         test_cpu_rtype(cpu, Add, -5, -3, -8);
+        test_cpu_rtype(cpu, Sub, 5, 3, 2);
+        test_cpu_rtype(cpu, Subw, 5, 3, 2);
         test_cpu_rtype(cpu, Sll, 16, 1, 32);
         test_cpu_rtype(cpu, Sllw, 16, 1, 32);
         test_cpu_rtype(cpu, Sllw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<uint32_t>::max());
@@ -174,6 +177,7 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Slli, 78, 6, 4992);
         test_cpu_itype(cpu, Slliw, 78, 6, 4992);
         test_cpu_itype(cpu, Srli, 16, 1, 8);
+        test_cpu_itype(cpu, Srliw, 16, 1, 8);
         test_cpu_itype(cpu, Srli, 432432, 12, 105);
         test_cpu_itype(cpu, Srai, -66, 5, -3);
         test_cpu_itype(cpu, Sraiw, 8, 1, 4);
@@ -202,6 +206,8 @@ TEST_CASE("cpu") {
         test_cpu_load<uint16_t>(cpu, Lhu, 45);
         test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::max());
         test_cpu_load<uint16_t>(cpu, Lhu, std::numeric_limits<uint16_t>::min());
+        test_cpu_load<uint32_t>(cpu, Lwu, std::numeric_limits<uint32_t>::max());
+        test_cpu_load<uint32_t>(cpu, Lwu, std::numeric_limits<uint32_t>::min());
 
     }
 
@@ -368,7 +374,9 @@ TEST_CASE("decoder") {
 
     SECTION("rtype") {
         test_decoder_rtype("add  t2, t1, t0", Add,  T2, T1, T0);
+        test_decoder_rtype("addw t2, t1, t0", Addw, T2, T1, T0);
         test_decoder_rtype("sub  t2, t1, t0", Sub,  T2, T1, T0);
+        test_decoder_rtype("subw t2, t1, t0", Subw, T2, T1, T0);
         test_decoder_rtype("xor  t2, t1, t0", Xor,  T2, T1, T0);
         test_decoder_rtype("or   x2, t1, t0", Or,   X2, T1, T0);
         test_decoder_rtype("and  t2, t3, t0", And,  T2, T3, T0);
@@ -394,6 +402,7 @@ TEST_CASE("decoder") {
         test_decoder_itype("slliw t2, a2,  0",     Slliw, 0,     T2, A2);
         test_decoder_itype("slliw t2, a2,  31",    Slliw, 31,    T2, A2);
         test_decoder_itype("srli  t4, t1,  0x2",   Srli,  2,     T4, T1);
+        test_decoder_itype("srliw t4, t1,  0x2",   Srliw, 2,     T4, T1);
         test_decoder_itype("srai  t5, t1,  0x2",   Srai,  2,     T5, T1);
         test_decoder_itype("sraiw t5, t1,  0x2",   Sraiw, 2,     T5, T1);
         test_decoder_itype("sraiw t5, t1,  15",    Sraiw, 15,    T5, T1);
@@ -406,6 +415,7 @@ TEST_CASE("decoder") {
         test_decoder_itype("ld  t0, 0(t1)", Ld,  0, T0, T1);
         test_decoder_itype("lbu t0, 0(t1)", Lbu, 0, T0, T1);
         test_decoder_itype("lhu t0, 0(t1)", Lhu, 0, T0, T1);
+        test_decoder_itype("lwu t0, 0(t1)", Lwu, 0, T0, T1);
 
         test_decoder_itype("jalr t0, 123(t1)", Jalr, 123, T0, T1);
 

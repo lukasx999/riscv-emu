@@ -80,6 +80,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
                 case Slli:   return STRINGIFY(Slli);
                 case Slliw:  return STRINGIFY(Slliw);
                 case Srli:   return STRINGIFY(Srli);
+                case Srliw:  return STRINGIFY(Srliw);
                 case Srai:   return STRINGIFY(Srai);
                 case Sraiw:  return STRINGIFY(Sraiw);
                 case Slti:   return STRINGIFY(Slti);
@@ -90,6 +91,7 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
                 case Ld:     return STRINGIFY(Ld);
                 case Lbu:    return STRINGIFY(Lbu);
                 case Lhu:    return STRINGIFY(Lhu);
+                case Lwu:    return STRINGIFY(Lwu);
                 case Jalr:   return STRINGIFY(Jalr);
                 case Ecall:  return STRINGIFY(Ecall);
                 case Ebreak: return STRINGIFY(Ebreak);
@@ -119,7 +121,9 @@ struct std::formatter<InstructionR::Type> : std::formatter<std::string> {
             switch (type) {
                 using enum InstructionR::Type;
                 case Add:  return STRINGIFY(Add);
+                case Addw: return STRINGIFY(Addw);
                 case Sub:  return STRINGIFY(Sub);
+                case Subw: return STRINGIFY(Subw);
                 case Xor:  return STRINGIFY(Xor);
                 case Or:   return STRINGIFY(Or);
                 case And:  return STRINGIFY(And);

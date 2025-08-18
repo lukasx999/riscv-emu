@@ -92,9 +92,14 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
 
             } break;
 
-        case 0b111011:
-            if (inst.funct3 == 0x1)
+        case 0b0111011:
+            if (inst.funct3 == 0x0) {
+                if      (inst.funct7 == 0b0100000) return Subw;
+                else if (inst.funct7 == 0b0) return Addw;
+
+            } else if (inst.funct3 == 0x1) {
                 return Sllw;
+            }
     }
 
 
@@ -104,6 +109,8 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
 [[nodiscard]] InstructionI::Type parse_itype(RawInstructionI inst) {
     using enum InstructionI::Type;
 
+    auto bits_after_shamt = extract_bits(inst.imm, 5, 7);
+
     switch (inst.opcode) {
         case 0b0010011:
             switch (inst.funct3) {
@@ -112,10 +119,10 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x6: return Ori;
                 case 0x7: return Andi;
                 case 0x1:
-                    if (extract_bits(inst.imm, 5, 7) == 0x00) return Slli;
+                    if (bits_after_shamt == 0b0) return Slli;
                 case 0x5:
-                    if      (extract_bits(inst.imm, 5, 7) == 0x00) return Srli;
-                    else if (extract_bits(inst.imm, 5, 7) == 0x20) return Srai;
+                    if      (bits_after_shamt == 0b0) return Srli;
+                    else if (bits_after_shamt == 0x20) return Srai;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;
             }
@@ -129,6 +136,7 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x3: return Ld;
                 case 0x4: return Lbu;
                 case 0x5: return Lhu;
+                case 0x6: return Lwu;
             }
             break;
 
@@ -148,7 +156,9 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
             switch (inst.funct3) {
                 case 0x0: return Addiw;
                 case 0x1: return Slliw;
-                case 0x5: return Sraiw;
+                case 0x5:
+                    if      (bits_after_shamt == 0b0) return Srliw;
+                    else if (bits_after_shamt == 0b0100000) return Sraiw;
             }
             break;
     }

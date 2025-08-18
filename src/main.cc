@@ -76,12 +76,13 @@ void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
         exit(EXIT_FAILURE);
     }
 
-    size_t size = end->st_value - begin->st_value;
+    using SignatureValue = uint32_t;
 
     std::ofstream file(filename);
-    for (size_t i=0; i < size/sizeof(i); i++) {
-        auto value = mem.get<uint32_t>(begin->st_value + i*sizeof(uint32_t));
-        std::println(file, "{:x}", value);
+
+    for (size_t i=begin->st_value; i < end->st_value; i+=sizeof(SignatureValue)) {
+        auto value = mem.get<SignatureValue>(i);
+        std::println(file, "{:08x}", value);
     }
 
 }

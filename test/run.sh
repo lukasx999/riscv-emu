@@ -10,3 +10,4 @@ if [[ ! -d "./riscof_work/test_list.yaml" ]]; then
 fi
 
 riscof run --config=config.ini --suite=riscv-arch-test/riscv-test-suite/ --env=riscv-arch-test/riscv-test-suite/env
+# riscof coverage --suite=riscv-arch-test/riscv-test-suite/ --env=riscv-arch-test/riscv-test-suite/env --cgf-file=./riscv-arch-test/coverage/dataset.cgf

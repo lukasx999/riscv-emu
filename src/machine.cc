@@ -7,6 +7,7 @@
 #include "fmt.hh"
 
 void Machine::run() {
+    return;
     while (true) {
         auto pc = m_cpu.get_pc();
         log("{}: {:#x}", m_instruction_counter, pc);

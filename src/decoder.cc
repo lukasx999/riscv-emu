@@ -93,12 +93,18 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
             } break;
 
         case 0b0111011:
-            if (inst.funct3 == 0x0) {
-                if      (inst.funct7 == 0b0100000) return Subw;
-                else if (inst.funct7 == 0b0) return Addw;
+            switch (inst.funct3) {
+                case 0x0:
+                    if      (inst.funct7 == 0b0100000) return Subw;
+                    else if (inst.funct7 == 0b0)       return Addw;
 
-            } else if (inst.funct3 == 0x1) {
-                return Sllw;
+                case 0x1:
+                    return Sllw;
+
+                case 0x5:
+                    if (inst.funct7 == 0b0100000)
+                        return Sraw;
+
             }
     }
 
@@ -122,7 +128,7 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                     if (bits_after_shamt == 0b0) return Slli;
                 case 0x5:
                     if      (bits_after_shamt == 0b0) return Srli;
-                    else if (bits_after_shamt == 0x20) return Srai;
+                    else if (bits_after_shamt == 0b0100000) return Srai;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;
             }

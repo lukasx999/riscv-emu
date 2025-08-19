@@ -65,6 +65,10 @@ struct Executor {
                 set_rd(static_cast<SignedWord>(rs1) >> rs2);
                 break;
 
+            case Sraw:
+                set_rd(static_cast<int32_t>(rs1) >> rs2);
+                break;
+
             case Slt:
                 set_rd(static_cast<SignedWord>(rs1) < static_cast<SignedWord>(rs2) ? 1 : 0);
                 break;

@@ -10,6 +10,7 @@ static int add(int a, int b) {
 int main(void) {
 
     putchar(65);
+    // printf("");
 
     // __asm__ volatile ("li a0, 0");
     // __asm__ volatile ("li a7, 93");

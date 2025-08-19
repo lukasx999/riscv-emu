@@ -152,6 +152,7 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Sll, 78, 6, 4992);
         test_cpu_rtype(cpu, Srl, 16, 1, 8);
         test_cpu_rtype(cpu, Sra, -66, 5, -3);
+        test_cpu_rtype(cpu, Sraw, -66, 5, -3);
         test_cpu_rtype(cpu, Slt, 1, 1, 0);
         test_cpu_rtype(cpu, Slt, 1, 2, 1);
         test_cpu_rtype(cpu, Slt, -10, 999, 1);
@@ -384,6 +385,7 @@ TEST_CASE("decoder") {
         test_decoder_rtype("sllw t2, t1, t5", Sllw, T2, T1, T5);
         test_decoder_rtype("srl  t2, t1, t0", Srl,  T2, T1, T0);
         test_decoder_rtype("sra  t2, t1, t0", Sra,  T2, T1, T0);
+        test_decoder_rtype("sraw t2, t1, t0", Sraw,  T2, T1, T0);
         test_decoder_rtype("slt  t2, t1, t0", Slt,  T2, T1, T0);
         test_decoder_rtype("sltu t2, t1, t0", Sltu, T2, T1, T0);
     }

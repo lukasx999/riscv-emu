@@ -131,6 +131,7 @@ struct std::formatter<InstructionR::Type> : std::formatter<std::string> {
                 case Sllw: return STRINGIFY(Sllw);
                 case Srl:  return STRINGIFY(Srl);
                 case Sra:  return STRINGIFY(Sra);
+                case Sraw: return STRINGIFY(Sraw);
                 case Slt:  return STRINGIFY(Slt);
                 case Sltu: return STRINGIFY(Sltu);
             };

@@ -317,8 +317,7 @@ private:
         switch (syscall_nr) {
             case Syscall::Exit: {
                 int status = arg0;
-                log("Guest exited with status {}", status);
-                // TODO: propagate exit code
+                m_cpu.m_exit_status = status;
                 m_cpu.m_should_exit = true;
             } break;
 

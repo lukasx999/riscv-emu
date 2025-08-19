@@ -10,8 +10,8 @@
 
 class CPU {
     Word m_pc = 0x0;
-    // TODO: use an exception instead?
     bool m_should_exit = false;
+    int m_exit_status = 0;
 
     friend struct Executor;
 
@@ -25,12 +25,16 @@ public:
         return m_pc;
     }
 
+    void set_pc(Word pc) {
+        m_pc = pc;
+    }
+
     [[nodiscard]] bool should_exit() const {
         return m_should_exit;
     }
 
-    void set_pc(Word pc) {
-        m_pc = pc;
+    [[nodiscard]] int get_exit_status() const {
+        return m_exit_status;
     }
 
     void execute(const Instruction& instruction);

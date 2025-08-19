@@ -6,28 +6,34 @@
 #include "machine.hh"
 #include "fmt.hh"
 
-// void Machine::run() {
-//     while (true) {
-//         auto pc = m_cpu.get_pc();
-//         log("{}: {:#x}", m_instruction_counter, pc);
-//         auto instr = Decoder::decode(fetch());
-//
-//         // std::chrono::duration<float> dur(0.5);
-//         // std::this_thread::sleep_for(dur);
-//
-//         m_cpu.execute(instr);
-//         auto new_pc = m_cpu.get_pc();
-//
-//         bool did_jump = pc != new_pc;
-//         if (!did_jump)
-//             m_cpu.next_instruction();
-//
-//         m_instruction_counter++;
-//
-//         if (m_cpu.should_exit()) break;
-//
-//     }
-// }
+#if 1
+
+int Machine::run() {
+    while (true) {
+        auto pc = m_cpu.get_pc();
+        log("{}: {:#x}", m_instruction_counter, pc);
+        auto instr = Decoder::decode(fetch());
+
+        m_cpu.execute(instr);
+        auto new_pc = m_cpu.get_pc();
+
+        bool did_jump = pc != new_pc;
+        if (!did_jump)
+            m_cpu.next_instruction();
+
+        m_instruction_counter++;
+
+        if (m_cpu.should_exit()) {
+            int status = m_cpu.get_exit_status();
+            log("Guest exited with status {}", status);
+            return status;
+        }
+
+
+    }
+}
+
+#else
 
 void Machine::run() {
     while (true) {
@@ -35,9 +41,6 @@ void Machine::run() {
         log("{}: {:#x}", m_instruction_counter, pc);
         try {
             auto instr = Decoder::decode(fetch());
-
-            // std::chrono::duration<float> dur(0.5);
-            // std::this_thread::sleep_for(dur);
 
             m_cpu.execute(instr);
         } catch(...) {
@@ -55,6 +58,8 @@ void Machine::run() {
 
     }
 }
+
+#endif
 
 BinaryInstruction Machine::fetch() const {
     return m_memory.get<BinaryInstruction>(m_cpu.get_pc());

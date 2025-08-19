@@ -20,7 +20,7 @@ public:
         init();
     }
 
-    void run();
+    int run();
 
 private:
     [[nodiscard]] BinaryInstruction fetch() const;

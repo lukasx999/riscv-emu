@@ -87,6 +87,29 @@ void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
 
 }
 
+int run_file(const Options& opts) {
+
+    ElfExecutable elf(opts.filename);
+    Machine machine(elf);
+    int status = machine.run();
+
+    if (!opts.signature_path.empty())
+        dump_signature(elf, machine.m_memory, opts.signature_path);
+
+    return status;
+}
+
+void run_repl(const Options& opts) {
+    if (!opts.signature_path.empty()) {
+        std::println(stderr, "cannot generate signature in REPL mode");
+        exit(EXIT_FAILURE);
+    }
+
+    Machine machine;
+    REPL repl(machine);
+    repl.run();
+}
+
 }
 
 int main(int argc, char** argv) try {
@@ -96,22 +119,11 @@ int main(int argc, char** argv) try {
     auto opts = parse_args(argc, argv);
 
     if (opts.filename == ":repl") {
-        if (!opts.signature_path.empty()) {
-            std::println(stderr, "cannot generate signature in REPL mode");
-            return EXIT_FAILURE;
-        }
-
-        Machine machine;
-        REPL repl(machine);
-        repl.run();
+        run_repl(opts);
 
     } else {
-        ElfExecutable elf(opts.filename);
-        Machine machine(elf);
-        machine.run();
-
-        if (!opts.signature_path.empty())
-            dump_signature(elf, machine.m_memory, opts.signature_path);
+        int status = run_file(opts);
+        return status;
 
     }
 

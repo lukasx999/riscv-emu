@@ -6,15 +6,15 @@
 #include "machine.hh"
 #include "fmt.hh"
 
-#if 1
+#if 0
 
 int Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
         log("{}: {:#x}", m_instruction_counter, pc);
-        auto instr = Decoder::decode(fetch());
 
-        m_cpu.execute(instr);
+        m_cpu.execute(Decoder::decode(fetch()));
+
         auto new_pc = m_cpu.get_pc();
 
         bool did_jump = pc != new_pc;
@@ -35,17 +35,17 @@ int Machine::run() {
 
 #else
 
-void Machine::run() {
+int Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
         log("{}: {:#x}", m_instruction_counter, pc);
-        try {
-            auto instr = Decoder::decode(fetch());
 
-            m_cpu.execute(instr);
-        } catch(...) {
-            return;
+        try {
+            m_cpu.execute(Decoder::decode(fetch()));
+        } catch (...) {
+            return 0;
         }
+
         auto new_pc = m_cpu.get_pc();
 
         bool did_jump = pc != new_pc;
@@ -54,7 +54,12 @@ void Machine::run() {
 
         m_instruction_counter++;
 
-        if (m_cpu.should_exit()) break;
+        if (m_cpu.should_exit()) {
+            int status = m_cpu.get_exit_status();
+            log("Guest exited with status {}", status);
+            return status;
+        }
+
 
     }
 }

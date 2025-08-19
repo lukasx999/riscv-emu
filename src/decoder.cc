@@ -102,8 +102,8 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                     return Sllw;
 
                 case 0x5:
-                    if (inst.funct7 == 0b0100000)
-                        return Sraw;
+                    if      (inst.funct7 == 0b0)       return Srlw;
+                    else if (inst.funct7 == 0b0100000) return Sraw;
 
             }
     }

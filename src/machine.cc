@@ -41,7 +41,7 @@ void Machine::run() {
 
             m_cpu.execute(instr);
         } catch(...) {
-            continue;
+            return;
         }
         auto new_pc = m_cpu.get_pc();
 

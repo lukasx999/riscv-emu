@@ -5,6 +5,8 @@
 
 int main(void) {
 
+    write(1, "foo", 3);
+
     // putchar(65);
     // printf("");
 
@@ -13,5 +15,4 @@ int main(void) {
     // __asm__ volatile ("ecall");
 
     return 1;
-
 }

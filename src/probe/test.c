@@ -5,9 +5,9 @@
 
 int main(void) {
 
-    write(1, "foo", 3);
+    // write(1, "foo", 3);
 
-    // putchar(65);
+    putchar(65);
     // printf("");
 
     // __asm__ volatile ("li a0, 0");

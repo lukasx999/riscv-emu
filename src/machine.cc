@@ -6,7 +6,7 @@
 #include "machine.hh"
 #include "fmt.hh"
 
-#if 0
+#if 1
 
 int Machine::run() {
     while (true) {

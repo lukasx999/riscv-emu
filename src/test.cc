@@ -183,6 +183,13 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Srli, 432432, 12, 105);
         test_cpu_itype(cpu, Srai, -66, 5, -3);
         test_cpu_itype(cpu, Sraiw, 8, 1, 4);
+        test_cpu_itype(cpu, Sraiw, 3, 3, 0);
+        test_cpu_itype(cpu, Sraiw, -0x8000000000000000, 0x11, 0x0);
+        test_cpu_itype(cpu, Sraiw, 0x0, 0xe, 0x0);
+        test_cpu_itype(cpu, Sraiw, 0x0, 0x1b, 0x0);
+        test_cpu_itype(cpu, Sraiw, 0x1, 0x8, 0x0);
+        test_cpu_itype(cpu, Sraiw, -0x201, 0x17, -0x1);
+
         test_cpu_itype(cpu, Sraiw, -66, 5, -3);
         test_cpu_itype(cpu, Slti, 1, 1, 0);
         test_cpu_itype(cpu, Slti, 1, 2, 1);

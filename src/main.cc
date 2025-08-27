@@ -118,6 +118,8 @@ int main(int argc, char** argv) try {
 
     auto opts = parse_args(argc, argv);
 
+    // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
+
     if (opts.filename == ":repl") {
         run_repl(opts);
 

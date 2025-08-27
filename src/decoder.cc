@@ -272,9 +272,12 @@ InstructionFormat Decoder::decode_format(BinaryInstruction inst) {
 
         case 0b1101111:
             return InstructionFormat::JType;
+
+        case 0b0001111:
+            throw DecodingException("no support for m-mode fence instructions");
     }
 
-    throw DecodingException("invalid instruction format");
+    throw DecodingException(std::format("invalid instruction format (opcode: {:#b})", opcode).c_str());
 }
 
 InstructionR Decoder::decode_rtype(BinaryInstruction inst) {

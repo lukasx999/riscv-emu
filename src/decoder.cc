@@ -115,8 +115,6 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
 [[nodiscard]] InstructionI::Type parse_itype(RawInstructionI inst) {
     using enum InstructionI::Type;
 
-    auto bits_after_shamt = extract_bits(inst.imm, 5, 7);
-
     switch (inst.opcode) {
         case 0b0010011:
             switch (inst.funct3) {
@@ -125,10 +123,10 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x6: return Ori;
                 case 0x7: return Andi;
                 case 0x1:
-                    if (bits_after_shamt == 0b000000) return Slli;
+                    if (extract_bits(inst.imm, 6, 6) == 0b000000) return Slli;
                 case 0x5:
-                    if      (bits_after_shamt == 0b000000) return Srli;
-                    else if (bits_after_shamt == 0b0100000) return Srai;
+                    if      (extract_bits(inst.imm, 5, 7) == 0b0000000) return Srli;
+                    else if (extract_bits(inst.imm, 5, 7) == 0b0100000) return Srai;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;
             }
@@ -163,8 +161,8 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x0: return Addiw;
                 case 0x1: return Slliw;
                 case 0x5:
-                    if      (bits_after_shamt == 0b0) return Srliw;
-                    else if (bits_after_shamt == 0b0100000) return Sraiw;
+                    if      (extract_bits(inst.imm, 5, 7) == 0b0000000) return Srliw;
+                    else if (extract_bits(inst.imm, 5, 7) == 0b0100000) return Sraiw;
             }
             break;
     }
@@ -304,7 +302,7 @@ InstructionI Decoder::decode_itype(BinaryInstruction inst) {
         case Srli:
         case Srai:
         case Sraiw:
-            imm = extract_bits(imm, 0, 5);
+            imm = extract_bits(imm, 0, 6);
             break;
 
         default:

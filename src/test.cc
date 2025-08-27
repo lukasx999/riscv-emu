@@ -189,6 +189,7 @@ TEST_CASE("cpu") {
         test_cpu_itype(cpu, Sraiw, 0x0, 0x1b, 0x0);
         test_cpu_itype(cpu, Sraiw, 0x1, 0x8, 0x0);
         test_cpu_itype(cpu, Sraiw, -0x201, 0x17, -0x1);
+        test_cpu_itype(cpu, Sraiw, -0xa, 0x1f, -0x1);
 
         test_cpu_itype(cpu, Sraiw, -66, 5, -3);
         test_cpu_itype(cpu, Slti, 1, 1, 0);

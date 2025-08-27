@@ -29,10 +29,7 @@
 #define RVMODEL_IO_CHECK()
 
 //RVTEST_IO_ASSERT_GPR_EQ
-// #define RVMODEL_IO_ASSERT_GPR_EQ(_S, _R, _I)
-
-#define RVMODEL_IO_ASSERT_GPR_EQ(_S, _R, _I) \
-ebreak;
+#define RVMODEL_IO_ASSERT_GPR_EQ(_S, _R, _I)
 
 // #define RVMODEL_IO_ASSERT_GPR_EQ(_S, _R, _I) \
 // li t0, _I; \

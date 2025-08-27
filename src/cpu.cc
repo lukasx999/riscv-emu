@@ -187,8 +187,6 @@ struct Executor {
                 break;
 
             case Ebreak:
-                // TODO: check for test mode
-                // test_assert();
                 asm volatile ("int3");
                 break;
         }
@@ -306,23 +304,6 @@ struct Executor {
     }
 
 private:
-    void test_assert() {
-
-        auto inst = Decoder::decode(m_cpu.m_memory.get<BinaryInstruction>(m_cpu.get_pc()-12));
-
-        if (std::holds_alternative<InstructionI>(inst)) {
-            auto i = std::get<InstructionI>(inst);
-            auto rd = m_cpu.m_registers.get(i.rd);
-            auto t0 = m_cpu.m_registers.get(Register::T0);
-
-            if (rd != t0) {
-                std::println("inst: {}", inst);
-                std::println("{} != {}", t0, rd);
-            }
-
-        }
-    }
-
     void forward_syscall() const {
         enum Syscall {
             Exit=93, Write=64

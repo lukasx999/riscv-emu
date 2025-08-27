@@ -125,9 +125,9 @@ static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
                 case 0x6: return Ori;
                 case 0x7: return Andi;
                 case 0x1:
-                    if (bits_after_shamt == 0b0) return Slli;
+                    if (bits_after_shamt == 0b000000) return Slli;
                 case 0x5:
-                    if      (bits_after_shamt == 0b0) return Srli;
+                    if      (bits_after_shamt == 0b000000) return Srli;
                     else if (bits_after_shamt == 0b0100000) return Srai;
                 case 0x2: return Slti;
                 case 0x3: return Sltiu;

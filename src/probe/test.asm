@@ -69,21 +69,13 @@ libc_strlen:
 .global _start
 _start:
 
-
-# write()
-la a0, string
-jal ra, libc_strlen
-
-mv a2, a0
-# li a2, string_len
-
-li a0, 1
-la a1, string
-
-li a7, 64
-ecall
-
-# exit()
-li a0, 0
+li s4, 1
+slli s4, s4, 0x27
+mv a0, s4
 li a7, 93
 ecall
+
+# # exit()
+# li a0, 0
+# li a7, 93
+# ecall

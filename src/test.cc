@@ -421,6 +421,8 @@ TEST_CASE("decoder") {
         test_decoder_itype("slti  t0, t1,  2045",  Slti,  2045,  T0, T1);
         test_decoder_itype("sltiu t0, t1,  2045",  Sltiu, 2045,  T0, T1);
 
+        // test_decoder_itype("slli s4, s4, 0x27", Slli, 0x27, S4, S4);
+
         test_decoder_itype("lb  t0, 0(t1)", Lb,  0, T0, T1);
         test_decoder_itype("lh  t0, 0(t1)", Lh,  0, T0, T1);
         test_decoder_itype("lw  t0, 0(t1)", Lw,  0, T0, T1);

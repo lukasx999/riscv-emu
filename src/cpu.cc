@@ -326,6 +326,8 @@ private:
                 size_t len  = arg2;
                 write(fd, m_cpu.m_memory.get_host_ptr(buf), len);
             } break;
+
+            default: throw std::runtime_error(std::format("unimplemented syscall: {}", syscall_nr));
         }
     }
 

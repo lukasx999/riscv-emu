@@ -6,8 +6,6 @@
 #include "machine.hh"
 #include "fmt.hh"
 
-#if 1
-
 int Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
@@ -32,39 +30,6 @@ int Machine::run() {
 
     }
 }
-
-#else
-
-int Machine::run() {
-    while (true) {
-        auto pc = m_cpu.get_pc();
-        log("{}: {:#x}", m_instruction_counter, pc);
-
-        try {
-            m_cpu.execute(Decoder::decode(fetch()));
-        } catch (...) {
-            return 0;
-        }
-
-        auto new_pc = m_cpu.get_pc();
-
-        bool did_jump = pc != new_pc;
-        if (!did_jump)
-            m_cpu.next_instruction();
-
-        m_instruction_counter++;
-
-        if (m_cpu.should_exit()) {
-            int status = m_cpu.get_exit_status();
-            log("Guest exited with status {}", status);
-            return status;
-        }
-
-
-    }
-}
-
-#endif
 
 BinaryInstruction Machine::fetch() const {
     return m_memory.get<BinaryInstruction>(m_cpu.get_pc());

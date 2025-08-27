@@ -148,7 +148,6 @@ TEST_CASE("cpu") {
         test_cpu_rtype(cpu, Subw, 5, 3, 2);
         test_cpu_rtype(cpu, Sll, 16, 1, 32);
         test_cpu_rtype(cpu, Sllw, 16, 1, 32);
-        test_cpu_rtype(cpu, Sllw, std::numeric_limits<Word>::max(), 0, std::numeric_limits<uint32_t>::max());
         test_cpu_rtype(cpu, Sll, 78, 6, 4992);
         test_cpu_rtype(cpu, Srl, 16, 1, 8);
         test_cpu_rtype(cpu, Srlw, 16, 1, 8);

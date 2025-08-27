@@ -26,7 +26,7 @@ struct Executor {
                 break;
 
             case Addw:
-                set_rd(static_cast<uint32_t>(rs1 + rs2));
+                set_rd(static_cast<int32_t>(rs1 + rs2));
                 break;
 
             case Sub:
@@ -34,7 +34,7 @@ struct Executor {
                 break;
 
             case Subw:
-                set_rd(static_cast<uint32_t>(rs1 - rs2));
+                set_rd(static_cast<int32_t>(rs1 - rs2));
                 break;
 
             case Xor:
@@ -54,7 +54,7 @@ struct Executor {
                 break;
 
             case Sllw:
-                set_rd(static_cast<uint32_t>(rs1 << extract_bits(rs2, 0, 5)));
+                set_rd(static_cast<int32_t>(rs1 << extract_bits(rs2, 0, 5)));
                 break;
 
             case Srl:
@@ -62,7 +62,7 @@ struct Executor {
                 break;
 
             case Srlw:
-                set_rd(static_cast<uint32_t>(rs1) >> rs2);
+                set_rd(static_cast<int32_t>(static_cast<uint32_t>(rs1) >> extract_bits(rs2, 0, 5)));
                 break;
 
             case Sra:
@@ -117,7 +117,6 @@ struct Executor {
                 break;
 
             case Slli:
-                // NOTE: extracting lower 5 bits has already been done in decoder
                 set_rd(rs1 << imm);
                 break;
 
@@ -130,7 +129,7 @@ struct Executor {
                 break;
 
             case Srliw:
-                set_rd(static_cast<uint32_t>(rs1) >> imm);
+                set_rd(static_cast<int32_t>(static_cast<uint32_t>(rs1) >> imm));
                 break;
 
             case Srai:

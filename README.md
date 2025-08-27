@@ -10,6 +10,7 @@ Linux Userspace emulator for RV64I ELF binaries.
 - CMake
 - Ninja (optional, for faster builds)
 - Just (optional, for more convenient running of builds/tests)
+- Python (optional, for testing of [RISCOF](https://riscof.readthedocs.io/en/latest/intro.html))
 
 ### Build
 
@@ -34,6 +35,16 @@ ctest --test-dir ./build
 ```console
 just build
 just test
+```
+
+## Running The Official Test Suite
+
+```console
+cd test/
+python -m venv venv
+. ./venv/bin/activate
+pip install riscof
+./run.sh
 ```
 
 ### Developer Resources

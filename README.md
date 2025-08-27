@@ -2,6 +2,9 @@
 
 Linux Userspace emulator for RV64I ELF binaries.
 
+- Written in modern C++23.
+- Tested using the [official RISCV test suite](https://riscof.readthedocs.io/en/latest/intro.html).
+
 ## Build Instructions
 
 ### Requirements
@@ -10,7 +13,7 @@ Linux Userspace emulator for RV64I ELF binaries.
 - CMake
 - Ninja (optional, for faster builds)
 - Just (optional, for more convenient running of builds/tests)
-- Python (optional, for testing of [RISCOF](https://riscof.readthedocs.io/en/latest/intro.html))
+- Python (optional, for testing with [RISCOF](https://riscof.readthedocs.io/en/latest/intro.html))
 
 ### Build
 

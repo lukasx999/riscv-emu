@@ -118,6 +118,8 @@ int main(int argc, char** argv) try {
 
     auto opts = parse_args(argc, argv);
 
+    // TODO: stop riscof from testing m-mode instructions (fence)
+    // TODO: riscof misalign jalr???
     // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
 

@@ -127,8 +127,7 @@ int main(int argc, char** argv) try {
         run_repl(opts);
 
     } else {
-        int status = run_file(opts);
-        return status;
+        return run_file(opts);
 
     }
 

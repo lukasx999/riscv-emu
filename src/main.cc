@@ -9,9 +9,7 @@
 #include "elf.hh"
 #include "machine.hh"
 
-#ifdef FEATURE_REPL
 #include "repl.hh"
-#endif // FEATURE_REPL
 
 namespace {
 

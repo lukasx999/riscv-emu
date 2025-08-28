@@ -120,6 +120,7 @@ int main(int argc, char** argv) try {
 
     // TODO: stop riscof from testing m-mode instructions (fence)
     // TODO: riscof misalign jalr???
+    // TODO: csr instructions (csrrw...)
     // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
 

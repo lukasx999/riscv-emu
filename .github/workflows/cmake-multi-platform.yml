@@ -18,13 +18,14 @@ jobs:
       fail-fast: false
 
       matrix:
+        # cxx: [g++-15, clang++-20]
         os: [ubuntu-latest]
         build_type: [Release]
         c_compiler: [gcc, clang]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++
+            cpp_compiler: g++-15
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++

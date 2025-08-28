@@ -1,2 +1,1 @@
-- riscof test suite python plugin
 - gdb rsp implementation

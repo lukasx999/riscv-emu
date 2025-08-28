@@ -52,6 +52,7 @@ pip install riscof
 
 ### Developer Resources
 
+- [Online Decoder](https://luplab.gitlab.io/rvcodecjs/)
 - [RISCV Cheat Sheet](https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/notebooks/RISCV/RISCV_CARD.pdf)
 - [RISCV Cheat Sheet 2](https://projectf.io/posts/riscv-cheat-sheet/)
 - [RISCV Instruction Documentation](https://msyksphinz-self.github.io/riscv-isadoc/#_rv32i_rv64i_instructions)

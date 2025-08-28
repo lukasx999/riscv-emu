@@ -13,7 +13,7 @@ constexpr int funct7_encoding_size    = 7;
 constexpr int imm_encoding_size       = 12;
 
 enum class InstructionFormat {
-    RType, IType, SType, BType, UType, JType, MiscMemType
+    RType, IType, SType, BType, UType, JType, FenceType
 };
 
 struct RawInstructionR {
@@ -68,7 +68,7 @@ struct RawInstructionJ {
     signed   int imm4   : 1;
 };
 
-struct RawInstructionMiscMem {
+struct RawInstructionFence {
     unsigned int opcode : opcode_encoding_size;
     unsigned int rd     : register_encoding_size;
     unsigned int funct3 : funct3_encoding_size;
@@ -90,7 +90,7 @@ static_assert(sizeof(RawInstructionS) == sizeof(BinaryInstruction));
 static_assert(sizeof(RawInstructionB) == sizeof(BinaryInstruction));
 static_assert(sizeof(RawInstructionU) == sizeof(BinaryInstruction));
 static_assert(sizeof(RawInstructionJ) == sizeof(BinaryInstruction));
-static_assert(sizeof(RawInstructionMiscMem) == sizeof(BinaryInstruction));
+static_assert(sizeof(RawInstructionFence) == sizeof(BinaryInstruction));
 
 [[nodiscard]] InstructionR::Type parse_rtype(RawInstructionR inst) {
     using enum InstructionR::Type;
@@ -245,12 +245,12 @@ static_assert(sizeof(RawInstructionMiscMem) == sizeof(BinaryInstruction));
     throw DecodingException("invalid j-type instruction");
 }
 
-[[nodiscard]] InstructionMiscMem::Type parse_misc_mem_type(RawInstructionMiscMem inst) {
-    using enum InstructionMiscMem::Type;
+[[nodiscard]] InstructionFence::Type parse_fence_type(RawInstructionFence inst) {
+    using enum InstructionFence::Type;
 
     if (inst.funct3 == 0) return Fence;
 
-    throw DecodingException("invalid misc-mem-type instruction");
+    throw DecodingException("invalid fence-type instruction");
 }
 
 [[nodiscard]] InstructionFormat decode_format(BinaryInstruction inst) {
@@ -283,7 +283,7 @@ static_assert(sizeof(RawInstructionMiscMem) == sizeof(BinaryInstruction));
             return InstructionFormat::JType;
 
         case 0b0001111:
-            return InstructionFormat::MiscMemType;
+            return InstructionFormat::FenceType;
     }
 
     throw DecodingException(std::format("invalid instruction format (opcode: {:#b})", opcode).c_str());
@@ -303,7 +303,7 @@ Instruction Decoder::decode(BinaryInstruction instruction) {
         case BType: return decode_btype(instruction);
         case UType: return decode_utype(instruction);
         case JType: return decode_jtype(instruction);
-        case MiscMemType: return decode_misc_mem(instruction);
+        case FenceType: return decode_fence_type(instruction);
     }
 
     throw std::runtime_error("unreachable: format decoder should have thrown exception by now");
@@ -410,11 +410,11 @@ InstructionJ Decoder::decode_jtype(BinaryInstruction inst) {
     };
 }
 
-InstructionMiscMem Decoder::decode_misc_mem(BinaryInstruction inst) {
-    auto raw_inst = std::bit_cast<RawInstructionMiscMem>(inst);
+InstructionFence Decoder::decode_fence_type(BinaryInstruction inst) {
+    auto raw_inst = std::bit_cast<RawInstructionFence>(inst);
 
     return {
-        parse_misc_mem_type(raw_inst),
+        parse_fence_type(raw_inst),
         static_cast<Register>(raw_inst.rd),
         static_cast<Register>(raw_inst.rs1)
     };

@@ -302,11 +302,14 @@ struct Executor {
 
     }
 
-    void operator()(const InstructionMiscMem& inst) {
+    void operator()(const InstructionFence& inst) {
         switch (inst.type) {
-            using enum InstructionMiscMem::Type;
+            using enum InstructionFence::Type;
 
             case Fence:
+                // NOTE: there are no other harts or coprocessors present
+                // in this implementation, so fence does not need to provide
+                // any functionality
                 break;
         }
     }

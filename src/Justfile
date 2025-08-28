@@ -15,9 +15,3 @@ repl: build
 
 test: build
     ./build/tests
-
-ctest: build
-    ctest --test-dir ./build/
-
-rerun:
-    ctest --test-dir ./build/ --rerun-failed --output-on-failure

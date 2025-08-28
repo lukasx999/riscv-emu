@@ -126,10 +126,8 @@ int main(int argc, char** argv) try {
 
     if (opts.filename == ":repl") {
         run_repl(opts);
-
     } else {
         return run_file(opts);
-
     }
 
     return EXIT_SUCCESS;

@@ -188,11 +188,11 @@ struct std::formatter<InstructionS::Type> : std::formatter<std::string> {
 };
 
 template <>
-struct std::formatter<InstructionMiscMem::Type> : std::formatter<std::string> {
-    auto format(const InstructionMiscMem::Type& type, std::format_context& ctx) const {
+struct std::formatter<InstructionFence::Type> : std::formatter<std::string> {
+    auto format(const InstructionFence::Type& type, std::format_context& ctx) const {
         auto str = [&] {
             switch (type) {
-                using enum InstructionMiscMem::Type;
+                using enum InstructionFence::Type;
                 case Fence: return STRINGIFY(Fence);
             };
         }();
@@ -259,8 +259,8 @@ struct std::formatter<InstructionJ> : std::formatter<std::string> {
 };
 
 template <>
-struct std::formatter<InstructionMiscMem> : std::formatter<std::string> {
-    auto format(const InstructionMiscMem& inst, std::format_context& ctx) const {
+struct std::formatter<InstructionFence> : std::formatter<std::string> {
+    auto format(const InstructionFence& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rd: {}, rs1: {} }}",
                                inst.type, inst.rd, inst.rs1);
         return std::formatter<std::string>::format(fmt, ctx);

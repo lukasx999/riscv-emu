@@ -69,7 +69,8 @@ libc_strlen:
 .global _start
 _start:
 
-fence
+la t0, _start
+jalr zero, 100(t0)
 
 # exit()
 li a0, 0

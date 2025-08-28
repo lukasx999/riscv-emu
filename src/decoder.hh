@@ -7,7 +7,7 @@
 #include "util.hh"
 #include "register.hh"
 
-struct InstructionMiscMem {
+struct InstructionFence {
     enum class Type { Fence } type;
     Register rd;
     Register rs1;
@@ -75,7 +75,7 @@ using Instruction = std::variant<
     InstructionB,
     InstructionU,
     InstructionJ,
-    InstructionMiscMem
+    InstructionFence
 >;
 
 struct DecodingException : std::runtime_error {
@@ -95,6 +95,6 @@ private:
     [[nodiscard]] static InstructionB decode_btype(BinaryInstruction inst);
     [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
     [[nodiscard]] static InstructionJ decode_jtype(BinaryInstruction inst);
-    [[nodiscard]] static InstructionMiscMem decode_misc_mem(BinaryInstruction inst);
+    [[nodiscard]] static InstructionFence decode_fence_type(BinaryInstruction inst);
 
 };

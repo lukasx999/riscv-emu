@@ -7,14 +7,15 @@
 
 #include "elf.hh"
 #include "machine.hh"
-
 #include "repl.hh"
+#include "gdb.hh"
 
 namespace {
 
 struct Options {
     std::string filename;
     std::string signature_path;
+    bool enable_gdb_server;
 };
 
 [[nodiscard]] Options parse_args(int argc, char** argv) {
@@ -41,6 +42,11 @@ struct Options {
         .add_argument("--signature")
         .help("specify the filename of the signature to be generated")
         .store_into(opts.signature_path);
+
+    program
+        .add_argument("--gdb")
+        .help("start a gdb rsp server")
+        .store_into(opts.enable_gdb_server);
 
     program
         .add_argument("-v", "--verbose")
@@ -91,6 +97,13 @@ int run_file(const Options& opts) {
 
     ElfExecutable elf(opts.filename);
     Machine machine(elf);
+
+    if (opts.enable_gdb_server) {
+        GDBServer gdb_server;
+        std::println("GDB server listening on {0}, attach with `target remote {0}`", gdb_server.get_socket_path().string());
+        gdb_server.listen();
+    }
+
     int status = machine.run();
 
     if (!opts.signature_path.empty())
@@ -107,6 +120,11 @@ void run_repl([[maybe_unused]] const Options& opts) {
 #else
     if (!opts.signature_path.empty()) {
         std::println(stderr, "cannot generate signature in REPL mode");
+        exit(EXIT_FAILURE);
+    }
+
+    if (opts.enable_gdb_server) {
+        std::println(stderr, "cannot start gdb server in REPL mode");
         exit(EXIT_FAILURE);
     }
 

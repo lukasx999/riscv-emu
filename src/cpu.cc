@@ -302,6 +302,15 @@ struct Executor {
 
     }
 
+    void operator()(const InstructionMiscMem& inst) {
+        switch (inst.type) {
+            using enum InstructionMiscMem::Type;
+
+            case Fence:
+                break;
+        }
+    }
+
 private:
     void forward_syscall() const {
         enum Syscall {

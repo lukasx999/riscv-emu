@@ -110,7 +110,7 @@ void run_repl(const Options& opts) {
     repl.run();
 }
 
-}
+} // namespace
 
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)

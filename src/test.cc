@@ -370,7 +370,18 @@ void test_decoder_utype(std::string instruction, InstructionU::Type type,
     REQUIRE(i.imm == imm);
 }
 
+void test_decoder_misc_mem_type(std::string instruction, InstructionMiscMem::Type type,
+                               Register rd, Register rs1) {
+    auto raw_inst = encode_instruction(std::move(instruction));
+    auto inst = Decoder::decode(raw_inst->front());
+    REQUIRE(std::holds_alternative<InstructionMiscMem>(inst));
+    auto i = std::get<InstructionMiscMem>(inst);
+    REQUIRE(i.type == type);
+    REQUIRE(i.rd == rd);
+    REQUIRE(i.rs1 == rs1);
 }
+
+} // namespace
 
 TEST_CASE("decoder") {
     using enum InstructionR::Type;
@@ -379,6 +390,7 @@ TEST_CASE("decoder") {
     using enum InstructionB::Type;
     using enum InstructionU::Type;
     using enum InstructionJ::Type;
+    using enum InstructionMiscMem::Type;
     using enum Register;
 
     SECTION("rtype") {
@@ -501,5 +513,8 @@ TEST_CASE("decoder") {
         test_decoder_jtype("jal t0, .+1048574", Jal, T0, 1048574);
     }
 
+    SECTION("misc-mem-type") {
+        test_decoder_misc_mem_type("fence", Fence, X0, X0);
+    }
 
 }

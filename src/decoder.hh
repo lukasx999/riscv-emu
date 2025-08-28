@@ -7,6 +7,12 @@
 #include "util.hh"
 #include "register.hh"
 
+struct InstructionMiscMem {
+    enum class Type { Fence } type;
+    Register rd;
+    Register rs1;
+};
+
 struct InstructionR {
     enum class Type {
         Add, Addw, Sub, Subw, Xor, Or, And, Sll, Sllw, Srl, Srlw, Sra, Sraw, Slt, Sltu
@@ -68,10 +74,9 @@ using Instruction = std::variant<
     InstructionS,
     InstructionB,
     InstructionU,
-    InstructionJ
+    InstructionJ,
+    InstructionMiscMem
 >;
-
-enum class InstructionFormat { RType, IType, SType, BType, UType, JType };
 
 struct DecodingException : std::runtime_error {
     explicit DecodingException(const char* msg) : std::runtime_error(msg) { }
@@ -84,12 +89,12 @@ public:
     [[nodiscard]] static Instruction decode(BinaryInstruction instruction);
 
 private:
-    [[nodiscard]] static InstructionFormat decode_format(BinaryInstruction inst);
     [[nodiscard]] static InstructionR decode_rtype(BinaryInstruction inst);
     [[nodiscard]] static InstructionI decode_itype(BinaryInstruction inst);
     [[nodiscard]] static InstructionS decode_stype(BinaryInstruction inst);
     [[nodiscard]] static InstructionB decode_btype(BinaryInstruction inst);
     [[nodiscard]] static InstructionU decode_utype(BinaryInstruction inst);
     [[nodiscard]] static InstructionJ decode_jtype(BinaryInstruction inst);
+    [[nodiscard]] static InstructionMiscMem decode_misc_mem(BinaryInstruction inst);
 
 };

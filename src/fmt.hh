@@ -6,6 +6,7 @@
 #include "decoder.hh"
 #include "register.hh"
 
+// TODO: remove?
 #define COLOR_RED "\033[1;31m"
 #define COLOR_BLUE "\033[1;34m"
 #define COLOR_MAGENTA "\033[1;35m"
@@ -104,9 +105,6 @@ struct std::formatter<InstructionI::Type> : std::formatter<std::string> {
 template <>
 struct std::formatter<InstructionI> : std::formatter<std::string> {
     auto format(const InstructionI& inst, std::format_context& ctx) const {
-        // TODO:
-        // auto fmt = std::format("{{ type: " COLOR_TYPE "{}" COLOR_END ", rd: " COLOR_RD "{}" COLOR_END ", rs1: " COLOR_RS1 "{}" COLOR_END ", imm: " COLOR_IMM "{}" COLOR_END " }}",
-        //                        inst.type, inst.rd, inst.rs1, inst.imm);
         auto fmt = std::format("{{ type: {}, rd: {}, rs1: {}, imm: {} }}",
                                inst.type, inst.rd, inst.rs1, inst.imm);
         return std::formatter<std::string>::format(fmt, ctx);
@@ -190,6 +188,19 @@ struct std::formatter<InstructionS::Type> : std::formatter<std::string> {
 };
 
 template <>
+struct std::formatter<InstructionMiscMem::Type> : std::formatter<std::string> {
+    auto format(const InstructionMiscMem::Type& type, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (type) {
+                using enum InstructionMiscMem::Type;
+                case Fence: return STRINGIFY(Fence);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
+
+template <>
 struct std::formatter<InstructionS> : std::formatter<std::string> {
     auto format(const InstructionS& inst, std::format_context& ctx) const {
         auto fmt = std::format("{{ type: {}, rs1: {}, rs2: {}, imm: {} }}",
@@ -248,6 +259,15 @@ struct std::formatter<InstructionJ> : std::formatter<std::string> {
 };
 
 template <>
+struct std::formatter<InstructionMiscMem> : std::formatter<std::string> {
+    auto format(const InstructionMiscMem& inst, std::format_context& ctx) const {
+        auto fmt = std::format("{{ type: {}, rd: {}, rs1: {} }}",
+                               inst.type, inst.rd, inst.rs1);
+        return std::formatter<std::string>::format(fmt, ctx);
+    }
+};
+
+template <>
 struct std::formatter<Instruction> : std::formatter<std::string> {
     auto format(const Instruction& inst, std::format_context& ctx) const {
 
@@ -258,4 +278,3 @@ struct std::formatter<Instruction> : std::formatter<std::string> {
         return std::formatter<std::string>::format(fmt, ctx);
     }
 };
-

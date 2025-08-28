@@ -69,13 +69,9 @@ libc_strlen:
 .global _start
 _start:
 
-li s4, 1
-slli s4, s4, 0x27
-mv a0, s4
+fence
+
+# exit()
+li a0, 0
 li a7, 93
 ecall
-
-# # exit()
-# li a0, 0
-# li a7, 93
-# ecall

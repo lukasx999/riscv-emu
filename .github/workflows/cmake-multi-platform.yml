@@ -21,10 +21,11 @@ jobs:
         os: [ubuntu-latest]
         build_type: [Release]
         c_compiler: [gcc, clang]
+        compiler-version: [[g++, gcc], [g++-15, gcc-15], [clang++, clang]]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++15
+            cpp_compiler: g++
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++

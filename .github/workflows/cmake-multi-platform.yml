@@ -24,8 +24,7 @@ jobs:
         include:
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++
-            gcc: 15
+            cpp_compiler: g++15
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++

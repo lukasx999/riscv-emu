@@ -115,14 +115,10 @@ void run_repl(const Options& opts) {
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
     // TODO: create library interface for embedding into other programs?
-
-    auto opts = parse_args(argc, argv);
-
-    // TODO: stop riscof from testing m-mode instructions (fence)
-    // TODO: riscof misalign jalr???
-    // TODO: csr instructions (csrrw...)
     // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
+
+    auto opts = parse_args(argc, argv);
 
     if (opts.filename == ":repl") {
         run_repl(opts);

@@ -178,7 +178,8 @@ struct Executor {
 
             case Jalr:
                 set_rd(m_cpu.m_pc + sizeof(BinaryInstruction));
-                m_cpu.m_pc = rs1 + imm;
+                // NOTE: jalr is supposed to clear LSB
+                m_cpu.m_pc = (rs1 + imm) & ~1;
                 break;
 
             case Ecall:
@@ -186,7 +187,7 @@ struct Executor {
                 break;
 
             case Ebreak:
-                asm volatile ("int3");
+                __asm__ volatile ("int3");
                 break;
         }
     }

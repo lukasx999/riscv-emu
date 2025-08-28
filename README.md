@@ -3,6 +3,7 @@
 Linux Userspace emulator for RV64I ELF binaries.
 
 - Written in modern C++23.
+- Standard-compliant RV64I instruction set
 - Tested using the [official RISCV test suite](https://riscof.readthedocs.io/en/latest/intro.html).
 
 ## Build Instructions

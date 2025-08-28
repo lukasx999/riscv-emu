@@ -19,7 +19,7 @@ jobs:
 
       matrix:
         # os: [ubuntu-latest]
-        os: [ubuntu-25]
+        os: [ubuntu-25.04]
         build_type: [Release]
         c_compiler: [gcc, clang]
         # compiler-version: [[g++, gcc], [g++-15, gcc-15], [clang++, clang]]

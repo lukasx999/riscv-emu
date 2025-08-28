@@ -19,14 +19,14 @@ jobs:
 
       matrix:
         # os: [ubuntu-latest]
-        os: [ubuntu-25, ubuntu-latest]
+        os: [ubuntu-25]
         build_type: [Release]
         c_compiler: [gcc, clang]
         # compiler-version: [[g++, gcc], [g++-15, gcc-15], [clang++, clang]]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++-15
+            cpp_compiler: g++
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -40,6 +40,9 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install GCC
+      run: sudo apt install gcc-15 g++-15
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

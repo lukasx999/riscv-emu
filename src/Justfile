@@ -1,5 +1,5 @@
 configure:
-    cmake -B build -GNinja -DCMAKE_CXX_COMPILER=clang++
+    cmake -B build -GNinja -DCMAKE_CXX_COMPILER=clang++ -DFEATURE_REPL=ON
 
 build: configure
     cmake --build build

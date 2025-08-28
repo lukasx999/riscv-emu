@@ -8,7 +8,10 @@
 
 #include "elf.hh"
 #include "machine.hh"
+
+#ifdef FEATURE_REPL
 #include "repl.hh"
+#endif // FEATURE_REPL
 
 namespace {
 
@@ -17,7 +20,7 @@ struct Options {
     std::string signature_path;
 };
 
-[[nodiscard]] Options parse_args(int argc, char **argv) {
+[[nodiscard]] Options parse_args(int argc, char** argv) {
     Options opts;
 
     argparse::ArgumentParser program(global_data.program_name);
@@ -99,7 +102,12 @@ int run_file(const Options& opts) {
     return status;
 }
 
-void run_repl(const Options& opts) {
+void run_repl([[maybe_unused]] const Options& opts) {
+
+#ifndef FEATURE_REPL
+    std::println(stderr, "emulator was not compiled with REPL support");
+    exit(EXIT_FAILURE);
+#else
     if (!opts.signature_path.empty()) {
         std::println(stderr, "cannot generate signature in REPL mode");
         exit(EXIT_FAILURE);
@@ -108,6 +116,7 @@ void run_repl(const Options& opts) {
     Machine machine;
     REPL repl(machine);
     repl.run();
+#endif // FEATURE_REPL
 }
 
 } // namespace
@@ -117,6 +126,7 @@ int main(int argc, char** argv) try {
     // TODO: create library interface for embedding into other programs?
     // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
+    // TODO: integrate riscof tests into github ci
 
     auto opts = parse_args(argc, argv);
 

@@ -6,7 +6,7 @@
 #include "machine.hh"
 
 class REPL {
-    static constexpr auto m_prompt = "riscv :: ";
+    static constexpr auto m_prompt = "riscv> ";
     Machine& m_machine;
 
 public:

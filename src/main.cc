@@ -124,6 +124,7 @@ int main(int argc, char** argv) try {
     // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
     // TODO: integrate riscof tests into github ci
+    // TODO: gdb rsp protocol
 
     auto opts = parse_args(argc, argv);
 

@@ -36,7 +36,7 @@ class StringSwitch {
     std::optional<T> m_result;
 
 public:
-    StringSwitch(std::string_view str) : m_str(str) { }
+    explicit StringSwitch(std::string_view str) : m_str(str) { }
 
     StringSwitch& with(std::string_view str, T value) {
         if (!m_result && m_str == str)

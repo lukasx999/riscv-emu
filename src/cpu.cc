@@ -8,6 +8,7 @@
 #include "cpu.hh"
 
 struct Executor {
+
     class CPU& m_cpu;
 
     void operator()(const InstructionR& inst) {

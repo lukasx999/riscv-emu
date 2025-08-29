@@ -10,7 +10,7 @@ class REPL {
     Machine& m_machine;
 
 public:
-    REPL(Machine& machine) : m_machine(machine) { }
+    explicit REPL(Machine& machine) : m_machine(machine) { }
 
     void run();
 

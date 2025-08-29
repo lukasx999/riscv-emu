@@ -18,7 +18,7 @@
 namespace fs = std::filesystem;
 
 struct GDBException : std::runtime_error {
-    GDBException(const char* msg) : std::runtime_error(msg) { }
+    explicit GDBException(const char* msg) : std::runtime_error(msg) { }
 };
 
 class GDBServer {

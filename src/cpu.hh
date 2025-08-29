@@ -19,7 +19,7 @@ public:
     RegisterFile m_registers;
     Memory& m_memory;
 
-    CPU(Memory& memory) : m_memory(memory) { }
+    explicit CPU(Memory& memory) : m_memory(memory) { }
 
     [[nodiscard]] Word get_pc() const {
         return m_pc;

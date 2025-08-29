@@ -12,15 +12,20 @@ namespace fs = std::filesystem;
 namespace asio = boost::asio;
 namespace proc = boost::process;
 
+fs::path get_temp_dir_path() {
+    auto tmp_dir = fs::temp_directory_path();
+    auto path = tmp_dir / global_data.program_name;
+    fs::create_directory(path);
+    return path;
+}
+
 auto encode_instruction(std::string instruction)
 -> std::optional<std::vector<BinaryInstruction>> {
 
     asio::io_context ctx;
     asio::writable_pipe pipe(ctx);
 
-    auto tmp_path = fs::temp_directory_path();
-    auto path = tmp_path / global_data.program_name;
-    fs::create_directory(path);
+    auto path = get_temp_dir_path();
     auto obj_path = path / "obj.o";
     auto bin_path = path / "bin";
 

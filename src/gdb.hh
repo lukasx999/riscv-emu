@@ -37,10 +37,7 @@ public:
     GDBServer() = delete;
 
     [[nodiscard]] static constexpr fs::path get_socket_path() {
-        // TODO: util.hh get_temp_dir() unify temp dir creation
-        auto tmp_dir = fs::temp_directory_path();
-        auto path = tmp_dir / global_data.program_name;
-        fs::create_directory(path);
+        auto path = get_temp_dir_path();
         auto socket_path = path / m_socket_name;
         return socket_path;
     }

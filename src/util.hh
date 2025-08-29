@@ -6,7 +6,10 @@
 #include <string>
 #include <print>
 #include <utility>
+#include <filesystem>
 #include <type_traits>
+
+namespace fs = std::filesystem;
 
 using Word = uint64_t;
 using SignedWord = int64_t;
@@ -60,6 +63,7 @@ public:
 
 };
 
+fs::path get_temp_dir_path();
 // returns vector, as pseudoinstructions will be expanded into multiple
 // primitive instructions
 [[nodiscard]] auto encode_instruction(std::string instruction)

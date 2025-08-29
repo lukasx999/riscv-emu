@@ -35,10 +35,11 @@ public:
         if (fs::exists(socket_path))
             fs::remove(socket_path);
 
+        // TODO: maybe also support tcp sockets?
         m_sock_fd = create_socket(socket_path.c_str());
     }
 
-    [[nodiscard]] fs::path get_socket_path() const {
+    [[nodiscard]] static constexpr fs::path get_socket_path() {
         // TODO: util.hh get_temp_dir() unify temp dir creation
         auto tmp_dir = fs::temp_directory_path();
         auto path = tmp_dir / global_data.program_name;
@@ -63,9 +64,10 @@ public:
 private:
     using Checksum = uint8_t;
 
-    void send_but_better(int fd, std::string msg) {
+    static void send_wrapper(int fd, std::string msg) {
         int err = send(fd, msg.c_str(), msg.size(), 0);
-        assert(err != -1);
+        if (err == -1)
+            throw GDBException("failed to write to socket");
     }
 
     [[nodiscard]] static constexpr bool is_field_delim(char c) {
@@ -114,7 +116,7 @@ private:
 
         auto checksum = calculate_checksum(final);
         auto packet = std::format("${}#{:02x}", final, checksum);
-        send_but_better(fd, packet);
+        send_wrapper(fd, packet);
     }
 
     [[nodiscard]] static constexpr std::string encode_number(uint64_t value) {
@@ -129,175 +131,33 @@ private:
         return encoded_value;
     }
 
-    [[nodiscard]] std::string get_register(int reg_num) const {
-
-        auto value = reg_num == 32
-            ? m_machine.m_cpu.get_pc()
-            : m_machine.m_cpu.m_registers.get(static_cast<Register>(reg_num));
-
-        return encode_number(value);
-    }
-
-    void handle_packet(std::vector<std::string> fields, int other_fd) {
-
-        auto cmd = fields.front();
-
-        if (cmd == "qSupported") {
-            send_response(other_fd, { "PacketSize=2001f", });
-
-        } else if (cmd == "g") {
-            // TODO:
-            // auto registers = m_machine.m_cpu.m_registers.get_all();
-            // NOTE: 32+pc
-            send_response(other_fd, { "0000000000000000000000000000000000000000000000000000000000000000" });
-
-        } else if (cmd[0] == 'p') {
-            auto n = parse_hex_digits(cmd[1], cmd[2]);
-            auto value = get_register(n);
-            send_response(other_fd, { value });
-
-        } else if (cmd == "vCont?") {
-            send_response(other_fd, { "vCont", "c", "s", "t", });
-
-        } else if (cmd == "qfThreadInfo") {
-            send_response(other_fd, { "m 1" });
-
-        } else if (cmd == "qTStatus") {
-            send_response(other_fd, { "T0", "tnotrun:0" });
-
-        } else if (cmd == "qTfV") {
-            // TODO: what the hell are trace variables, and are they mandatory?
-            send_response(other_fd, { "1:0:1:41" });
-
-        } else if (cmd == "qTsV") {
-            send_response(other_fd, { "l" });
-
-        } else if (cmd == "qsThreadInfo") {
-            send_response(other_fd, { "l" });
-
-        } else if (cmd[0] == 'H') {
-            send_response(other_fd, { "OK" });
-
-        } else if (cmd == "qC") {
-            send_response(other_fd, { "QC 1" });
-
-        } else if (cmd == "qOffsets") {
-            send_response(other_fd, { "TextSeg=000" });
-
-        } else if (cmd == "qAttached") {
-            send_response(other_fd, { "0" });
-
-        } else if (cmd == "?") {
-            send_response(other_fd, { "S05" }); // SIGTRAP
-
-        } else if (cmd == "vMustReplyEmpty") {
-            send_response(other_fd, {});
-
-        } else {
-            send_response(other_fd, {});
-        }
-
-    }
-
-    [[nodiscard]] static constexpr int parse_hex_digits(char a, char b) {
+    [[nodiscard]] static constexpr uint8_t parse_hex_digits(char a, char b) {
         auto checksum_str = std::format("{}{}", a, b);
-        int checksum;
-        std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), checksum, 16);
-        return checksum;
+        uint8_t value;
+        std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), value, 16);
+        return value;
     }
 
-    [[nodiscard]] Checksum receive_and_parse_checksum(int other_fd) {
+    [[nodiscard]] Checksum receive_and_parse_checksum(int other_fd) const {
         std::array<char, 2> checksum_raw;
         int err = recv(other_fd, checksum_raw.data(), checksum_raw.size(), 0);
         assert(err != -1);
 
-        Checksum checksum = parse_hex_digits(checksum_raw[0], checksum_raw[1]);
-        // TODO: remove
-        // auto checksum_str = std::format("{}{}", checksum_raw[0], checksum_raw[1]);
-        // Checksum checksum;
-        // // base 16, because rsp sends checksum as hex without a prefix
-        // std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), checksum, 16);
-
-        return checksum;
+        return parse_hex_digits(checksum_raw[0], checksum_raw[1]);
     }
 
-    void send_ack(int fd) {
+    static void send_ack(int fd) {
         log("sent ACK");
-        send_but_better(fd, "+");
+        send_wrapper(fd, "+");
     }
 
-    void send_nack(int fd) {
+    static void send_nack(int fd) {
         log("sent NACK");
-        send_but_better(fd, "-");
+        send_wrapper(fd, "-");
     }
 
-    void read_incoming_packets(int other_fd) {
+    void handle_packet(std::vector<std::string> fields, int other_fd);
+    void read_incoming_packets(int other_fd);
+    [[nodiscard]] static int create_socket(const char* socket_path);
 
-        bool inside_packet_data = false;
-        std::string data_buf;
-
-        while (true) {
-            char c = '\0';
-            int data_received = recv(other_fd, &c, 1, 0);
-            if (data_received == -1)
-                throw GDBException(strerror(errno));
-
-            if (data_received == 0) break;
-
-            if (c == '$') {
-                inside_packet_data = true;
-
-            } else if (c == '#') {
-                inside_packet_data = false;
-
-                auto fields = get_packet_fields(data_buf);
-                log("received: {}", fields);
-
-                auto checksum = receive_and_parse_checksum(other_fd);
-                if (calculate_checksum(data_buf) == checksum)
-                    send_ack(other_fd);
-                else
-                    send_nack(other_fd);
-
-                handle_packet(std::move(fields), other_fd);
-
-                data_buf.clear();
-
-            } else if (inside_packet_data) {
-                data_buf.push_back(c);
-
-            } else if (c == '+') {
-                log("received ACK");
-
-            } else if (c == '-') {
-                log("received NACK");
-
-            } else {
-                throw GDBException(std::format("invalid data: {}", c).c_str());
-            }
-
-        }
-    }
-
-    [[nodiscard]] static int create_socket(const char* socket_path) {
-
-        int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (sock_fd == -1)
-            throw GDBException(strerror(errno));
-
-        struct sockaddr_un addr {
-            .sun_family = AF_UNIX,
-            .sun_path = {},
-        };
-
-        strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path)-1);
-
-        int err = bind(sock_fd, reinterpret_cast<struct sockaddr*>(&addr),
-                       sizeof(struct sockaddr_un));
-
-        if (err == -1)
-            throw GDBException(strerror(errno));
-
-        return sock_fd;
-    }
 };

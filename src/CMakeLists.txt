@@ -13,7 +13,7 @@ project(RiscvEmu)
 
 Include(FetchContent)
 
-list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc)
+list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc gdb.cc)
 list(APPEND libs Boost::process)
 
 if(FEATURE_REPL)

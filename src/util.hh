@@ -30,6 +30,36 @@ void log(std::format_string<Args...> fmt, Args&& ...args) {
     std::println(stderr, fmt, std::forward<Args>(args)...);
 }
 
+template <typename T>
+class StringSwitch {
+    std::string_view m_str;
+    std::optional<T> m_result;
+
+public:
+    StringSwitch(std::string_view str) : m_str(str) { }
+
+    StringSwitch& with(std::string_view str, T value) {
+        if (!m_result && m_str == str)
+            m_result = std::move(value);
+
+        return *this;
+    }
+
+    [[nodiscard]] T catchall(T value) {
+        if (!m_result)
+            m_result = value;
+
+        return *m_result;
+    }
+
+    [[nodiscard]] operator T() const {
+        if (!m_result)
+            throw std::runtime_error("no matching values, but no catchall case provided");
+        return *m_result;
+    }
+
+};
+
 // returns vector, as pseudoinstructions will be expanded into multiple
 // primitive instructions
 [[nodiscard]] auto encode_instruction(std::string instruction)

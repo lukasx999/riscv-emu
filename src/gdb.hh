@@ -24,7 +24,6 @@ struct GDBException : std::runtime_error {
 
 class GDBServer {
 protected:
-    static constexpr auto m_socket_name = "gdbserver.sock";
     Machine& m_machine;
     int m_sock_fd;
 
@@ -35,12 +34,6 @@ protected:
 
 public:
     GDBServer() = delete;
-
-    [[nodiscard]] static constexpr fs::path get_socket_path() {
-        auto path = get_temp_dir_path();
-        auto socket_path = path / m_socket_name;
-        return socket_path;
-    }
 
     void listen() {
 
@@ -105,10 +98,16 @@ private:
 };
 
 class GDBServerUnix : public GDBServer {
+    static constexpr auto m_socket_name = "gdbserver.sock";
+
 public:
     explicit GDBServerUnix(Machine& machine)
     : GDBServer(machine, prepare_socket_file())
     { }
+
+    [[nodiscard]] static constexpr fs::path get_socket_path() {
+        return get_temp_dir_path() / m_socket_name;
+    }
 
 private:
     int prepare_socket_file() {

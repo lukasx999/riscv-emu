@@ -142,7 +142,6 @@ void run_repl([[maybe_unused]] const Options& opts) {
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
     // TODO: create library interface for embedding into other programs?
-    // TODO: RVMODEL_IO_ASSERT_GPR_EQ for testing
     // TODO: handle sbrk()
     // TODO: integrate riscof tests into github ci
     // TODO: gdb rsp protocol

@@ -69,9 +69,9 @@ libc_strlen:
 .global _start
 _start:
 
-li a0, 0
-li a7, 214 # brk()
-ecall
+# li a0, 0
+# li a7, 214 # brk()
+# ecall
 
 # exit()
 li a0, 0

@@ -100,7 +100,8 @@ int run_file(const Options& opts) {
 
     if (opts.enable_gdb_server) {
         GDBServer gdb_server;
-        std::println("GDB server listening on {0}, attach with `target remote {0}`", gdb_server.get_socket_path().string());
+        auto socket_path = gdb_server.get_socket_path().string();
+        std::println("GDB server listening on {0}, attach with `target remote {0}`", socket_path);
         gdb_server.listen();
     }
 
@@ -143,6 +144,7 @@ int main(int argc, char** argv) try {
     // TODO: handle sbrk()
     // TODO: integrate riscof tests into github ci
     // TODO: gdb rsp protocol
+    // TODO: tests for gdb rsp
 
     auto opts = parse_args(argc, argv);
 

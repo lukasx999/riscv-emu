@@ -69,6 +69,11 @@ private:
         return c == ':' || c == ';' || c == ',';
     }
 
+    [[nodiscard]] static constexpr
+    Checksum calculate_checksum(std::string_view packet) {
+        return std::accumulate(packet.begin(), packet.end(), 0) % 256;
+    }
+
     [[nodiscard]]
     auto get_packet_fields(std::string_view packet) -> std::vector<std::string> {
 
@@ -85,27 +90,39 @@ private:
             }
 
         }
+        fields.push_back(std::move(current_field));
 
         return fields;
     }
 
-    void send_response(int fd, std::vector<std::string> msg) {
-        // TODO:
-        // send_wrapper(fd, std::format("${}#{}", str, checksum));
+    void send_response(int fd, std::vector<std::string> fields) {
+        log("response: {}", fields);
+
+        std::string final;
+        for (auto& str : fields) {
+            final += str;
+            if (fields.size() == 1) continue;
+            final.push_back(';');
+        }
+
+        auto checksum = calculate_checksum(final);
+        auto packet = std::format("${}#{:02x}", final, checksum);
+        send_but_better(fd, packet);
     }
 
-    void handle_packet(std::string_view packet, int other_fd) {
+    void handle_packet(std::vector<std::string> fields, int other_fd) {
 
-        auto fields = get_packet_fields(packet);
-        std::println("{}", fields);
-
+        if (fields.empty()) return;
         auto cmd = fields.front();
 
         if (cmd == "qSupported") {
-            // TODO:
-            // send_response(other_fd, {});
+            send_response(other_fd, { "PacketSize=2001f", });
+
+        } else if (cmd == "vCont?") {
+            send_response(other_fd, { "vCont", "c", "s", });
+
         } else {
-            send_but_better(other_fd, "$#00");
+            send_response(other_fd, {});
         }
 
     }
@@ -123,15 +140,20 @@ private:
         return checksum;
     }
 
-    [[nodiscard]] static constexpr
-    Checksum calculate_checksum(std::string_view packet) {
-        return std::accumulate(packet.begin(), packet.end(), 0) % 256;
+    void send_ack(int fd) {
+        log("sent ACK");
+        send_but_better(fd, "+");
+    }
+
+    void send_nack(int fd) {
+        log("sent NACK");
+        send_but_better(fd, "-");
     }
 
     void read_incoming_packets(int other_fd) {
 
-        bool inside_packet = false;
-        std::string packet_buf;
+        bool inside_packet_data = false;
+        std::string data_buf;
 
         while (true) {
             char c = '\0';
@@ -142,22 +164,35 @@ private:
             if (data_received == 0) break;
 
             if (c == '$') {
-                inside_packet = true;
+                inside_packet_data = true;
 
             } else if (c == '#') {
-                inside_packet = false;
+                inside_packet_data = false;
 
-                if (calculate_checksum(packet_buf) == receive_and_parse_checksum(other_fd))
-                    send_but_better(other_fd, "+");
+                auto fields = get_packet_fields(data_buf);
+                log("received: {}", fields);
+
+                auto checksum = receive_and_parse_checksum(other_fd);
+                if (calculate_checksum(data_buf) == checksum)
+                    send_ack(other_fd);
                 else
-                    send_but_better(other_fd, "-");
+                    send_nack(other_fd);
 
-                handle_packet(packet_buf, other_fd);
+                handle_packet(std::move(fields), other_fd);
 
-                packet_buf.clear();
+                data_buf.clear();
 
-            } else if (inside_packet) {
-                packet_buf.push_back(c);
+            } else if (inside_packet_data) {
+                data_buf.push_back(c);
+
+            } else if (c == '+') {
+                log("received ACK");
+
+            } else if (c == '-') {
+                log("received NACK");
+
+            } else {
+                throw GDBException(std::format("invalid data: {}", c).c_str());
             }
 
         }

@@ -18,6 +18,7 @@ struct Options {
     bool enable_gdb_server;
 };
 
+// TODO: make stack size configurable
 [[nodiscard]] Options parse_args(int argc, char** argv) {
     Options opts;
 
@@ -146,6 +147,7 @@ int main(int argc, char** argv) try {
     // TODO: integrate riscof tests into github ci
     // TODO: gdb rsp protocol
     // TODO: tests for gdb rsp
+    // TODO: emulate heap
 
     auto opts = parse_args(argc, argv);
 
@@ -159,6 +161,10 @@ int main(int argc, char** argv) try {
 
 } catch (const ElfExcecutableException& e) {
     std::println(stderr, "Failed to parse binary: {}", e.what());
+    return EXIT_FAILURE;
+
+} catch (const GDBException& e) {
+    std::println(stderr, "GDB RSP failure: {}", e.what());
     return EXIT_FAILURE;
 
 } catch (const DecodingException& e) {

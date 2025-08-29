@@ -82,7 +82,10 @@ void GDBServer::handle_packet(std::vector<std::string> fields, int other_fd) {
         send_response(other_fd, { "0" });
 
     } else if (cmd == "?") {
-        send_response(other_fd, { "S05" }); // SIGTRAP
+        send_response(other_fd, { std::format("S{}", encode_number(SIGTRAP)) });
+
+    } else if (cmd == "k") {
+        exit(EXIT_SUCCESS);
 
     } else if (cmd == "vMustReplyEmpty") {
         send_response(other_fd, {});
@@ -127,14 +130,14 @@ void GDBServer::read_incoming_packets(int other_fd) {
 
             data_buf.clear();
 
-        } else if (inside_packet_data) {
-            data_buf.push_back(c);
-
         } else if (c == '+') {
             log("received ACK");
 
         } else if (c == '-') {
             log("received NACK");
+
+        } else if (inside_packet_data) {
+            data_buf.push_back(c);
 
         } else {
             throw GDBException(std::format("invalid data: {}", c).c_str());

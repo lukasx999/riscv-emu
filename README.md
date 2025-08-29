@@ -5,7 +5,7 @@ Linux Userspace emulator for RV64I ELF binaries.
 - Written in modern C++23.
 - Standard-Compliant RV64I instruction set
 - Tested using the [official RISCV test suite](https://riscof.readthedocs.io/en/latest/intro.html).
-- Support for GDB Remote Debugging via [RSP](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Remote-Protocol.html)
+- Support for GDB Remote Debugging via [GDB RSP](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Remote-Protocol.html)
 - Interactive REPL
 
 ## Build Instructions

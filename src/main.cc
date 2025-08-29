@@ -105,6 +105,7 @@ int run_file(const Options& opts) {
         gdb_server.listen();
     }
 
+    // TODO: when running as gdb server, patch first instruction with ebreak
     int status = machine.run();
 
     if (!opts.signature_path.empty())

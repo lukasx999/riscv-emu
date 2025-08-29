@@ -18,6 +18,72 @@
 #include "util.hh"
 #include "machine.hh"
 
+uint8_t GDBServer::parse_hex_digits(char a, char b) {
+    auto checksum_str = std::format("{}{}", a, b);
+    uint8_t value;
+    std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), value, 16);
+    return value;
+}
+
+auto GDBServer::get_packet_fields(std::string_view packet) -> std::vector<std::string> {
+
+    std::vector<std::string> fields;
+
+    std::string current_field;
+    for (char c : packet) {
+
+        if (is_field_delim(c)) {
+            fields.push_back(current_field);
+            current_field.clear();
+        } else {
+            current_field.push_back(c);
+        }
+
+    }
+    fields.push_back(std::move(current_field));
+
+    return fields;
+}
+
+void GDBServer::send_response(int fd, std::vector<std::string> fields) {
+    log("response: {}", fields);
+
+    std::string final;
+    for (auto& str : fields) {
+        final += str;
+        final.push_back(';');
+    }
+
+    if (!fields.empty()) {
+        assert(final.back() == ';');
+        final.pop_back();
+    }
+
+    auto checksum = calculate_checksum(final);
+    auto packet = std::format("${}#{:02x}", final, checksum);
+    send_wrapper(fd, packet);
+}
+
+std::string GDBServer::encode_number(uint64_t value) {
+
+    auto encoded_value = std::format("{:x}", value);
+    bool is_odd = encoded_value.size() % 2 != 0;
+
+    // each byte must be encoded in two hex digits
+    if (is_odd)
+        encoded_value.insert(encoded_value.begin(), '0');
+
+    return encoded_value;
+}
+
+GDBServer::Checksum GDBServer::receive_and_parse_checksum(int other_fd) const {
+    std::array<char, 2> checksum_raw;
+    int err = recv(other_fd, checksum_raw.data(), checksum_raw.size(), 0);
+    assert(err != -1);
+
+    return parse_hex_digits(checksum_raw[0], checksum_raw[1]);
+}
+
 void GDBServer::handle_packet(std::vector<std::string> fields, int other_fd) {
 
     auto cmd = fields.front();
@@ -153,24 +219,7 @@ void GDBServer::bind_socket(int sock_fd, const struct sockaddr* addr) {
         throw GDBException(strerror(errno));
 }
 
-int GDBServer::create_socket_unix(const char* socket_path) {
-
-    int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (sock_fd == -1)
-        throw GDBException(strerror(errno));
-
-    struct sockaddr_un addr {
-        .sun_family = AF_UNIX,
-        .sun_path = {},
-    };
-
-    strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path)-1);
-
-    bind_socket(sock_fd, reinterpret_cast<struct sockaddr*>(&addr));
-    return sock_fd;
-}
-
-int GDBServer::create_socket_tcp(uint16_t port) {
+int GDBServerTcp::create_socket_tcp(uint16_t port) {
 
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd == -1)
@@ -184,6 +233,23 @@ int GDBServer::create_socket_tcp(uint16_t port) {
     };
 
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    bind_socket(sock_fd, reinterpret_cast<struct sockaddr*>(&addr));
+    return sock_fd;
+}
+
+int GDBServerUnix::create_socket_unix(const char* socket_path) {
+
+    int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sock_fd == -1)
+        throw GDBException(strerror(errno));
+
+    struct sockaddr_un addr {
+        .sun_family = AF_UNIX,
+        .sun_path = {},
+    };
+
+    strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path)-1);
 
     bind_socket(sock_fd, reinterpret_cast<struct sockaddr*>(&addr));
     return sock_fd;

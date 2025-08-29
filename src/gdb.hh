@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <netinet/in.h>
 #include <vector>
 #include <numeric>
 #include <array>
@@ -22,21 +23,18 @@ struct GDBException : std::runtime_error {
 };
 
 class GDBServer {
+protected:
     static constexpr auto m_socket_name = "gdbserver.sock";
-    int m_sock_fd = -1;
     Machine& m_machine;
-    // enum class SocketType { Tcp, Unix } m_type;
+    int m_sock_fd;
+
+    GDBServer(Machine& machine, int sock_fd)
+        : m_machine(machine)
+        , m_sock_fd(sock_fd)
+    { }
 
 public:
-    GDBServer(Machine& machine) : m_machine(machine) {
-        auto socket_path = get_socket_path();
-
-        if (fs::exists(socket_path))
-            fs::remove(socket_path);
-
-        // m_sock_fd = create_socket(socket_path.c_str());
-        m_sock_fd = create_socket_tcp(1234);
-    }
+    GDBServer() = delete;
 
     [[nodiscard]] static constexpr fs::path get_socket_path() {
         // TODO: util.hh get_temp_dir() unify temp dir creation
@@ -60,7 +58,7 @@ public:
         read_incoming_packets(other_fd);
     }
 
-private:
+protected:
     using Checksum = uint8_t;
 
     static void send_wrapper(int fd, std::string msg) {
@@ -78,73 +76,6 @@ private:
         return std::accumulate(packet.begin(), packet.end(), 0) % 256;
     }
 
-    [[nodiscard]]
-    auto get_packet_fields(std::string_view packet) -> std::vector<std::string> {
-
-        std::vector<std::string> fields;
-
-        std::string current_field;
-        for (char c : packet) {
-
-            if (is_field_delim(c)) {
-                fields.push_back(current_field);
-                current_field.clear();
-            } else {
-                current_field.push_back(c);
-            }
-
-        }
-        fields.push_back(std::move(current_field));
-
-        return fields;
-    }
-
-    void send_response(int fd, std::vector<std::string> fields) {
-        log("response: {}", fields);
-
-        std::string final;
-        for (auto& str : fields) {
-            final += str;
-            final.push_back(';');
-        }
-
-        if (!fields.empty()) {
-            assert(final.back() == ';');
-            final.pop_back();
-        }
-
-        auto checksum = calculate_checksum(final);
-        auto packet = std::format("${}#{:02x}", final, checksum);
-        send_wrapper(fd, packet);
-    }
-
-    [[nodiscard]] static constexpr std::string encode_number(uint64_t value) {
-
-        auto encoded_value = std::format("{:x}", value);
-        bool is_odd = encoded_value.size() % 2 != 0;
-
-        // each byte must be encoded in two hex digits
-        if (is_odd)
-            encoded_value.insert(encoded_value.begin(), '0');
-
-        return encoded_value;
-    }
-
-    [[nodiscard]] static constexpr uint8_t parse_hex_digits(char a, char b) {
-        auto checksum_str = std::format("{}{}", a, b);
-        uint8_t value;
-        std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), value, 16);
-        return value;
-    }
-
-    [[nodiscard]] Checksum receive_and_parse_checksum(int other_fd) const {
-        std::array<char, 2> checksum_raw;
-        int err = recv(other_fd, checksum_raw.data(), checksum_raw.size(), 0);
-        assert(err != -1);
-
-        return parse_hex_digits(checksum_raw[0], checksum_raw[1]);
-    }
-
     static void send_ack(int fd) {
         log("sent ACK");
         send_wrapper(fd, "+");
@@ -155,10 +86,43 @@ private:
         send_wrapper(fd, "-");
     }
 
+    [[nodiscard]] static uint8_t parse_hex_digits(char a, char b);
+    [[nodiscard]] auto get_packet_fields(std::string_view packet) -> std::vector<std::string>;
+    void send_response(int fd, std::vector<std::string> fields);
+    [[nodiscard]] static std::string encode_number(uint64_t value);
+    [[nodiscard]] Checksum receive_and_parse_checksum(int other_fd) const;
     void handle_packet(std::vector<std::string> fields, int other_fd);
     void read_incoming_packets(int other_fd);
     static void bind_socket(int sock_fd, const struct sockaddr* addr);
-    [[nodiscard]] static int create_socket_unix(const char* socket_path);
+
+};
+
+class GDBServerTcp : public GDBServer {
+public:
+    GDBServerTcp(Machine& machine, uint16_t port)
+    : GDBServer(machine, create_socket_tcp(port))
+    { }
+
+private:
     [[nodiscard]] static int create_socket_tcp(uint16_t port);
+};
+
+class GDBServerUnix : public GDBServer {
+public:
+    explicit GDBServerUnix(Machine& machine)
+    : GDBServer(machine, prepare_socket_file())
+    { }
+
+private:
+    int prepare_socket_file() {
+        auto socket_path = get_socket_path();
+
+        if (fs::exists(socket_path))
+            fs::remove(socket_path);
+
+        return create_socket_unix(socket_path.c_str());
+    }
+
+    [[nodiscard]] static int create_socket_unix(const char* socket_path);
 
 };

@@ -98,8 +98,9 @@ int run_file(const Options& opts) {
     ElfExecutable elf(opts.filename);
     Machine machine(elf);
 
+    // TODO: argument parsing for unix/tcp server + pass in port
     if (opts.enable_gdb_server) {
-        GDBServer gdb_server(machine);
+        GDBServerUnix gdb_server(machine);
         auto socket_path = gdb_server.get_socket_path().string();
         std::println("GDB server listening on {0}, attach with `target remote {0}`", socket_path);
         gdb_server.listen();

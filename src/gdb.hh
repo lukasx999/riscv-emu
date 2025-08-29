@@ -121,6 +121,21 @@ private:
         } else if (cmd == "vCont?") {
             send_response(other_fd, { "vCont", "c", "s", });
 
+        } else if (cmd == "qfThreadInfo") {
+            send_response(other_fd, { "m 1 l" });
+
+        } else if (cmd == "qC") {
+            send_response(other_fd, { "QC 1" });
+
+        } else if (cmd == "qAttached") {
+            send_response(other_fd, { "0" });
+
+        } else if (cmd == "?") {
+            send_response(other_fd, {});
+
+        } else if (cmd == "vMustReplyEmpty") {
+            send_response(other_fd, {});
+
         } else {
             send_response(other_fd, {});
         }

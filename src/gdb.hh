@@ -101,8 +101,12 @@ private:
         std::string final;
         for (auto& str : fields) {
             final += str;
-            if (fields.size() == 1) continue;
             final.push_back(';');
+        }
+
+        if (!fields.empty()) {
+            assert(final.back() == ';');
+            final.pop_back();
         }
 
         auto checksum = calculate_checksum(final);
@@ -112,7 +116,6 @@ private:
 
     void handle_packet(std::vector<std::string> fields, int other_fd) {
 
-        if (fields.empty()) return;
         auto cmd = fields.front();
 
         if (cmd == "qSupported") {
@@ -124,8 +127,14 @@ private:
         } else if (cmd == "qfThreadInfo") {
             send_response(other_fd, { "m 1 l" });
 
+        } else if (cmd[0] == 'H') {
+            send_response(other_fd, { "OK" });
+
         } else if (cmd == "qC") {
             send_response(other_fd, { "QC 1" });
+
+        } else if (cmd == "qOffsets") {
+            send_response(other_fd, { "TextSeg=000" });
 
         } else if (cmd == "qAttached") {
             send_response(other_fd, { "0" });

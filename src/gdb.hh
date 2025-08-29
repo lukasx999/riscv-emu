@@ -122,10 +122,23 @@ private:
             send_response(other_fd, { "PacketSize=2001f", });
 
         } else if (cmd == "vCont?") {
-            send_response(other_fd, { "vCont", "c", "s", });
+            send_response(other_fd, { "vCont", "c", "s", "t", });
 
         } else if (cmd == "qfThreadInfo") {
-            send_response(other_fd, { "m 1 l" });
+            send_response(other_fd, { "m 1" });
+
+        } else if (cmd == "qTStatus") {
+            send_response(other_fd, { "T0", "tnotrun:0" });
+
+        } else if (cmd == "qTfV") {
+            // TODO: what the hell are trace variables, and are they mandatory?
+            send_response(other_fd, { "1:0:1:41" });
+
+        } else if (cmd == "qTsV") {
+            send_response(other_fd, { "l" });
+
+        } else if (cmd == "qsThreadInfo") {
+            send_response(other_fd, { "l" });
 
         } else if (cmd[0] == 'H') {
             send_response(other_fd, { "OK" });
@@ -140,7 +153,12 @@ private:
             send_response(other_fd, { "0" });
 
         } else if (cmd == "?") {
-            send_response(other_fd, {});
+            // send_response(other_fd, { "S 11" }); // sigstop
+            // send_response(other_fd, {});
+            // "$T0506:0*,;07:f0e1f*"7f0* ;10:400bfef7ff7f0* ;thread:p4272.4272;core:d;#ad"
+            // send_response(other_fd, { R"(T0506:0*,;07:f0e1f*"7f0* ;10:400bfef7ff7f0* ;thread:p4272.4272;core:d;)" });
+            // TODO:
+            send_response(other_fd, { "S 05" });
 
         } else if (cmd == "vMustReplyEmpty") {
             send_response(other_fd, {});

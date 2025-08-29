@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 
 #include "util.hh"
 #include "machine.hh"
@@ -146,7 +147,13 @@ void GDBServer::read_incoming_packets(int other_fd) {
     }
 }
 
-int GDBServer::create_socket(const char* socket_path) {
+void GDBServer::bind_socket(int sock_fd, const struct sockaddr* addr) {
+    int err = bind(sock_fd, addr, sizeof(struct sockaddr_un));
+    if (err == -1)
+        throw GDBException(strerror(errno));
+}
+
+int GDBServer::create_socket_unix(const char* socket_path) {
 
     int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (sock_fd == -1)
@@ -159,11 +166,25 @@ int GDBServer::create_socket(const char* socket_path) {
 
     strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path)-1);
 
-    int err = bind(sock_fd, reinterpret_cast<struct sockaddr*>(&addr),
-                   sizeof(struct sockaddr_un));
+    bind_socket(sock_fd, reinterpret_cast<struct sockaddr*>(&addr));
+    return sock_fd;
+}
 
-    if (err == -1)
+int GDBServer::create_socket_tcp(uint16_t port) {
+
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock_fd == -1)
         throw GDBException(strerror(errno));
 
+    struct sockaddr_in addr {
+        .sin_family = AF_INET,
+        .sin_port = htons(port),
+        .sin_addr = {},
+        .sin_zero = {},
+    };
+
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    bind_socket(sock_fd, reinterpret_cast<struct sockaddr*>(&addr));
     return sock_fd;
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <csignal>
-#include <print>
 #include <filesystem>
 #include <vector>
 #include <numeric>
@@ -27,6 +25,7 @@ class GDBServer {
     static constexpr auto m_socket_name = "gdbserver.sock";
     int m_sock_fd = -1;
     Machine& m_machine;
+    // enum class SocketType { Tcp, Unix } m_type;
 
 public:
     GDBServer(Machine& machine) : m_machine(machine) {
@@ -35,8 +34,8 @@ public:
         if (fs::exists(socket_path))
             fs::remove(socket_path);
 
-        // TODO: maybe also support tcp sockets?
-        m_sock_fd = create_socket(socket_path.c_str());
+        // m_sock_fd = create_socket(socket_path.c_str());
+        m_sock_fd = create_socket_tcp(1234);
     }
 
     [[nodiscard]] static constexpr fs::path get_socket_path() {
@@ -158,6 +157,8 @@ private:
 
     void handle_packet(std::vector<std::string> fields, int other_fd);
     void read_incoming_packets(int other_fd);
-    [[nodiscard]] static int create_socket(const char* socket_path);
+    static void bind_socket(int sock_fd, const struct sockaddr* addr);
+    [[nodiscard]] static int create_socket_unix(const char* socket_path);
+    [[nodiscard]] static int create_socket_tcp(uint16_t port);
 
 };

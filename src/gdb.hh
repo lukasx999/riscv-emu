@@ -1,5 +1,6 @@
 #pragma once
 
+#include <csignal>
 #include <print>
 #include <filesystem>
 #include <vector>
@@ -14,6 +15,7 @@
 #include <sys/types.h>
 
 #include "util.hh"
+#include "machine.hh"
 
 namespace fs = std::filesystem;
 
@@ -24,9 +26,10 @@ struct GDBException : std::runtime_error {
 class GDBServer {
     static constexpr auto m_socket_name = "gdbserver.sock";
     int m_sock_fd = -1;
+    Machine& m_machine;
 
 public:
-    GDBServer() {
+    GDBServer(Machine& machine) : m_machine(machine) {
         auto socket_path = get_socket_path();
 
         if (fs::exists(socket_path))
@@ -114,12 +117,44 @@ private:
         send_but_better(fd, packet);
     }
 
+    [[nodiscard]] static constexpr std::string encode_number(uint64_t value) {
+
+        auto encoded_value = std::format("{:x}", value);
+        bool is_odd = encoded_value.size() % 2 != 0;
+
+        // each byte must be encoded in two hex digits
+        if (is_odd)
+            encoded_value.insert(encoded_value.begin(), '0');
+
+        return encoded_value;
+    }
+
+    [[nodiscard]] std::string get_register(int reg_num) const {
+
+        auto value = reg_num == 32
+            ? m_machine.m_cpu.get_pc()
+            : m_machine.m_cpu.m_registers.get(static_cast<Register>(reg_num));
+
+        return encode_number(value);
+    }
+
     void handle_packet(std::vector<std::string> fields, int other_fd) {
 
         auto cmd = fields.front();
 
         if (cmd == "qSupported") {
             send_response(other_fd, { "PacketSize=2001f", });
+
+        } else if (cmd == "g") {
+            // TODO:
+            // auto registers = m_machine.m_cpu.m_registers.get_all();
+            // NOTE: 32+pc
+            send_response(other_fd, { "0000000000000000000000000000000000000000000000000000000000000000" });
+
+        } else if (cmd[0] == 'p') {
+            auto n = parse_hex_digits(cmd[1], cmd[2]);
+            auto value = get_register(n);
+            send_response(other_fd, { value });
 
         } else if (cmd == "vCont?") {
             send_response(other_fd, { "vCont", "c", "s", "t", });
@@ -153,12 +188,7 @@ private:
             send_response(other_fd, { "0" });
 
         } else if (cmd == "?") {
-            // send_response(other_fd, { "S 11" }); // sigstop
-            // send_response(other_fd, {});
-            // "$T0506:0*,;07:f0e1f*"7f0* ;10:400bfef7ff7f0* ;thread:p4272.4272;core:d;#ad"
-            // send_response(other_fd, { R"(T0506:0*,;07:f0e1f*"7f0* ;10:400bfef7ff7f0* ;thread:p4272.4272;core:d;)" });
-            // TODO:
-            send_response(other_fd, { "S 05" });
+            send_response(other_fd, { "S05" }); // SIGTRAP
 
         } else if (cmd == "vMustReplyEmpty") {
             send_response(other_fd, {});
@@ -169,15 +199,24 @@ private:
 
     }
 
+    [[nodiscard]] static constexpr int parse_hex_digits(char a, char b) {
+        auto checksum_str = std::format("{}{}", a, b);
+        int checksum;
+        std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), checksum, 16);
+        return checksum;
+    }
+
     [[nodiscard]] Checksum receive_and_parse_checksum(int other_fd) {
         std::array<char, 2> checksum_raw;
         int err = recv(other_fd, checksum_raw.data(), checksum_raw.size(), 0);
         assert(err != -1);
 
-        auto checksum_str = std::format("{}{}", checksum_raw[0], checksum_raw[1]);
-        Checksum checksum;
-        // base 16, because rsp sends checksum as hex without a prefix
-        std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), checksum, 16);
+        Checksum checksum = parse_hex_digits(checksum_raw[0], checksum_raw[1]);
+        // TODO: remove
+        // auto checksum_str = std::format("{}{}", checksum_raw[0], checksum_raw[1]);
+        // Checksum checksum;
+        // // base 16, because rsp sends checksum as hex without a prefix
+        // std::from_chars(checksum_str.data(), checksum_str.data()+checksum_str.size(), checksum, 16);
 
         return checksum;
     }

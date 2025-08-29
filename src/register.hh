@@ -5,6 +5,7 @@
 #include <cstring>
 #include <utility>
 #include <array>
+#include <span>
 
 #include "util.hh"
 
@@ -58,6 +59,10 @@ public:
     [[nodiscard]] Word get(Register reg) const {
         if (reg == Register::Zero) return 0;
         return m_registers[std::to_underlying(reg)];
+    }
+
+    [[nodiscard]] std::span<const Word> get_all() const {
+        return m_registers;
     }
 
 };

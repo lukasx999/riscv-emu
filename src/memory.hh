@@ -55,7 +55,7 @@ public:
     }
 
     // get a pointer to the byte inside of the memory container from a guest address
-    [[nodiscard]] const char* get_host_ptr(size_t guest_address) const {
+    [[nodiscard]] char* get_host_ptr(size_t guest_address) {
         size_t addr = translate_address(guest_address);
         return &m_memory[addr];
     }

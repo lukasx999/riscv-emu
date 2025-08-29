@@ -148,6 +148,7 @@ int main(int argc, char** argv) try {
     // TODO: gdb rsp protocol
     // TODO: tests for gdb rsp
     // TODO: emulate heap
+    // TODO: toggle 32/64 bit mode
 
     auto opts = parse_args(argc, argv);
 

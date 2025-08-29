@@ -3,9 +3,33 @@
 #include <cstdlib>
 
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "util.hh"
 #include "cpu.hh"
+
+// from: linux/include/uapi/asm-generic/unistd.h
+enum Syscall {
+    Exit=93,
+    Write=64,
+    Fstat=80,
+    Brk=214,
+};
+
+template <>
+struct std::formatter<Syscall> : std::formatter<std::string> {
+    auto format(const Syscall& syscall, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (syscall) {
+                case Exit: return STRINGIFY(Exit);
+                case Write: return STRINGIFY(Write);
+                case Fstat: return STRINGIFY(Fstat);
+                case Brk: return STRINGIFY(Brk);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};
 
 struct Executor {
 
@@ -317,31 +341,38 @@ struct Executor {
     }
 
 private:
+
     void forward_syscall() const {
-        enum Syscall {
-            Exit=93, Write=64
-        };
 
         auto syscall_nr = m_cpu.m_registers.get(Register::A7);
-        Word arg0       = m_cpu.m_registers.get(Register::A0);
-        Word arg1       = m_cpu.m_registers.get(Register::A1);
-        Word arg2       = m_cpu.m_registers.get(Register::A2);
+        auto arg0 = m_cpu.m_registers.get(Register::A0);
+        auto arg1 = m_cpu.m_registers.get(Register::A1);
+        auto arg2 = m_cpu.m_registers.get(Register::A2);
+
+        auto set_ret = [&](Word ret) {
+            m_cpu.m_registers.set(Register::A0, ret);
+        };
+
+        log("Executing Syscall: {}", static_cast<Syscall>(syscall_nr));
 
         switch (syscall_nr) {
             case Syscall::Exit: {
-                int status = arg0;
-                m_cpu.m_exit_status = status;
+                m_cpu.m_exit_status = arg0;
                 m_cpu.m_should_exit = true;
             } break;
 
-            case Syscall::Write: {
-                int    fd   = arg0;
-                size_t buf  = arg1;
-                size_t len  = arg2;
-                write(fd, m_cpu.m_memory.get_host_ptr(buf), len);
+            case Syscall::Write:
+                set_ret(write(arg0, m_cpu.m_memory.get_host_ptr(arg1), arg2));
+                break;
+
+            case Syscall::Fstat: {
+                // BUG: struct stat is 144 bytes long so it overrides the return address on top of the stack
+                auto statbuf = m_cpu.m_memory.get_host_ptr(arg1);
+                set_ret(fstat(arg0, reinterpret_cast<struct stat*>(statbuf)));
             } break;
 
-            default: throw std::runtime_error(std::format("unimplemented syscall: {}", syscall_nr));
+            default:
+                throw std::runtime_error(std::format("unimplemented syscall: {}", syscall_nr));
         }
     }
 

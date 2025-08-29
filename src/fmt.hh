@@ -6,18 +6,6 @@
 #include "decoder.hh"
 #include "register.hh"
 
-// TODO: remove?
-#define COLOR_RED "\033[1;31m"
-#define COLOR_BLUE "\033[1;34m"
-#define COLOR_MAGENTA "\033[1;35m"
-#define COLOR_END "\033[0m"
-
-#define COLOR_IMM COLOR_BLUE
-#define COLOR_TYPE COLOR_RED
-#define COLOR_RD COLOR_MAGENTA
-#define COLOR_RS1 COLOR_MAGENTA
-#define COLOR_RS2 COLOR_MAGENTA
-
 // "use" the value by casting to void, so language servers will
 // rename the argument of the macro
 #define STRINGIFY(value) (static_cast<void>(value), #value)

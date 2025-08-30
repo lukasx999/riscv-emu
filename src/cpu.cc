@@ -364,10 +364,47 @@ private:
                 set_ret(write(arg0, m_cpu.m_memory.get_host_ptr(arg1), arg2));
                 break;
 
+            case Syscall::Brk:
+                // TODO: emulate heap
+                break;
+
             case Syscall::Fstat: {
                 // BUG: struct stat is 144 bytes long so it overrides the return address on top of the stack
-                auto statbuf = m_cpu.m_memory.get_host_ptr(arg1);
-                set_ret(fstat(arg0, reinterpret_cast<struct stat*>(statbuf)));
+                // auto statbuf = m_cpu.m_memory.get_host_ptr(arg1);
+                // set_ret(fstat(arg0, reinterpret_cast<struct stat*>(statbuf)));
+
+                // NOTE: struct stat definitions differ for x86-64 and riscv
+                // TODO: find correct struct stat implementation for riscv
+                // HACK:
+                // this is the generic version from linux/include/uapi/asm-generic/stat.h
+                struct riscv64_stat {
+                    unsigned long	st_dev;		/* Device.  */
+                    unsigned long	st_ino;		/* File serial number.  */
+                    unsigned int	st_mode;	/* File mode.  */
+                    unsigned int	st_nlink;	/* Link count.  */
+                    unsigned int	st_uid;		/* User ID of the file's owner.  */
+                    unsigned int	st_gid;		/* Group ID of the file's group. */
+                    unsigned long	st_rdev;	/* Device number, if device.  */
+                    unsigned long	__pad1;
+                    long		st_size;	/* Size of file, in bytes.  */
+                    int		st_blksize;	/* Optimal block size for I/O.  */
+                    int		__pad2;
+                    long		st_blocks;	/* Number 512-byte blocks allocated. */
+                    long		st_atime_;	/* Time of last access.  */
+                    unsigned long	st_atime_nsec;
+                    long		st_mtime_;	/* Time of last modification.  */
+                    unsigned long	st_mtime_nsec;
+                    long		st_ctime_;	/* Time of last status change.  */
+                    unsigned long	st_ctime_nsec;
+                    unsigned int	__unused4;
+                    unsigned int	__unused5;
+                };
+
+                struct stat statbuf;
+                set_ret(fstat(arg0, &statbuf));
+                struct riscv64_stat rv_statbuf;
+                m_cpu.m_memory.set<struct riscv64_stat>(arg1, rv_statbuf);
+
             } break;
 
             default:

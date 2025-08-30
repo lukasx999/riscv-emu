@@ -23,7 +23,7 @@ class Memory {
     size_t m_program_offset = 0;
 
 public:
-    explicit Memory(std::span<const LoadSegment> segments, size_t stack_size)
+    Memory(std::span<const LoadSegment> segments, size_t stack_size)
         : m_stack_size(stack_size)
         , m_memory(m_stack_size)
         , m_segments(segments)

@@ -9,7 +9,7 @@ public:
     Memory m_memory;
     CPU m_cpu{m_memory};
 
-    explicit Machine(const ElfExecutable& exec, size_t stack_size)
+    Machine(const ElfExecutable& exec, size_t stack_size)
     : m_memory(exec.get_load_segments(), stack_size)
     {
         set_elf_entrypoint(exec);

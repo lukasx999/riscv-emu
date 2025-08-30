@@ -375,8 +375,8 @@ private:
 
                 // NOTE: struct stat definitions differ for x86-64 and riscv
                 // TODO: find correct struct stat implementation for riscv
-                // HACK:
-                // this is the generic version from linux/include/uapi/asm-generic/stat.h
+                // HACK: this is the generic version from linux/include/uapi/asm-generic/stat.h
+                // TODO: maybe #include with namespace?
                 struct riscv64_stat {
                     unsigned long	st_dev;		/* Device.  */
                     unsigned long	st_ino;		/* File serial number.  */

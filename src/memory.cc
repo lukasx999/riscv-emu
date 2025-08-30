@@ -56,7 +56,7 @@ size_t Memory::translate_address(size_t guest_address) const {
 void Memory::load_binary() {
     size_t offset = 0;
 
-    for (auto& segment : m_segments) {
+    for (const auto& segment : m_segments) {
         size_t size = segment.bytes.size();
         m_memory.resize(m_memory.size()+size);
         std::memcpy(m_memory.data()+offset, segment.bytes.data(), size);

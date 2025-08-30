@@ -154,6 +154,9 @@ int main(int argc, char** argv) try {
     // TODO: tests for gdb rsp
     // TODO: emulate heap
     // TODO: toggle 32/64 bit mode
+    // TODO: move all syscall-related code to a subdir `syscalls/`
+    // TODO: move public headers to `include/`, for library interface
+    // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
 
     auto opts = parse_args(argc, argv);
 

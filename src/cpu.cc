@@ -3,7 +3,6 @@
 #include <cstdlib>
 
 #include <unistd.h>
-#include <sys/stat.h>
 
 #include "util.hh"
 #include "cpu.hh"
@@ -32,9 +31,12 @@ struct std::formatter<Syscall> : std::formatter<std::string> {
     }
 };
 
-struct Executor {
+class Executor {
     class CPU& m_cpu;
     SyscallWrappers m_syscalls{m_cpu};
+
+public:
+    Executor(CPU& cpu) : m_cpu(cpu) { }
 
     void operator()(const InstructionR& inst) {
         Word rs1 = m_cpu.m_registers.get(inst.rs1);
@@ -349,10 +351,6 @@ private:
         auto arg1 = m_cpu.m_registers.get(Register::A1);
         auto arg2 = m_cpu.m_registers.get(Register::A2);
 
-        auto set_ret = [&](Word ret) {
-            m_cpu.m_registers.set(Register::A0, ret);
-        };
-
         log("Executing Syscall: {}", static_cast<Syscall>(syscall_nr));
 
         switch (syscall_nr) {
@@ -362,11 +360,8 @@ private:
             } break;
 
             case Syscall::Write:
-                set_ret(write(arg0, m_cpu.m_memory.get_host_ptr(arg1), arg2));
+                m_syscalls.write(arg0, arg1, arg2);
                 break;
-
-            // case Syscall::Brk:
-            //     break;
 
             case Syscall::Fstat:
                 m_syscalls.fstat(arg0, arg1);

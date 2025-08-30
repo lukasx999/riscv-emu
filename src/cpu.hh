@@ -13,7 +13,7 @@ class CPU {
     bool m_should_exit = false;
     int m_exit_status = 0;
 
-    friend struct Executor;
+    friend class Executor;
 
 public:
     RegisterFile m_registers;

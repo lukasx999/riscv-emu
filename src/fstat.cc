@@ -1,3 +1,5 @@
+// the reason this method is defined in a single file, is to not bloat other files
+// with the headers/namespaces/macros in this file
 #include <print>
 
 #include "util.hh"
@@ -18,7 +20,7 @@ namespace linux_generic {
 #undef st_ctime
 #undef st_mtime
 
-void SyscallWrappers::fstat(int fd, Word address) {
+void SyscallWrappers::fstat(int fd, Word statbuf_addr) {
 
     struct stat statbuf{};
     set_ret(::fstat(fd, &statbuf));
@@ -47,5 +49,5 @@ void SyscallWrappers::fstat(int fd, Word address) {
     rv_statbuf.st_mtime_nsec = statbuf.st_mtim.tv_nsec;
     rv_statbuf.st_ctime_nsec = statbuf.st_ctim.tv_nsec;
 
-    m_cpu.m_memory.set<linux_generic::stat>(address, rv_statbuf);
+    m_cpu.m_memory.set<linux_generic::stat>(statbuf_addr, rv_statbuf);
 }

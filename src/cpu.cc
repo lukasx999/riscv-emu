@@ -11,7 +11,10 @@ namespace linux_generic {
 
 #include <sys/stat.h>
 
-
+// access struct stat members from asm-generic/stat.h will be expanded, we dont want that
+#undef st_atime
+#undef st_ctime
+#undef st_mtime
 
 #include "util.hh"
 #include "cpu.hh"
@@ -395,9 +398,6 @@ private:
                 rv_statbuf.st_size = statbuf.st_size;
                 rv_statbuf.st_blksize = statbuf.st_blksize;
                 rv_statbuf.st_blocks = statbuf.st_blocks;
-                #undef st_atime
-                #undef st_ctime
-                #undef st_mtime
                 rv_statbuf.st_atime = statbuf.st_atim.tv_sec;
                 rv_statbuf.st_mtime = statbuf.st_mtim.tv_sec;
                 rv_statbuf.st_ctime = statbuf.st_ctim.tv_sec;

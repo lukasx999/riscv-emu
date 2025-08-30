@@ -16,23 +16,25 @@ struct MemoryException : std::runtime_error {
 // TODO: emulate heap
 
 class Memory {
-    static constexpr size_t m_stack_size = 4096;
+    const size_t m_stack_size = 4096;
     std::vector<char> m_memory;
     const std::span<const LoadSegment> m_segments;
     size_t m_stack_offset = 0;
     size_t m_program_offset = 0;
 
 public:
-    explicit Memory(std::span<const LoadSegment> segments)
-        : m_memory(m_stack_size)
+    explicit Memory(std::span<const LoadSegment> segments, size_t stack_size)
+        : m_stack_size(stack_size)
+        , m_memory(m_stack_size)
         , m_segments(segments)
         , m_program_offset(m_segments.front().virt_addr)
     {
         load_binary();
     }
 
-    Memory()
-        : m_memory(m_stack_size)
+    Memory(size_t stack_size)
+        : m_stack_size(stack_size)
+        , m_memory(m_stack_size)
     { }
 
     // stack pointer should point to end of stack because it gets more

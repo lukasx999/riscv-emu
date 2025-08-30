@@ -15,11 +15,10 @@ namespace {
 struct Options {
     std::string filename;
     std::string signature_path;
-    bool enable_gdb_server;
-    size_t stack_size;
+    bool enable_gdb_server = false;
+    size_t stack_size = 4096*2;
 };
 
-// TODO: make stack size configurable
 [[nodiscard]] Options parse_args(int argc, char** argv) {
     Options opts;
 
@@ -103,7 +102,7 @@ void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
 int run_file(const Options& opts) {
 
     ElfExecutable elf(opts.filename);
-    Machine machine(elf);
+    Machine machine(elf, opts.stack_size);
 
     // TODO: argument parsing for unix/tcp server + pass in port
     if (opts.enable_gdb_server) {
@@ -138,7 +137,7 @@ void run_repl([[maybe_unused]] const Options& opts) {
         exit(EXIT_FAILURE);
     }
 
-    Machine machine;
+    Machine machine(opts.stack_size);
     REPL repl(machine);
     repl.run();
 #endif // FEATURE_REPL

@@ -132,7 +132,7 @@ TEST_CASE("cpu") {
     using enum InstructionJ::Type;
     using enum Register;
 
-    Machine machine;
+    Machine machine(4096);
     auto& cpu = machine.m_cpu;
 
     SECTION("rtype") {

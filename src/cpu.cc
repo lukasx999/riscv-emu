@@ -378,6 +378,7 @@ private:
             // case Syscall::Brk:
             //     break;
 
+            // TODO: move all of this stuff to a different file
             case Syscall::Fstat: {
                 // NOTE: linux struct stat definitions differ for x86-64 and riscv
                 // riscv linux uses the generic struct stat definition, while x86 uses a specilized one

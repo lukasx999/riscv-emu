@@ -16,7 +16,7 @@ public:
         init();
     }
 
-    Machine(size_t stack_size)
+    explicit Machine(size_t stack_size)
     : m_memory(stack_size)
     {
         init();

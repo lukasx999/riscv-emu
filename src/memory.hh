@@ -32,7 +32,7 @@ public:
         load_binary();
     }
 
-    Memory(size_t stack_size)
+    explicit Memory(size_t stack_size)
         : m_stack_size(stack_size)
         , m_memory(m_stack_size)
     { }

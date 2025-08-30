@@ -68,6 +68,7 @@ void Memory::load_binary() {
 
     m_stack_offset = offset + m_stack_size + m_program_offset;
 
+    log("Stack Size: {}", m_stack_size);
     log("Program Offset: {:#x}", m_program_offset);
     log("{} Segment(s) loaded", m_segments.size());
     log("Memory: {} bytes", m_memory.size());

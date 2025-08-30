@@ -5,18 +5,19 @@
 #include "memory.hh"
 
 class Machine {
-    size_t m_instruction_counter = 0;
-
 public:
     Memory m_memory;
     CPU m_cpu{m_memory};
 
-    Machine(const ElfExecutable& exec) : m_memory(exec.get_load_segments()) {
+    explicit Machine(const ElfExecutable& exec)
+    : m_memory(exec.get_load_segments())
+    {
         set_elf_entrypoint(exec);
         init();
     }
 
-    Machine() {
+    Machine()
+    {
         init();
     }
 

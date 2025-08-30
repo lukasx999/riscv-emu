@@ -341,7 +341,6 @@ struct Executor {
     }
 
 private:
-
     void forward_syscall() const {
 
         auto syscall_nr = m_cpu.m_registers.get(Register::A7);

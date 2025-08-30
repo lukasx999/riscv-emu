@@ -16,6 +16,7 @@ struct Options {
     std::string filename;
     std::string signature_path;
     bool enable_gdb_server;
+    size_t stack_size;
 };
 
 // TODO: make stack size configurable
@@ -28,6 +29,11 @@ struct Options {
         .add_argument("filename")
         .help("specify the filename of the binary to be run, or `:repl` for an interactive session")
         .store_into(opts.filename);
+
+    program
+        .add_argument("--stack-size")
+        .help("stack size of the emulated binary")
+        .store_into(opts.stack_size);
 
     program
         .add_argument("--assembler")

@@ -9,7 +9,7 @@
 int Machine::run() {
     while (true) {
         auto pc = m_cpu.get_pc();
-        log("{}: {:#x}", m_instruction_counter, pc);
+        log("{:#x}", pc);
 
         m_cpu.execute(Decoder::decode(fetch()));
 
@@ -18,8 +18,6 @@ int Machine::run() {
         bool did_jump = pc != new_pc;
         if (!did_jump)
             m_cpu.next_instruction();
-
-        m_instruction_counter++;
 
         if (m_cpu.should_exit()) {
             int status = m_cpu.get_exit_status();

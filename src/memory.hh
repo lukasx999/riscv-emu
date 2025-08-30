@@ -13,10 +13,10 @@ struct MemoryException : std::runtime_error {
     explicit MemoryException(const char* msg) : std::runtime_error(msg) { }
 };
 
-// TODO: place stack at top
+// TODO: emulate heap
 
 class Memory {
-    static constexpr size_t m_stack_size = 4096 * 2;
+    static constexpr size_t m_stack_size = 4096;
     std::vector<char> m_memory;
     const std::span<const LoadSegment> m_segments;
     size_t m_stack_offset = 0;
@@ -31,7 +31,9 @@ public:
         load_binary();
     }
 
-    Memory() : m_memory(m_stack_size) { }
+    Memory()
+        : m_memory(m_stack_size)
+    { }
 
     // stack pointer should point to end of stack because it gets more
     // negative as the stack grows

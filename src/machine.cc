@@ -8,12 +8,12 @@
 
 int Machine::run() {
     while (true) {
-        auto pc = m_cpu.get_pc();
+        Word pc = m_cpu.get_pc();
         log("{:#x}", pc);
 
         m_cpu.execute(Decoder::decode(fetch()));
 
-        auto new_pc = m_cpu.get_pc();
+        Word new_pc = m_cpu.get_pc();
 
         bool did_jump = pc != new_pc;
         if (!did_jump)

@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <fstream>
 
+#include <sys/resource.h>
+
 #include <argparse/argparse.hpp>
 
 #include "elf.hh"
@@ -148,7 +150,7 @@ void run_repl([[maybe_unused]] const Options& opts) {
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
     // TODO: create library interface for embedding into other programs?
-    // TODO: handle sbrk()
+    // TODO: handle brk()
     // TODO: integrate riscof tests into github ci
     // TODO: gdb rsp protocol
     // TODO: tests for gdb rsp

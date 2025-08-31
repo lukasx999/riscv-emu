@@ -18,6 +18,7 @@ struct Options {
     std::string filename;
     std::string signature_path;
     bool enable_gdb_server = false;
+    // TODO: use stack limit from getrlimit()
     size_t stack_size = 4096*2;
 };
 

@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <fstream>
 
-#include <sys/resource.h>
-
 #include <argparse/argparse.hpp>
 
 #include "elf.hh"

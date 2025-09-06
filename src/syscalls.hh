@@ -14,7 +14,7 @@ public:
     void fstat(int fd, Word statbuf_addr);
 
     void write(int fd, Word buf, size_t len) {
-        set_ret(::write(fd, m_cpu.m_memory.get_host_ptr(buf), len));
+        set_ret(::write(fd, reinterpret_cast<char*>(buf), len));
     }
 
 private:

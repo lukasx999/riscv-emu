@@ -43,7 +43,7 @@ void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
 }
 
 void Machine::init() {
-    size_t stack = m_memory.get_stack_end_address();
+    size_t stack = m_memory.get_stack_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
     log("Stack Pointer placed at {:#x}", stack);

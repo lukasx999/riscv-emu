@@ -15,60 +15,47 @@ struct MemoryException : std::runtime_error {
 
 class Memory {
     const size_t m_stack_size = 4096;
-    std::vector<char> m_memory;
+    void* m_stack_addr = nullptr;
     const std::span<const LoadSegment> m_segments;
-    size_t m_stack_offset = 0;
-    size_t m_program_offset = 0;
+    std::vector<void*> m_mapped_segments;
 
 public:
     Memory(std::span<const LoadSegment> segments, size_t stack_size)
         : m_stack_size(stack_size)
-        , m_memory(m_stack_size)
         , m_segments(segments)
-        , m_program_offset(m_segments.front().virt_addr)
     {
         load_binary();
+        map_stack();
     }
 
     explicit Memory(size_t stack_size)
         : m_stack_size(stack_size)
-        , m_memory(m_stack_size)
-    { }
+    {
+        map_stack();
+    }
 
-    // stack pointer should point to end of stack because it gets more
-    // negative as the stack grows
-    [[nodiscard]] size_t get_stack_end_address() const {
-        return m_stack_offset;
+    ~Memory();
+
+    [[nodiscard]] size_t get_stack_address() const {
+        return reinterpret_cast<size_t>(m_stack_addr);
     }
 
     // NOTE: dont return by reference as binding a reference or accessing memory
     // from an unaligned address is UB
     // same goes for set()
     template <typename T=char>
-    [[nodiscard]] T get(size_t guest_address) const {
-        size_t addr = translate_address(guest_address);
-        return reinterpret_cast<const T&>(m_memory[addr]);
+    [[nodiscard]] T get(size_t address) const {
+        return *static_cast<T*>(reinterpret_cast<void*>(address));
     }
 
     template <typename T=char>
-    void set(size_t guest_address, const T& value) {
-        size_t addr = translate_address(guest_address);
-        std::memcpy(&m_memory[addr], &value, sizeof(T));
+    void set(size_t address, const T& value) {
+        std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(T));
     }
-
-    // get a pointer to the byte inside of the memory container from a guest address
-    [[nodiscard]] char* get_host_ptr(size_t guest_address) {
-        size_t addr = translate_address(guest_address);
-        return &m_memory[addr];
-    }
-
-    // TODO: what about heap addresses from host mmap()?
-
-    // translates a virtual address from the guest binary to the corresponding
-    // address of the emulator memory
-    [[nodiscard]] size_t translate_address(size_t guest_address) const;
 
 private:
+    [[nodiscard]] static int elf_prot_to_mman_prot(int prot);
+    void map_stack();
     void load_binary();
 
 };

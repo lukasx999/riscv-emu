@@ -19,7 +19,7 @@ struct ElfExcecutableException : std::runtime_error {
 struct LoadSegment {
     std::span<char> bytes;
     Elf64_Addr virt_addr;
-    Elf64_Word flags;
+    Elf64_Word flags; // RWX
 };
 
 // TODO: destroy after loading (or just mmap read only)

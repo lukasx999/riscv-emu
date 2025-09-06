@@ -5,71 +5,80 @@
 #include <numeric>
 #include <vector>
 
+#include <sys/mman.h>
+#include <unistd.h>
+
 #include "elf.hh"
 #include "util.hh"
-
 #include "memory.hh"
 
-size_t Memory::translate_address(size_t guest_address) const {
+Memory::~Memory() {
+    for (auto& segment : m_segments)
+        munmap(reinterpret_cast<void*>(segment.virt_addr), segment.bytes.size());
 
-    // no need for translation if no segments are loaded
-    if (m_segments.empty()) return guest_address;
+    munmap(m_stack_addr, m_stack_size);
+}
 
-    // guest address is assumed to be absolute
-    guest_address -= m_program_offset;
-
-    auto find_fn = [&](const LoadSegment& segm) {
-        return guest_address >= segm.virt_addr-m_program_offset;
-    };
-
-    // find the segment the address belongs to
-    auto adjacent_segm = std::find_if(
-        m_segments.rbegin(),
-        m_segments.rend(),
-        find_fn
+void Memory::map_stack() {
+    m_stack_addr = mmap(
+        nullptr,
+        m_stack_size,
+        PROT_READ | PROT_WRITE,
+        MAP_ANONYMOUS | MAP_PRIVATE,
+        -1,
+        0
     );
+}
 
-    assert(adjacent_segm != m_segments.rend());
+int Memory::elf_prot_to_mman_prot(int elf_prot) {
+    int mman_prot = PROT_NONE;
 
-    auto acc_fn = [&](size_t acc, const LoadSegment& segm) {
-        return segm.bytes.size() + acc;
-    };
+    if (elf_prot & PF_R)
+        mman_prot |= PROT_READ;
 
-    // start address of the segment the address belongs to
-    size_t segment_offset = std::accumulate(
-        m_segments.begin(),
-        adjacent_segm.base()-1,
-        0,
-        acc_fn
-    );
+    if (elf_prot & PF_W)
+        mman_prot |= PROT_WRITE;
 
-    size_t relative_offset = guest_address - (adjacent_segm->virt_addr - m_program_offset);
+    if (elf_prot & PF_X)
+        mman_prot |= PROT_EXEC;
 
-    size_t address = segment_offset+relative_offset;
-
-    if (address >= m_memory.size())
-        throw MemoryException(std::format("out-of-bounds memory access at {:#x}", guest_address).c_str());
-
-    return address;
+    return mman_prot;
 }
 
 void Memory::load_binary() {
-    size_t offset = 0;
 
     for (const auto& segment : m_segments) {
-        size_t size = segment.bytes.size();
-        m_memory.resize(m_memory.size()+size);
-        std::memcpy(m_memory.data()+offset, segment.bytes.data(), size);
-        offset += size;
+
+        log("mapping segment {:#x}", segment.virt_addr);
+
+        // BUG: page address may be unaligned
+        // FIX: segment.virt_addr & ~0xfff, but we have to add the stripped offset later
+        void* addr = mmap(
+            reinterpret_cast<void*>(segment.virt_addr),
+            segment.bytes.size(),
+            PROT_READ | PROT_WRITE,
+            MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
+            -1,
+            0
+        );
+
+        if (addr == MAP_FAILED) {
+            log("failed to map segment: {}", strerror(errno));
+            exit(1);
+        }
+
+        m_mapped_segments.push_back(addr);
+
+        // TODO: map with offset into elf file, so we dont have to memcpy() and mprotect()
+        // but this requires rewriting a lot of code in memory.hh and elf.hh
+        std::memcpy(reinterpret_cast<char*>(segment.virt_addr), segment.bytes.data(), segment.bytes.size());
+
+        mprotect(addr, segment.bytes.size(), elf_prot_to_mman_prot(segment.flags));
 
         log("Loaded segment with address {:#x} ({} bytes)",
             segment.virt_addr, segment.bytes.size());
     }
 
-    m_stack_offset = offset + m_stack_size + m_program_offset;
-
     log("Stack Size: {}", m_stack_size);
-    log("Program Offset: {:#x}", m_program_offset);
     log("{} Segment(s) loaded", m_segments.size());
-    log("Memory: {} bytes", m_memory.size());
 }

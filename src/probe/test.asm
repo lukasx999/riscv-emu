@@ -69,11 +69,11 @@ libc_strlen:
 .global _start
 _start:
 
-li ra, 45
-addi sp, sp, -160
-sd ra, 152(sp)
-li ra, 5432
-ld ra, 152(sp)
+# li ra, 45
+# addi sp, sp, -160
+# sd ra, 152(sp)
+# li ra, 5432
+# ld ra, 152(sp)
 
 # li a0, 0
 # li a7, 214 # brk()

@@ -52,7 +52,7 @@ void Memory::load_binary() {
         log("mapping segment {:#x}", segment.virt_addr);
 
         // BUG: page address may be unaligned
-        // FIX: segment.virt_addr & ~0xfff, but we have to add the stripped offset later
+        // FIX: segment.virt_addr & ~0xfff, but we have to add the stripped offset later (+ (addr & 0xfff))
         void* addr = mmap(
             reinterpret_cast<void*>(segment.virt_addr),
             segment.bytes.size(),

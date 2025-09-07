@@ -33,6 +33,7 @@ void Memory::map_stack() {
         log("failed to map stack: {}", strerror(errno));
         exit(EXIT_FAILURE);
     }
+
     log("Stack placed at {}", m_stack_addr);
     log("Stack Size: {}", m_stack_size);
 }

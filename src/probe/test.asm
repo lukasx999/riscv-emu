@@ -81,8 +81,8 @@ _start:
 
 addi sp, sp, -16
 li t0, 45
-sb t0, 15(sp)
-lb t0, 15(sp)
+sw t0, 15(sp)
+lw t0, 15(sp)
 
 # write()
 li a0, 1

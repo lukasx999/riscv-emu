@@ -36,17 +36,14 @@ public:
 
     ~Memory();
 
-    [[nodiscard]] size_t get_stack_address() const {
-        return reinterpret_cast<size_t>(m_stack_addr);
+    [[nodiscard]] size_t get_stack_address_top() const {
+        return reinterpret_cast<size_t>(m_stack_addr) + m_stack_size;
     }
 
-    // NOTE: dont return by reference as binding a reference or accessing memory
-    // from an unaligned address is UB
-    // same goes for set()
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
-        T x;
-        std::memcpy(std::addressof(x), reinterpret_cast<void*>(address), sizeof(T));
+        T x{};
+        std::memcpy(std::addressof(x), reinterpret_cast<const void*>(address), sizeof(T));
         return x;
         // return *reinterpret_cast<T*>(address);
     }

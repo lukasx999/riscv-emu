@@ -149,17 +149,14 @@ void run_repl([[maybe_unused]] const Options& opts) {
 int main(int argc, char** argv) try {
     // TODO: collect statistics of running program (reads/writes/register usage)
     // TODO: create library interface for embedding into other programs?
-    // TODO: handle brk()
     // TODO: integrate riscof tests into github ci
     // TODO: gdb rsp protocol
     // TODO: tests for gdb rsp
-    // TODO: emulate heap
     // TODO: toggle 32/64 bit mode
     // TODO: move all syscall-related code to a subdir `syscalls/`
     // TODO: move public headers to `include/`, for library interface
     // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
     // TODO: signals
-    // TODO: use mmap() with MAP_FIXED instead of storing load segments in std::vector
     // TODO: fix `just c`, global pointer holds bogus value
 
     auto opts = parse_args(argc, argv);

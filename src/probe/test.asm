@@ -79,9 +79,10 @@ _start:
 # li a7, 214 # brk()
 # ecall
 
-addi sp, sp, -8
-sw t0, 4(sp)
-lw t0, 4(sp)
+addi sp, sp, -16
+li t0, 45
+sb t0, 15(sp)
+lb t0, 15(sp)
 
 # write()
 li a0, 1

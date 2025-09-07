@@ -24,10 +24,17 @@ void Memory::map_stack() {
         nullptr,
         m_stack_size,
         PROT_READ | PROT_WRITE,
-        MAP_ANONYMOUS | MAP_PRIVATE,
+        MAP_ANONYMOUS | MAP_PRIVATE | MAP_STACK,
         -1,
         0
     );
+
+    if (m_stack_addr == MAP_FAILED) {
+        log("failed to map stack: {}", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    log("Stack placed at {}", m_stack_addr);
+    log("Stack Size: {}", m_stack_size);
 }
 
 int Memory::elf_prot_to_mman_prot(int elf_prot) {
@@ -58,14 +65,13 @@ void Memory::load_binary() {
         // |
         // page boundary (4096)
 
-        // TODO:
-        // int page_size = getpagesize();
-        size_t aligned_addr = segment.virt_addr & ~0xfff;
-        size_t segment_size = segment.bytes.size() + (segment.virt_addr & 0xfff);
+        int page_size = getpagesize();
+        size_t aligned_addr = segment.virt_addr & ~(page_size-1);
+        size_t aligned_size = segment.bytes.size() + (segment.virt_addr & (page_size-1));
 
         void* addr = mmap(
             reinterpret_cast<void*>(aligned_addr),
-            segment_size,
+            aligned_size,
             PROT_READ | PROT_WRITE,
             MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
             -1,
@@ -74,10 +80,10 @@ void Memory::load_binary() {
 
         if (addr == MAP_FAILED) {
             log("failed to map segment: {}", strerror(errno));
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
-        m_mapped_segments.push_back({addr, segment_size});
+        m_mapped_segments.push_back({addr, aligned_size});
 
         // TODO: map with offset into elf file, so we dont have to memcpy() and mprotect()
         // but this requires rewriting a lot of code in memory.hh and elf.hh
@@ -87,17 +93,15 @@ void Memory::load_binary() {
             segment.bytes.size()
         );
 
-        int err = mprotect(addr, segment_size, elf_prot_to_mman_prot(segment.flags));
+        int err = mprotect(addr, aligned_size, elf_prot_to_mman_prot(segment.flags));
 
         if (err == -1) {
             log("failed to change segment page protection: {}", strerror(errno));
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
-        log("Loaded segment with address {:#x} ({} bytes)",
-            segment.virt_addr, segment.bytes.size());
+        log("Loaded segment with address {:#x} ({} bytes)", aligned_addr, aligned_size);
     }
 
-    log("Stack Size: {}", m_stack_size);
     log("{} Segment(s) loaded", m_segments.size());
 }

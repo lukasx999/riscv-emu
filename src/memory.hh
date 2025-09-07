@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <bit>
 
 #include "elf.hh"
 
@@ -13,7 +14,7 @@ struct MemoryException : std::runtime_error {
 };
 
 class Memory {
-    const size_t m_stack_size = 4096;
+    const size_t m_stack_size;
     void* m_stack_addr = nullptr;
     const std::span<const LoadSegment> m_segments;
     std::vector<std::pair<void*, size_t>> m_mapped_segments;
@@ -23,8 +24,8 @@ public:
         : m_stack_size(stack_size)
         , m_segments(segments)
     {
-        load_binary();
         map_stack();
+        load_binary();
     }
 
     explicit Memory(size_t stack_size)
@@ -44,7 +45,10 @@ public:
     // same goes for set()
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
-        return *reinterpret_cast<T*>(address);
+        T x;
+        std::memcpy(std::addressof(x), reinterpret_cast<void*>(address), sizeof(T));
+        return x;
+        // return *reinterpret_cast<T*>(address);
     }
 
     template <typename T=char>

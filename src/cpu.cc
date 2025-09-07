@@ -354,10 +354,10 @@ private:
         log("Executing Syscall: {}", static_cast<Syscall>(syscall_nr));
 
         switch (syscall_nr) {
-            case Syscall::Exit: {
+            case Syscall::Exit:
                 m_cpu.m_exit_status = arg0;
                 m_cpu.m_should_exit = true;
-            } break;
+                break;
 
             case Syscall::Write:
                 m_syscalls.write(arg0, arg1, arg2);

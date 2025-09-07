@@ -19,6 +19,9 @@ int Machine::run() {
         if (!did_jump)
             m_cpu.next_instruction();
 
+        std::println("gp: {:#x}", m_cpu.m_registers.get(Register::Gp));
+        std::println("a5: {:#x}", m_cpu.m_registers.get(Register::A5));
+
         if (m_cpu.should_exit()) {
             int status = m_cpu.get_exit_status();
             log("Guest exited with status {}", status);
@@ -33,17 +36,12 @@ BinaryInstruction Machine::fetch() const {
 }
 
 void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
-    // load segments in elf binaries are guaranteed to have ordered
-    // virtual addresses, in ascending order, so we can take the address
-    // of the first one as an offset
-
     m_cpu.set_pc(exec.get_entry_point());
     log("Beginning execution at {:#x}", m_cpu.get_pc());
-
 }
 
 void Machine::init() {
-    size_t stack = m_memory.get_stack_address_top();
+    size_t stack = m_memory.get_stack_base_address();
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
     log("Stack Pointer placed at {:#x}", stack);

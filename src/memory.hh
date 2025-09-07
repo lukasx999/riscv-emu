@@ -36,12 +36,16 @@ public:
 
     ~Memory();
 
-    [[nodiscard]] size_t get_stack_address_top() const {
+    [[nodiscard]] size_t get_stack_base_address() const {
+        // actually returns the address of the top of the stack, because the
+        // stack pointer gets more negative as the stack grows
         return reinterpret_cast<size_t>(m_stack_addr) + m_stack_size;
     }
 
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
+        // TODO: cleanup
+        std::println("addr: {:#x}", address);
         T x{};
         std::memcpy(std::addressof(x), reinterpret_cast<const void*>(address), sizeof(T));
         return x;

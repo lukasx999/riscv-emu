@@ -160,6 +160,7 @@ int main(int argc, char** argv) try {
     // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
     // TODO: signals
     // TODO: use mmap() with MAP_FIXED instead of storing load segments in std::vector
+    // TODO: fix `just c`, global pointer holds bogus value
 
     auto opts = parse_args(argc, argv);
 

@@ -79,6 +79,17 @@ _start:
 # li a7, 214 # brk()
 # ecall
 
+addi sp, sp, -8
+sw t0, 4(sp)
+lw t0, 4(sp)
+
+# write()
+li a0, 1
+la a1, string
+li a2, string_len
+la a7, 64
+ecall
+
 # exit()
 li a0, 0
 li a7, 93

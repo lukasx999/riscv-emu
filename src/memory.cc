@@ -13,8 +13,8 @@
 #include "memory.hh"
 
 Memory::~Memory() {
-    for (auto& segment : m_segments)
-        munmap(reinterpret_cast<void*>(segment.virt_addr), segment.bytes.size());
+    for (auto& [address, size] : m_mapped_segments)
+        munmap(address, size);
 
     munmap(m_stack_addr, m_stack_size);
 }
@@ -51,11 +51,21 @@ void Memory::load_binary() {
 
         log("mapping segment {:#x}", segment.virt_addr);
 
-        // BUG: page address may be unaligned
-        // FIX: segment.virt_addr & ~0xfff, but we have to add the stripped offset later (+ (addr & 0xfff))
+        // segment address may be unaligned, therefore we make the segments a bit
+        // larger to make mmap() happy
+        // #   *    #        #        #
+        // ^   ^ p_vaddr
+        // |
+        // page boundary (4096)
+
+        // TODO:
+        // int page_size = getpagesize();
+        size_t aligned_addr = segment.virt_addr & ~0xfff;
+        size_t segment_size = segment.bytes.size() + (segment.virt_addr & 0xfff);
+
         void* addr = mmap(
-            reinterpret_cast<void*>(segment.virt_addr),
-            segment.bytes.size(),
+            reinterpret_cast<void*>(aligned_addr),
+            segment_size,
             PROT_READ | PROT_WRITE,
             MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
             -1,
@@ -67,13 +77,22 @@ void Memory::load_binary() {
             exit(1);
         }
 
-        m_mapped_segments.push_back(addr);
+        m_mapped_segments.push_back({addr, segment_size});
 
         // TODO: map with offset into elf file, so we dont have to memcpy() and mprotect()
         // but this requires rewriting a lot of code in memory.hh and elf.hh
-        std::memcpy(reinterpret_cast<char*>(segment.virt_addr), segment.bytes.data(), segment.bytes.size());
+        std::memcpy(
+            reinterpret_cast<void*>(segment.virt_addr),
+            segment.bytes.data(),
+            segment.bytes.size()
+        );
 
-        mprotect(addr, segment.bytes.size(), elf_prot_to_mman_prot(segment.flags));
+        int err = mprotect(addr, segment_size, elf_prot_to_mman_prot(segment.flags));
+
+        if (err == -1) {
+            log("failed to change segment page protection: {}", strerror(errno));
+            exit(1);
+        }
 
         log("Loaded segment with address {:#x} ({} bytes)",
             segment.virt_addr, segment.bytes.size());

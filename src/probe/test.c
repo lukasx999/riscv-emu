@@ -9,7 +9,7 @@ int foo(void) {
 
 int main(void) {
 
-    return write(1, "foo", 3);
+    // return write(1, "foo", 3);
 
     // putchar(65);
     // printf("foobar");

@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "elf.hh"
-#include "util.hh"
 
 struct MemoryException : std::runtime_error {
     explicit MemoryException(const char* msg) : std::runtime_error(msg) { }
@@ -17,7 +16,7 @@ class Memory {
     const size_t m_stack_size = 4096;
     void* m_stack_addr = nullptr;
     const std::span<const LoadSegment> m_segments;
-    std::vector<void*> m_mapped_segments;
+    std::vector<std::pair<void*, size_t>> m_mapped_segments;
 
 public:
     Memory(std::span<const LoadSegment> segments, size_t stack_size)
@@ -45,12 +44,12 @@ public:
     // same goes for set()
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
-        return *static_cast<T*>(reinterpret_cast<void*>(address));
+        return *reinterpret_cast<T*>(address);
     }
 
     template <typename T=char>
     void set(size_t address, const T& value) {
-        std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(T));
+        reinterpret_cast<T&>(address) = value;
     }
 
 private:

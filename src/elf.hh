@@ -40,6 +40,10 @@ public:
         log("Parsed ELF binary ({} bytes)", m_bytes.size());
     }
 
+    [[nodiscard]] Elf64_Half get_type() const {
+        return m_elf_header.e_type;
+    }
+
     [[nodiscard]] auto get_load_segments() const -> std::span<const LoadSegment> {
         return m_loadable_segments;
     }

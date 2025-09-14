@@ -75,8 +75,8 @@ void Memory::load_binary(const ElfExecutable& elf) {
             reinterpret_cast<void*>(aligned_addr),
             aligned_size,
             PROT_READ | PROT_WRITE,
-            // TODO: we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is already relative
-            MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
+            // we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is relative
+            MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
             -1,
             0
         );

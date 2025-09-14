@@ -72,13 +72,17 @@ void Memory::load_binary(const ElfExecutable& elf) {
         // add the rest that was cut off back to the end of the page
         size_t aligned_size = segment.bytes.size() + segment.virt_addr % page_size;
 
-        // NOTE: anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
+        // TODO:
+        // we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is relative
+        // but for that the address space needs to be mapped contiguously and setting the entry point must account for the base address from mmap()
+        // MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
+
+        // anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
         void* addr = mmap(
             reinterpret_cast<void*>(aligned_addr),
             aligned_size,
             PROT_READ | PROT_WRITE,
-            // we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is relative
-            MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
+            MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE,
             -1,
             0
         );

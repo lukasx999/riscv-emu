@@ -67,8 +67,10 @@ void Memory::load_binary(const ElfExecutable& elf) {
         // page boundary (4096)
 
         int page_size = getpagesize();
-        size_t aligned_addr = segment.virt_addr & ~(page_size-1);
-        size_t aligned_size = segment.bytes.size() + (segment.virt_addr & (page_size-1));
+        // snap address to page boundary
+        size_t aligned_addr = segment.virt_addr - segment.virt_addr % page_size;
+        // add the rest that was cut off back to the end of the page
+        size_t aligned_size = segment.bytes.size() + segment.virt_addr % page_size;
 
         // NOTE: anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
         void* addr = mmap(

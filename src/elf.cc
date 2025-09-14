@@ -26,28 +26,6 @@ void ElfExecutable::parse() {
     verify_elf_integrity();
 }
 
-std::vector<Elf64_Shdr> ElfExecutable::get_bss_sections() const {
-
-    std::vector<Elf64_Shdr> sections;
-    auto section = m_section_headers.begin();
-
-    while (true) {
-        section = std::find_if(section, m_section_headers.end(), [&](const Elf64_Shdr& hdr) {
-            // TODO: kind of a hack, its probably better to check the name .bss/.sbss in shstrtab
-            return hdr.sh_type == SHT_NOBITS && hdr.sh_flags == (SHF_ALLOC | SHF_WRITE);
-        });
-
-        if (section == m_section_headers.end())
-            break;
-        else
-            sections.push_back(*section);
-
-        section++;
-    }
-
-    return sections;
-}
-
 std::optional<Elf64_Sym> ElfExecutable::locate_symbol(std::string_view name) const {
 
     auto symbol = std::ranges::find_if(m_symbol_table, [&](const Elf64_Sym& symbol) {

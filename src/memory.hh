@@ -44,15 +44,15 @@ public:
 
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
-        T x{};
-        std::memcpy(std::addressof(x), reinterpret_cast<const void*>(address), sizeof(T));
-        return x;
-        // return *reinterpret_cast<T*>(address);
+        // T x{};
+        // std::memcpy(std::addressof(x), reinterpret_cast<const void*>(address), sizeof(T));
+        // return x;
+        return *reinterpret_cast<T*>(address);
     }
 
     template <typename T=char>
     void set(size_t address, const T& value) {
-        reinterpret_cast<T&>(address) = value;
+        *reinterpret_cast<T*>(address) = value;
     }
 
 private:

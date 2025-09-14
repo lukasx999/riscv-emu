@@ -70,6 +70,7 @@ void Memory::load_binary() {
         size_t aligned_addr = segment.virt_addr & ~(page_size-1);
         size_t aligned_size = segment.bytes.size() + (segment.virt_addr & (page_size-1));
 
+        // NOTE: anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
         void* addr = mmap(
             reinterpret_cast<void*>(aligned_addr),
             aligned_size,

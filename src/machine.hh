@@ -14,27 +14,6 @@ public:
     {
         set_elf_entrypoint(exec);
         init();
-
-        init_bss(exec);
-
-    }
-
-    // TODO: move to memory.cc
-    void init_bss(const ElfExecutable& exec) {
-
-        auto bss_sections = exec.get_bss_sections();
-
-        for (auto& section : bss_sections) {
-            auto addr = section.sh_addr;
-            auto size = section.sh_size;
-
-            for (size_t i=addr; i < addr + size; ++i) {
-                m_memory.set<char>(i, 0);
-            }
-
-            std::println("bss section initialized at: {:#x} ({} bytes)", addr, size);
-
-        }
     }
 
     explicit Machine(size_t stack_size)

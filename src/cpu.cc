@@ -185,7 +185,6 @@ public:
                 break;
 
             case Lw:
-                std::println("address: {:#x}", rs1+imm);
                 set_rd(m_cpu.m_memory.get<int32_t>(rs1 + imm));
                 break;
 
@@ -352,8 +351,6 @@ private:
         auto arg1 = m_cpu.m_registers.get(Register::A1);
         auto arg2 = m_cpu.m_registers.get(Register::A2);
 
-        log("Executing Syscall: {}", static_cast<Syscall>(syscall_nr));
-
         switch (syscall_nr) {
             case Syscall::Exit:
                 m_cpu.m_exit_status = arg0;
@@ -368,9 +365,16 @@ private:
                 m_syscalls.fstat(arg0, arg1);
                 break;
 
+            case Syscall::Brk:
+                m_syscalls.brk(arg0);
+                break;
+
             default:
                 throw std::runtime_error(std::format("unimplemented syscall: {}", syscall_nr));
         }
+
+        log("Executing Syscall: {}", static_cast<Syscall>(syscall_nr));
+
     }
 
 };

@@ -11,10 +11,15 @@ class SyscallWrappers {
 public:
     SyscallWrappers(CPU& cpu) : m_cpu(cpu) { }
 
+    // TODO: set return value at call site in cpu.cc, and return the value from the wrapper methods
     void fstat(int fd, Word statbuf_addr);
 
     void write(int fd, Word buf, size_t len) {
         set_ret(::write(fd, reinterpret_cast<const char*>(buf), len));
+    }
+
+    void brk(Word addr) {
+        set_ret(::brk(reinterpret_cast<void*>(addr)));
     }
 
 private:

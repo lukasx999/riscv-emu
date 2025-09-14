@@ -11,7 +11,7 @@ int main(void) {
 
     // return write(1, "foo", 3);
 
-    // putchar(65);
+    putchar(65);
     // printf("foobar");
 
     // __asm__ volatile ("li a0, 0");

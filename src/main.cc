@@ -158,6 +158,7 @@ int main(int argc, char** argv) try {
     // TODO: move public headers to `include/`, for library interface
     // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
     // TODO: signals
+    // TODO: fix address space collisions in memory.cc:load_binary()
 
     auto opts = parse_args(argc, argv);
 

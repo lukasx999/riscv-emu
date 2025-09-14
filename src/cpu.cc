@@ -12,6 +12,7 @@
 enum Syscall {
     Exit=93,
     Write=64,
+    Close=57,
     Fstat=80,
     Brk=214,
 };
@@ -21,10 +22,11 @@ struct std::formatter<Syscall> : std::formatter<std::string> {
     auto format(const Syscall& syscall, std::format_context& ctx) const {
         auto str = [&] {
             switch (syscall) {
-                case Exit: return STRINGIFY(Exit);
+                case Exit:  return STRINGIFY(Exit);
                 case Write: return STRINGIFY(Write);
+                case Close: return STRINGIFY(Close);
                 case Fstat: return STRINGIFY(Fstat);
-                case Brk: return STRINGIFY(Brk);
+                case Brk:   return STRINGIFY(Brk);
             };
         }();
         return std::formatter<std::string>::format(std::format("{}", str), ctx);
@@ -359,6 +361,10 @@ private:
 
             case Syscall::Write:
                 m_syscalls.write(arg0, arg1, arg2);
+                break;
+
+            case Syscall::Close:
+                m_syscalls.close(arg0);
                 break;
 
             case Syscall::Fstat:

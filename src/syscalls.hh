@@ -18,6 +18,10 @@ public:
         set_ret(::write(fd, reinterpret_cast<const char*>(buf), len));
     }
 
+    void close(int fd) {
+        set_ret(::close(fd));
+    }
+
     void brk(Word addr) {
         set_ret(::brk(reinterpret_cast<void*>(addr)));
     }

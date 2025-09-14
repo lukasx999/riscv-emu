@@ -57,7 +57,7 @@ void Memory::load_binary() {
 
     for (const auto& segment : m_segments) {
 
-        log("mapping segment {:#x}", segment.virt_addr);
+        log("Mapping segment {:#x}", segment.virt_addr);
 
         // segment address may be unaligned, therefore we make the segments a bit
         // larger to make mmap() happy
@@ -81,7 +81,7 @@ void Memory::load_binary() {
         );
 
         if (addr == MAP_FAILED) {
-            log("failed to map segment: {}", strerror(errno));
+            std::println(stderr, "Failed to map segment: {}", strerror(errno));
             exit(EXIT_FAILURE);
         }
 
@@ -98,7 +98,7 @@ void Memory::load_binary() {
         int err = mprotect(addr, aligned_size, elf_prot_to_mman_prot(segment.flags));
 
         if (err == -1) {
-            log("failed to change segment page protection: {}", strerror(errno));
+            std::println(stderr, "Failed to change segment page protection: {}", strerror(errno));
             exit(EXIT_FAILURE);
         }
 

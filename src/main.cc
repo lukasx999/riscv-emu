@@ -91,6 +91,7 @@ void dump_signature(const ElfExecutable& elf, Memory& mem, fs::path filename) {
 
     using SignatureValue = uint32_t;
 
+    log("dumping signature to {}", filename.string());
     std::ofstream file(filename);
 
     for (size_t i=begin->st_value; i < end->st_value; i+=sizeof(SignatureValue)) {

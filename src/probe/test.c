@@ -12,7 +12,7 @@ int main(void) {
     // return write(1, "foo", 3);
 
     putchar(65);
-    // printf("foobar");
+    printf("foobar");
 
     // __asm__ volatile ("li a0, 0");
     // __asm__ volatile ("li a7, 93");

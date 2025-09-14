@@ -363,6 +363,7 @@ private:
                 m_syscalls.write(arg0, arg1, arg2);
                 break;
 
+            // TODO: different file descriptors for host and guest?
             case Syscall::Close:
                 m_syscalls.close(arg0);
                 break;

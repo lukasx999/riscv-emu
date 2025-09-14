@@ -75,6 +75,7 @@ void Memory::load_binary() {
             reinterpret_cast<void*>(aligned_addr),
             aligned_size,
             PROT_READ | PROT_WRITE,
+            // TODO: we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is already relative
             MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
             -1,
             0

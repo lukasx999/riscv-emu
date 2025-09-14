@@ -14,7 +14,6 @@
 void ElfExecutable::parse() {
 
     m_elf_header = *reinterpret_cast<Elf64_Ehdr*>(m_bytes.data());
-    m_entry_point = m_elf_header.e_entry;
 
     load_program_headers();
     load_section_headers();

@@ -26,7 +26,6 @@ struct LoadSegment {
 class ElfExecutable {
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;
-    Elf64_Addr m_entry_point;
     std::vector<Elf64_Phdr> m_program_headers;
     std::vector<Elf64_Shdr> m_section_headers;
     std::vector<LoadSegment> m_loadable_segments;
@@ -49,7 +48,7 @@ public:
     }
 
     [[nodiscard]] auto get_entry_point() const {
-        return m_entry_point;
+        return m_elf_header.e_entry;
     }
 
     [[nodiscard]] auto locate_symbol(std::string_view name) const -> std::optional<Elf64_Sym>;

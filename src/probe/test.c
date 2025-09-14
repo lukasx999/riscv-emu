@@ -3,20 +3,27 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef struct {
+    int a;
+    int b;
+    int c;
+} Foo;
+
 int foo(void) {
     return 45;
 }
 
+void take(Foo *foo) {
+}
+
 int main(void) {
 
-    // return write(1, "foo", 3);
+    Foo x = {};
+    take(&x);
 
+    foo();
     putchar(65);
     printf("foobar");
-
-    // __asm__ volatile ("li a0, 0");
-    // __asm__ volatile ("li a7, 93");
-    // __asm__ volatile ("ecall");
 
     return 0;
 }

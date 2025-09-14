@@ -19,7 +19,19 @@ public:
     }
 
     void close(int fd) {
-        set_ret(::close(fd));
+        switch (fd) {
+            // dont close host fd's, as the emulator still needs to log stuff
+            // TODO: maybe there's a better way of handling this, so that the guest has its own set of fd's
+            case STDOUT_FILENO:
+            case STDIN_FILENO:
+            case STDERR_FILENO:
+                set_ret(0);
+                break;
+
+            default:
+                set_ret(::close(fd));
+                break;
+        }
     }
 
     void brk(Word addr) {

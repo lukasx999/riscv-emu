@@ -185,6 +185,7 @@ public:
                 break;
 
             case Lw:
+                std::println("address: {:#x}", rs1+imm);
                 set_rd(m_cpu.m_memory.get<int32_t>(rs1 + imm));
                 break;
 

@@ -19,9 +19,6 @@ int Machine::run() {
         if (!did_jump)
             m_cpu.next_instruction();
 
-        std::println("gp: {:#x}", m_cpu.m_registers.get(Register::Gp));
-        std::println("a5: {:#x}", m_cpu.m_registers.get(Register::A5));
-
         if (m_cpu.should_exit()) {
             int status = m_cpu.get_exit_status();
             log("Guest exited with status {}", status);

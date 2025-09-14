@@ -50,6 +50,8 @@ public:
 
     [[nodiscard]] auto locate_symbol(std::string_view name) const -> std::optional<Elf64_Sym>;
 
+    [[nodiscard]] auto get_bss_section() const -> std::optional<Elf64_Shdr>;
+
 private:
     void load_symbol_string_table();
     void load_symbol_table();

@@ -157,7 +157,7 @@ int main(int argc, char** argv) try {
     // TODO: move public headers to `include/`, for library interface
     // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
     // TODO: signals
-    // TODO: fix `just c`, global pointer holds bogus value
+    // TODO: fix `just c`, global variable holds incorrect value
 
     auto opts = parse_args(argc, argv);
 

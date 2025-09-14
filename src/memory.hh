@@ -44,8 +44,6 @@ public:
 
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
-        // TODO: cleanup
-        std::println("addr: {:#x}", address);
         T x{};
         std::memcpy(std::addressof(x), reinterpret_cast<const void*>(address), sizeof(T));
         return x;

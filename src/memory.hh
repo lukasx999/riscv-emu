@@ -16,16 +16,14 @@ struct MemoryException : std::runtime_error {
 class Memory {
     const size_t m_stack_size;
     void* m_stack_addr = nullptr;
-    const std::span<const LoadSegment> m_segments;
     std::vector<std::pair<void*, size_t>> m_mapped_segments;
 
 public:
-    Memory(std::span<const LoadSegment> segments, size_t stack_size)
+    Memory(const ElfExecutable& elf, size_t stack_size)
         : m_stack_size(stack_size)
-        , m_segments(segments)
     {
         map_stack();
-        load_binary();
+        load_binary(elf);
     }
 
     explicit Memory(size_t stack_size)
@@ -55,6 +53,6 @@ public:
 private:
     [[nodiscard]] static int elf_prot_to_mman_prot(int prot);
     void map_stack();
-    void load_binary();
+    void load_binary(const ElfExecutable& elf);
 
 };

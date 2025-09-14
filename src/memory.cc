@@ -53,9 +53,9 @@ int Memory::elf_prot_to_mman_prot(int elf_prot) {
     return mman_prot;
 }
 
-void Memory::load_binary() {
+void Memory::load_binary(const ElfExecutable& elf) {
 
-    for (const auto& segment : m_segments) {
+    for (const auto& segment : elf.get_load_segments()) {
 
         log("Mapping segment {:#x}", segment.virt_addr);
 
@@ -106,5 +106,5 @@ void Memory::load_binary() {
         log("Loaded segment with address {:#x} ({} bytes)", aligned_addr, aligned_size);
     }
 
-    log("{} Segment(s) loaded", m_segments.size());
+    log("{} Segment(s) loaded", elf.get_load_segments().size());
 }

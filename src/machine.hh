@@ -10,9 +10,12 @@ public:
     CPU m_cpu{m_memory};
 
     Machine(const ElfExecutable& exec, size_t stack_size)
-    : m_memory(exec.get_load_segments(), stack_size)
+    : m_memory(exec, stack_size)
     {
-        set_elf_entrypoint(exec);
+
+        m_cpu.set_pc(exec.get_entry_point());
+        log("Beginning execution at {:#x}", m_cpu.get_pc());
+
         init();
     }
 
@@ -26,7 +29,6 @@ public:
 
 private:
     [[nodiscard]] BinaryInstruction fetch() const;
-    void set_elf_entrypoint(const ElfExecutable& exec);
     void init();
 
 };

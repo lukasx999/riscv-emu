@@ -32,11 +32,6 @@ BinaryInstruction Machine::fetch() const {
     return m_memory.get<BinaryInstruction>(m_cpu.get_pc());
 }
 
-void Machine::set_elf_entrypoint(const ElfExecutable& exec) {
-    m_cpu.set_pc(exec.get_entry_point());
-    log("Beginning execution at {:#x}", m_cpu.get_pc());
-}
-
 void Machine::init() {
     size_t stack = m_memory.get_stack_base_address();
     m_cpu.m_registers.set(Register::Sp, stack);

@@ -88,7 +88,7 @@ void Memory::load_binary(const ElfExecutable& elf) {
         );
 
         if (addr == MAP_FAILED) {
-            std::println(stderr, "Failed to map segment: {}", strerror(errno));
+            std::println(stderr, "Failed to map segment at {:#x}: {}", aligned_addr, strerror(errno));
             exit(EXIT_FAILURE);
         }
 

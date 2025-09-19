@@ -3,7 +3,11 @@ ENTRY(rvtest_entry_point)
 
 SECTIONS
 {
-  . = 0x80000000;
+    /*
+    the program load address was changed, as the prior one (0x80000000)
+    caused memory collisions with the emulator binary
+    */
+  . = 0x8000000;
   .text.init : { *(.text.init) }
   . = ALIGN(0x1000);
   .tohost : { *(.tohost) }

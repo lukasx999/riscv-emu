@@ -22,8 +22,8 @@ struct LoadSegment {
     Elf64_Word flags; // RWX
 };
 
-// TODO: destroy after loading (or just mmap read only)
 class ElfExecutable {
+    const fs::path& m_path;
     std::vector<char> m_bytes;
     Elf64_Ehdr m_elf_header;
     std::vector<Elf64_Phdr> m_program_headers;
@@ -34,9 +34,15 @@ class ElfExecutable {
 
 public:
     explicit ElfExecutable(const fs::path& path)
-    : m_bytes(load_file_binary(path)) {
+        : m_path(path)
+        , m_bytes(load_file_binary(path))
+    {
         parse();
         log("Parsed ELF binary ({} bytes)", m_bytes.size());
+    }
+
+    [[nodiscard]] auto get_path() const {
+        return m_path;
     }
 
     [[nodiscard]] Elf64_Half get_type() const {

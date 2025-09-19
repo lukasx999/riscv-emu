@@ -40,6 +40,7 @@ public:
         return reinterpret_cast<size_t>(m_stack_addr) + m_stack_size;
     }
 
+    // TODO: shouldnt be instance methods
     template <typename T=char>
     [[nodiscard]] T get(size_t address) const {
         return *reinterpret_cast<T*>(address);
@@ -48,6 +49,12 @@ public:
     template <typename T=char>
     void set(size_t address, const T& value) {
         *reinterpret_cast<T*>(address) = value;
+    }
+
+    // TODO: what about page alignment?
+    [[nodiscard]] void* get_initial_program_break() const {
+        auto& [addr, len] = m_mapped_segments.back();
+        return static_cast<char*>(addr) + len;
     }
 
 private:

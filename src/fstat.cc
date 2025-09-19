@@ -20,10 +20,10 @@ namespace linux_generic {
 #undef st_ctime
 #undef st_mtime
 
-void SyscallWrappers::fstat(int fd, Word statbuf_addr) {
+int Syscalls::fstat(int fd, Word statbuf_addr) {
 
     struct stat statbuf{};
-    set_ret(::fstat(fd, &statbuf));
+    int ret = ::fstat(fd, &statbuf);
 
     // NOTE: linux struct stat definitions differ for x86-64 and riscv
     // riscv linux uses the generic struct stat definition, while x86 uses a specilized one
@@ -51,4 +51,6 @@ void SyscallWrappers::fstat(int fd, Word statbuf_addr) {
     rv_statbuf.st_ctime_nsec = statbuf.st_ctim.tv_nsec;
 
     m_cpu.m_memory.set<linux_generic::stat>(statbuf_addr, rv_statbuf);
+
+    return ret;
 }

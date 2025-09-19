@@ -1,47 +1,91 @@
 #pragma once
 
 #include <unistd.h>
+#include <sys/mman.h>
 
 #include "util.hh"
 #include "cpu.hh"
 
-class SyscallWrappers {
+#define SYSCALL_NODISCARD [[nodiscard("return value of syscall should be forwarded to target system")]]
+
+class Syscalls {
     CPU& m_cpu;
 
 public:
-    SyscallWrappers(CPU& cpu) : m_cpu(cpu) { }
+    Syscalls(CPU& cpu) : m_cpu(cpu) { }
 
-    // TODO: set return value at call site in cpu.cc, and return the value from the wrapper methods instead
-    void fstat(int fd, Word statbuf_addr);
+    SYSCALL_NODISCARD int fstat(int fd, Word statbuf_addr);
 
-    void write(int fd, Word buf, size_t len) {
-        set_ret(::write(fd, reinterpret_cast<const char*>(buf), len));
+    SYSCALL_NODISCARD int write(int fd, Word buf, size_t len) {
+        return ::write(fd, reinterpret_cast<const char*>(buf), len);
     }
 
-    void close(int fd) {
+    SYSCALL_NODISCARD int close(int fd) {
         switch (fd) {
             // dont close host fd's, as the emulator still needs to log stuff
             // TODO: maybe there's a better way of handling this, so that the guest has its own set of fd's
             case STDOUT_FILENO:
             case STDIN_FILENO:
             case STDERR_FILENO:
-                set_ret(0);
+                return 0;
                 break;
 
             default:
-                set_ret(::close(fd));
+                return ::close(fd);
                 break;
         }
     }
 
-    void brk(Word addr) {
-        set_ret(::brk(reinterpret_cast<void*>(addr)));
-    }
+    // TODO: doesnt quite work yet, probably needs page alignment
+    SYSCALL_NODISCARD int brk(Word new_brk) {
+        throw std::runtime_error("brk() is WIP");
 
-private:
-    void set_ret(Word value) {
-        m_cpu.m_registers.set(Register::A0, value);
+        auto new_addr = reinterpret_cast<void*>(new_brk);
+        auto old_addr = m_cpu.get_program_break();
+
+        if (new_addr > old_addr) {
+            // grow the heap
+
+            ptrdiff_t size = static_cast<char*>(new_addr) - static_cast<char*>(old_addr);
+
+            auto ret = ::mmap(
+                old_addr,
+                size,
+                PROT_WRITE | PROT_READ,
+                MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_PRIVATE,
+                -1,
+                0
+            );
+
+            if (ret == MAP_FAILED) {
+                errno = ENOMEM;
+                return -1;
+            }
+
+            m_cpu.set_program_break(new_addr);
+            return 0;
+
+        } else if (new_addr < old_addr) {
+            // shrink the heap
+
+            // ptrdiff_t size = static_cast<char*>(old_addr) - static_cast<char*>(new_addr);
+            // int err = ::munmap(new_addr, size);
+            //
+            // if (err == -1) {
+            //     errno = ENOMEM;
+            //     return -1;
+            // }
+
+            return 0;
+
+        } else if (new_addr == old_addr) {
+            // do nothing
+            return 0;
+
+        } else {
+            throw std::runtime_error("unreachable");
+        }
+
     }
 
 };
-

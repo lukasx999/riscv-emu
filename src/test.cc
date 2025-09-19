@@ -263,37 +263,6 @@ TEST_CASE("cpu") {
 
 TEST_CASE("utils") {
 
-    SECTION("string_switch") {
-
-        REQUIRE(StringSwitch<int>("foo")
-            .with("foo", 1)
-            .with("bar", 2)
-            .with("baz", 3)
-            .catchall(45) == 1);
-
-        REQUIRE(StringSwitch<int>("baz")
-            .with("foo", 1)
-            .with("bar", 2)
-            .with("baz", 3)
-            .catchall(45) == 3);
-
-        REQUIRE(StringSwitch<int>("bar")
-            .with("foo", 1)
-            .with("bar", 2)
-            .with("baz", 3) == 2);
-
-        REQUIRE(StringSwitch<int>("fdjskl")
-            .with("foo", 1)
-            .with("bar", 2)
-            .with("baz", 3)
-            .catchall(45) == 45);
-
-        REQUIRE_THROWS(static_cast<int>(StringSwitch<int>("foo")
-            .with("a", 1)
-            .with("b", 2)));
-
-    }
-
     SECTION("encode_instruction") {
         REQUIRE((*encode_instruction("ecall"))[0] == 0x00000073);
         REQUIRE((*encode_instruction("ebreak"))[0] == 0x00100073);

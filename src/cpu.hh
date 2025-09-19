@@ -9,9 +9,11 @@
 #include "fmt.hh"
 
 class CPU {
+    // TODO: change m_pc to be a BinaryInstruction*
     Word m_pc = 0x0;
     bool m_should_exit = false;
     int m_exit_status = 0;
+    void* m_program_break = nullptr;
 
     friend class Executor;
 
@@ -27,6 +29,14 @@ public:
 
     void set_pc(Word pc) {
         m_pc = pc;
+    }
+
+    [[nodiscard]] void* get_program_break() const {
+        return m_program_break;
+    }
+
+    void set_program_break(void* program_break) {
+        m_program_break = program_break;
     }
 
     [[nodiscard]] bool should_exit() const {

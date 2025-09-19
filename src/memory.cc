@@ -13,6 +13,7 @@
 #include "memory.hh"
 
 Memory::~Memory() {
+    // TODO: check for munmap errors
     for (auto& [address, size] : m_mapped_segments)
         munmap(address, size);
 
@@ -66,16 +67,19 @@ void Memory::load_binary(const ElfExecutable& elf) {
         // |
         // page boundary (4096)
 
-        int page_size = getpagesize();
         // snap address to page boundary
-        size_t aligned_addr = segment.virt_addr - segment.virt_addr % page_size;
+        size_t aligned_addr = align_to_page_size(segment.virt_addr);
         // add the rest that was cut off back to the end of the page
-        size_t aligned_size = segment.bytes.size() + segment.virt_addr % page_size;
+        size_t aligned_size = segment.bytes.size() + segment.virt_addr % getpagesize();
 
         // TODO:
         // we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is relative
         // but for that the address space needs to be mapped contiguously and setting the entry point must account for the base address from mmap()
         // MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
+
+        // TODO:
+        // auto file = fopen(elf.get_path().c_str(), "rb");
+        // int fd = fileno(file);
 
         // anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
         void* addr = mmap(

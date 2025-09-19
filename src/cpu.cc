@@ -35,7 +35,7 @@ struct std::formatter<Syscall> : std::formatter<std::string> {
 
 class Executor {
     class CPU& m_cpu;
-    SyscallWrappers m_syscalls{m_cpu};
+    Syscalls m_syscalls{m_cpu};
 
 public:
     Executor(CPU& cpu) : m_cpu(cpu) { }
@@ -353,6 +353,10 @@ private:
         auto arg1 = m_cpu.m_registers.get(Register::A1);
         auto arg2 = m_cpu.m_registers.get(Register::A2);
 
+        auto set_ret = [&](Word value) {
+            m_cpu.m_registers.set(Register::A0, value);
+        };
+
         switch (syscall_nr) {
             case Syscall::Exit:
                 m_cpu.m_exit_status = arg0;
@@ -360,19 +364,19 @@ private:
                 break;
 
             case Syscall::Write:
-                m_syscalls.write(arg0, arg1, arg2);
+                set_ret(m_syscalls.write(arg0, arg1, arg2));
                 break;
 
             case Syscall::Close:
-                m_syscalls.close(arg0);
+                set_ret(m_syscalls.close(arg0));
                 break;
 
             case Syscall::Fstat:
-                m_syscalls.fstat(arg0, arg1);
+                set_ret(m_syscalls.fstat(arg0, arg1));
                 break;
 
             case Syscall::Brk:
-                m_syscalls.brk(arg0);
+                set_ret(m_syscalls.brk(arg0));
                 break;
 
             default:

@@ -29,6 +29,7 @@ int Machine::run() {
 }
 
 BinaryInstruction Machine::fetch() const {
+    // TODO: refactor to pointer
     return m_memory.get<BinaryInstruction>(m_cpu.get_pc());
 }
 
@@ -37,4 +38,8 @@ void Machine::init() {
     m_cpu.m_registers.set(Register::Sp, stack);
     m_cpu.m_registers.set(Register::Fp, stack);
     log("Stack Pointer placed at {:#x}", stack);
+
+    void* program_break = m_memory.get_initial_program_break();
+    m_cpu.set_program_break(program_break);
+    log("Program Break placed at {}", program_break);
 }

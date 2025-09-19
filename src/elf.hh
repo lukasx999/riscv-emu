@@ -35,7 +35,7 @@ class ElfExecutable {
 public:
     explicit ElfExecutable(const fs::path& path)
         : m_path(path)
-        , m_bytes(load_file_binary(path))
+        , m_bytes(load_file_binary())
     {
         parse();
         log("Parsed ELF binary ({} bytes)", m_bytes.size());
@@ -66,6 +66,6 @@ private:
     void load_section_headers();
     void load_program_headers();
     void parse();
-    [[nodiscard]] static std::vector<char> load_file_binary(const fs::path& path);
+    [[nodiscard]] std::vector<char> load_file_binary();
     void verify_elf_integrity() const;
 };

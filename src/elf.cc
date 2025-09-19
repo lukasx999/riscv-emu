@@ -103,16 +103,16 @@ void ElfExecutable::load_program_headers() {
     }
 }
 
-std::vector<char> ElfExecutable::load_file_binary(const fs::path& path) {
+std::vector<char> ElfExecutable::load_file_binary() {
 
-    if (!fs::exists(path))
+    if (!fs::exists(m_path))
         throw ElfExcecutableException("file does not exist");
 
-    auto type = fs::status(path).type();
+    auto type = fs::status(m_path).type();
     if (type != fs::file_type::regular)
         throw ElfExcecutableException("invalid file type");
 
-    std::ifstream stream(path, std::ios::binary);
+    std::ifstream stream(m_path, std::ios::binary);
     if (!stream)
         throw ElfExcecutableException("failed to open file");
 

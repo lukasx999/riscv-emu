@@ -12,8 +12,6 @@ jobs:
   build:
 
     runs-on: ${{ matrix.os }}
-    container:
-      image: archlinux
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -25,12 +23,10 @@ jobs:
         c_compiler: [gcc, clang]
         include:
           - os: ubuntu-latest
-            c_compiler: gcc
-            # cpp_compiler: g++-14
+            cpp_compiler: g++-14
             cpp_compiler: g++
           - os: ubuntu-latest
-            c_compiler: clang
-            # cpp_compiler: clang++-18
+            cpp_compiler: clang++-18
             cpp_compiler: clang++
 
     steps:
@@ -45,9 +41,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-          pacman -Syu --noconfirm
-          pacman -S boost cmake --noconfirm
-        # sudo apt install libboost-dev
+        sudo apt install libboost-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.

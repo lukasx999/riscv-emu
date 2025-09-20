@@ -27,7 +27,7 @@ jobs:
             cpp_compiler: g++-14
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++-20
+            cpp_compiler: clang++-19
 
     steps:
     - uses: actions/checkout@v4

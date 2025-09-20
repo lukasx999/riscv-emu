@@ -50,6 +50,7 @@ jobs:
       id: strings
       shell: bash
       run: |
+        g++ --version
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake

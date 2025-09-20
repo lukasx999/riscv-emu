@@ -34,7 +34,11 @@ SYSCALL_NODISCARD inline int close(int fd) {
 
 // TODO: doesnt quite work yet, probably needs page alignment
 SYSCALL_NODISCARD inline int brk(CPU& cpu, Word new_brk) {
-    throw std::runtime_error("brk() is WIP");
+
+    // TODO: should brk() return the current program break when new_brk == 0?
+    // it only seems to do this when running with strace
+
+    std::println("new brk: {:#x}", new_brk);
 
     auto new_addr = reinterpret_cast<void*>(new_brk);
     auto old_addr = cpu.get_program_break();

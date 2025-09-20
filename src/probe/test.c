@@ -34,9 +34,9 @@ void dynarray_push_back(DynamicArray *dynarray, Item item) {
 
 int main(void) {
 
-    // int *mem = malloc(20);
-    // if (mem == NULL)
-    //     printf("is null\n");
+    int *mem = malloc(20);
+    if (mem == NULL)
+        printf("is null\n");
 
     // DynamicArray dynarray = {0};
     // dynarray_init(&dynarray);

@@ -1,7 +1,5 @@
 // the reason this method is defined in a single file, is to not bloat other files
 // with the headers/namespaces/macros in this file
-#include <print>
-
 #include "util.hh"
 #include "cpu.hh"
 #include "syscalls.hh"
@@ -20,7 +18,7 @@ namespace linux_generic {
 #undef st_ctime
 #undef st_mtime
 
-int Syscalls::fstat(int fd, Word statbuf_addr) {
+int syscalls::fstat(CPU& cpu, int fd, Word statbuf_addr) {
 
     struct stat statbuf{};
     int ret = ::fstat(fd, &statbuf);
@@ -50,7 +48,7 @@ int Syscalls::fstat(int fd, Word statbuf_addr) {
     rv_statbuf.st_mtime_nsec = statbuf.st_mtim.tv_nsec;
     rv_statbuf.st_ctime_nsec = statbuf.st_ctim.tv_nsec;
 
-    m_cpu.m_memory.set<linux_generic::stat>(statbuf_addr, rv_statbuf);
+    cpu.m_memory.set<linux_generic::stat>(statbuf_addr, rv_statbuf);
 
     return ret;
 }

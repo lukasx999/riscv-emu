@@ -35,7 +35,6 @@ struct std::formatter<Syscall> : std::formatter<std::string> {
 
 class Executor {
     class CPU& m_cpu;
-    Syscalls m_syscalls{m_cpu};
 
 public:
     Executor(CPU& cpu) : m_cpu(cpu) { }
@@ -364,19 +363,19 @@ private:
                 break;
 
             case Syscall::Write:
-                set_ret(m_syscalls.write(arg0, arg1, arg2));
+                set_ret(syscalls::write(arg0, arg1, arg2));
                 break;
 
             case Syscall::Close:
-                set_ret(m_syscalls.close(arg0));
+                set_ret(syscalls::close(arg0));
                 break;
 
             case Syscall::Fstat:
-                set_ret(m_syscalls.fstat(arg0, arg1));
+                set_ret(syscalls::fstat(m_cpu, arg0, arg1));
                 break;
 
             case Syscall::Brk:
-                set_ret(m_syscalls.brk(arg0));
+                set_ret(syscalls::brk(m_cpu, arg0));
                 break;
 
             default:

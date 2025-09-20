@@ -60,14 +60,7 @@ void Memory::load_binary(const ElfExecutable& elf) {
 
         log("Mapping segment {:#x}", segment.virt_addr);
 
-        // segment address may be unaligned, therefore we make the segments a bit
-        // larger to make mmap() happy
-        // #   *    #        #        #
-        // ^   ^ p_vaddr
-        // |
-        // page boundary (4096)
-
-        // snap address to page boundary
+        // snap address to page boundary, as mmap() requires its `addr` argument to be page aligned
         size_t aligned_addr = align_to_page_size(segment.virt_addr);
         // add the rest that was cut off back to the end of the page
         size_t aligned_size = segment.bytes.size() + segment.virt_addr % getpagesize();

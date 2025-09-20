@@ -14,7 +14,7 @@ project(RiscvEmu)
 Include(FetchContent)
 
 list(APPEND sources util.cc cpu.cc decoder.cc elf.cc machine.cc memory.cc gdb.cc fstat.cc)
-list(APPEND libs Boost::process)
+list(APPEND libs boost_process)
 
 if(FEATURE_REPL)
     list(APPEND libs readline)
@@ -22,18 +22,9 @@ if(FEATURE_REPL)
     add_compile_definitions(FEATURE_REPL)
 endif()
 
-FetchContent_Declare(Boost GIT_REPOSITORY https://github.com/boostorg/boost.git GIT_TAG boost-1.89.0 GIT_SHALLOW ON)
 FetchContent_Declare(Catch2 GIT_REPOSITORY https://github.com/catchorg/Catch2.git GIT_TAG v3.8.1)
 FetchContent_Declare(Argparse GIT_REPOSITORY https://github.com/p-ranav/argparse.git GIT_TAG v3.2)
-
-# include(ExternalProject)
-# ExternalProject_Add(Readline GIT_REPOSITORY https://https.git.savannah.gnu.org/git/readline.git GIT_TAG readline-8.3
-# CONFIGURE_COMMAND "./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/readline-build"
-# BUILD_COMMAND "make"
-# BUILD_IN_SOURCE ON
-# )
-
-FetchContent_MakeAvailable(Boost Argparse Catch2)
+FetchContent_MakeAvailable(Argparse Catch2)
 
 # EXECUTABLE
 add_executable(riscv-emu main.cc ${sources})

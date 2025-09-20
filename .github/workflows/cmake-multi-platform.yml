@@ -45,7 +45,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-          pacman -Syu
+          pacman -Syu --noconfirm
           pacman -S boost
         # sudo apt install libboost-dev
 

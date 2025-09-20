@@ -46,7 +46,7 @@ jobs:
     - name: Install Dependencies
       run: |
           pacman -Syu --noconfirm
-          pacman -S boost
+          pacman -S boost --noconfirm
         # sudo apt install libboost-dev
 
     - name: Configure CMake

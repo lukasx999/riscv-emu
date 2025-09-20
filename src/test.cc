@@ -12,114 +12,114 @@
 
 namespace {
 
-template <typename T> requires
-    std::same_as<T, uint8_t>  ||
-    std::same_as<T, uint16_t> ||
-    std::same_as<T, uint32_t> ||
-    std::same_as<T, uint64_t> ||
-    std::same_as<T, int8_t>   ||
-    std::same_as<T, int16_t>  ||
-    std::same_as<T, int32_t>  ||
-    std::same_as<T, int64_t>
-void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> value) {
-
-    using enum InstructionI::Type;
-    using enum Register;
-
-    auto valid_types = { Lb, Lh, Lw, Lbu, Lhu, Lwu, Ld };
-    assert(std::ranges::any_of(valid_types, [&](InstructionI::Type t) {
-        return t == type;
-    }));
-
-    cpu.m_memory.set<T>(0x0, value);
-    cpu.m_registers.set(T1, 0x0);
-    InstructionI inst(type, T0, T1, 0);
-    cpu.execute(inst);
-
-    REQUIRE(static_cast<T>(cpu.m_registers.get(T0)) == value);
-}
-
-void test_cpu_rtype(CPU& cpu, InstructionR::Type type, Word input1,
-                           Word input2, Word output) {
-
-    using enum Register;
-
-    cpu.m_registers.set(A1, input1);
-    cpu.m_registers.set(A2, input2);
-    InstructionR inst { type, A0, A1, A2 };
-    cpu.execute(inst);
-    REQUIRE(cpu.m_registers.get(A0) == output);
-}
-
-void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
-                           int16_t imm, Word output) {
-
-    using enum Register;
-
-    auto int12_max = std::pow(2, 12)/2 - 1;
-    assert(imm <= int12_max);
-    cpu.m_registers.set(A1, input);
-    InstructionI inst { type, A0, A1, imm };
-    cpu.execute(inst);
-    REQUIRE(cpu.m_registers.get(A0) == output);
-}
-
-template <typename T> requires
-    std::same_as<T, uint8_t>  ||
-    std::same_as<T, uint16_t> ||
-    std::same_as<T, uint32_t> ||
-    std::same_as<T, uint64_t>
-void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
-                    Immediate12Bit addr_offset, std::type_identity_t<T> value) {
-
-    using enum Register;
-
-    cpu.m_registers.set(T0, value);
-    cpu.m_registers.set(T1, address);
-    InstructionS inst(type, T1, T0, addr_offset);
-    cpu.execute(inst);
-
-    REQUIRE(cpu.m_memory.get<T>(address) == value);
-}
-
-void test_cpu_btype(CPU& cpu, InstructionB::Type type, Word num1, Word num2,
-                    Immediate13Bit imm, bool should_branch) {
-    using enum Register;
-
-    auto old_pc = cpu.get_pc();
-    cpu.m_registers.set(S0, num1);
-    cpu.m_registers.set(S1, num2);
-    InstructionB inst(type, S0, S1, imm);
-    cpu.execute(inst);
-
-    if (should_branch)
-        REQUIRE(cpu.get_pc() == old_pc + imm);
-    else
-        REQUIRE(cpu.get_pc() == old_pc);
-
-}
-
-void test_cpu_utype(CPU& cpu, InstructionU::Type type, Register rd, Immediate32Bit imm, Word output) {
-    using enum Register;
-
-    InstructionU inst(type, rd, imm);
-    cpu.execute(inst);
-
-    REQUIRE(cpu.m_registers.get(rd) == output);
-
-}
-
-void test_cpu_jtype(CPU& cpu, InstructionJ::Type type, Immediate21Bit imm) {
-    using enum Register;
-
-    auto old_pc = cpu.get_pc();
-    InstructionJ inst(type, S7, imm);
-    cpu.execute(inst);
-
-    REQUIRE(cpu.m_registers.get(S7) == old_pc + sizeof(BinaryInstruction));
-    REQUIRE(cpu.get_pc() == old_pc + imm);
-
-}
+// template <typename T> requires
+//     std::same_as<T, uint8_t>  ||
+//     std::same_as<T, uint16_t> ||
+//     std::same_as<T, uint32_t> ||
+//     std::same_as<T, uint64_t> ||
+//     std::same_as<T, int8_t>   ||
+//     std::same_as<T, int16_t>  ||
+//     std::same_as<T, int32_t>  ||
+//     std::same_as<T, int64_t>
+// void test_cpu_load(CPU& cpu, InstructionI::Type type, std::type_identity_t<T> value) {
+//
+//     using enum InstructionI::Type;
+//     using enum Register;
+//
+//     auto valid_types = { Lb, Lh, Lw, Lbu, Lhu, Lwu, Ld };
+//     assert(std::ranges::any_of(valid_types, [&](InstructionI::Type t) {
+//         return t == type;
+//     }));
+//
+//     cpu.m_memory.set<T>(0x0, value);
+//     cpu.m_registers.set(T1, 0x0);
+//     InstructionI inst(type, T0, T1, 0);
+//     cpu.execute(inst);
+//
+//     REQUIRE(static_cast<T>(cpu.m_registers.get(T0)) == value);
+// }
+//
+// void test_cpu_rtype(CPU& cpu, InstructionR::Type type, Word input1,
+//                            Word input2, Word output) {
+//
+//     using enum Register;
+//
+//     cpu.m_registers.set(A1, input1);
+//     cpu.m_registers.set(A2, input2);
+//     InstructionR inst { type, A0, A1, A2 };
+//     cpu.execute(inst);
+//     REQUIRE(cpu.m_registers.get(A0) == output);
+// }
+//
+// void test_cpu_itype(CPU& cpu, InstructionI::Type type, Word input,
+//                            int16_t imm, Word output) {
+//
+//     using enum Register;
+//
+//     auto int12_max = std::pow(2, 12)/2 - 1;
+//     assert(imm <= int12_max);
+//     cpu.m_registers.set(A1, input);
+//     InstructionI inst { type, A0, A1, imm };
+//     cpu.execute(inst);
+//     REQUIRE(cpu.m_registers.get(A0) == output);
+// }
+//
+// template <typename T> requires
+//     std::same_as<T, uint8_t>  ||
+//     std::same_as<T, uint16_t> ||
+//     std::same_as<T, uint32_t> ||
+//     std::same_as<T, uint64_t>
+// void test_cpu_stype(CPU& cpu, InstructionS::Type type, Word address,
+//                     Immediate12Bit addr_offset, std::type_identity_t<T> value) {
+//
+//     using enum Register;
+//
+//     cpu.m_registers.set(T0, value);
+//     cpu.m_registers.set(T1, address);
+//     InstructionS inst(type, T1, T0, addr_offset);
+//     cpu.execute(inst);
+//
+//     REQUIRE(cpu.m_memory.get<T>(address) == value);
+// }
+//
+// void test_cpu_btype(CPU& cpu, InstructionB::Type type, Word num1, Word num2,
+//                     Immediate13Bit imm, bool should_branch) {
+//     using enum Register;
+//
+//     auto old_pc = cpu.get_pc();
+//     cpu.m_registers.set(S0, num1);
+//     cpu.m_registers.set(S1, num2);
+//     InstructionB inst(type, S0, S1, imm);
+//     cpu.execute(inst);
+//
+//     if (should_branch)
+//         REQUIRE(cpu.get_pc() == old_pc + imm);
+//     else
+//         REQUIRE(cpu.get_pc() == old_pc);
+//
+// }
+//
+// void test_cpu_utype(CPU& cpu, InstructionU::Type type, Register rd, Immediate32Bit imm, Word output) {
+//     using enum Register;
+//
+//     InstructionU inst(type, rd, imm);
+//     cpu.execute(inst);
+//
+//     REQUIRE(cpu.m_registers.get(rd) == output);
+//
+// }
+//
+// void test_cpu_jtype(CPU& cpu, InstructionJ::Type type, Immediate21Bit imm) {
+//     using enum Register;
+//
+//     auto old_pc = cpu.get_pc();
+//     InstructionJ inst(type, S7, imm);
+//     cpu.execute(inst);
+//
+//     REQUIRE(cpu.m_registers.get(S7) == old_pc + sizeof(BinaryInstruction));
+//     REQUIRE(cpu.get_pc() == old_pc + imm);
+//
+// }
 
 }
 

@@ -27,7 +27,7 @@ jobs:
             cpp_compiler: g++-14
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++
+            cpp_compiler: clang++-18
 
       # matrix:
       #   os: [ubuntu-25.04]

@@ -60,35 +60,24 @@ void Memory::load_binary(const ElfExecutable& elf) {
 
         log("Mapping segment {:#x}", segment.virt_addr);
 
-        // segment address may be unaligned, therefore we make the segments a bit
-        // larger to make mmap() happy
-        // #   *    #        #        #
-        // ^   ^ p_vaddr
-        // |
-        // page boundary (4096)
-
-        // snap address to page boundary
+        // snap address to page boundary, mmap() requires aligned addresses
         size_t aligned_addr = align_to_page_size(segment.virt_addr);
         // add the rest that was cut off back to the end of the page
-        size_t aligned_size = segment.bytes.size() + segment.virt_addr % getpagesize();
+        size_t aligned_size = segment.length + segment.virt_addr % getpagesize();
 
         // TODO:
         // we only need MAP_FIXED_NOREPLACE for ET_EXEC, not for ET_DYN, as ET_DYN is relative
         // but for that the address space needs to be mapped contiguously and setting the entry point must account for the base address from mmap()
         // MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
 
-        // TODO:
-        // auto file = fopen(elf.get_path().c_str(), "rb");
-        // int fd = fileno(file);
-
-        // anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
+        // TODO: bss section needs to be mapped anonymously
         void* addr = mmap(
             reinterpret_cast<void*>(aligned_addr),
             aligned_size,
-            PROT_READ | PROT_WRITE,
-            MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE,
-            -1,
-            0
+            elf_prot_to_mman_prot(segment.flags),
+            MAP_PRIVATE | MAP_FIXED_NOREPLACE,
+            elf.get_fd(),
+            segment.file_offset
         );
 
         if (addr == MAP_FAILED) {
@@ -97,21 +86,6 @@ void Memory::load_binary(const ElfExecutable& elf) {
         }
 
         m_mapped_segments.push_back({addr, aligned_size});
-
-        // TODO: map with offset into elf file, so we dont have to memcpy() and mprotect()
-        // but this requires rewriting a lot of code in memory.hh and elf.hh
-        std::memcpy(
-            reinterpret_cast<void*>(segment.virt_addr),
-            segment.bytes.data(),
-            segment.bytes.size()
-        );
-
-        int err = mprotect(addr, aligned_size, elf_prot_to_mman_prot(segment.flags));
-
-        if (err == -1) {
-            std::println(stderr, "Failed to change segment page protection: {}", strerror(errno));
-            exit(EXIT_FAILURE);
-        }
 
         log("Loaded segment with address {:#x} ({} bytes)", aligned_addr, aligned_size);
     }

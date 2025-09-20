@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <vector>
 #include <optional>
+#include <cstdio>
 
 #include <elf.h>
 
@@ -17,14 +18,16 @@ struct ElfExcecutableException : std::runtime_error {
 };
 
 struct LoadSegment {
-    std::span<char> bytes;
+    size_t file_offset;
+    size_t length;
     Elf64_Addr virt_addr;
     Elf64_Word flags; // RWX
 };
 
 class ElfExecutable {
-    const fs::path& m_path;
-    std::vector<char> m_bytes;
+    FILE* m_file;
+    std::vector<char> m_file_bytes;
+
     Elf64_Ehdr m_elf_header;
     std::vector<Elf64_Phdr> m_program_headers;
     std::vector<Elf64_Shdr> m_section_headers;
@@ -34,15 +37,16 @@ class ElfExecutable {
 
 public:
     explicit ElfExecutable(const fs::path& path)
-        : m_path(path)
-        , m_bytes(load_file_binary())
+        : m_file(fopen_thunk(path.c_str()))
+        , m_file_bytes(read_entire_file(path))
     {
         parse();
-        log("Parsed ELF binary ({} bytes)", m_bytes.size());
+        log("Parsed ELF binary ({} bytes)", m_file_bytes.size());
     }
 
-    [[nodiscard]] auto get_path() const {
-        return m_path;
+
+    [[nodiscard]] int get_fd() const {
+        return fileno(m_file);
     }
 
     [[nodiscard]] Elf64_Half get_type() const {
@@ -66,6 +70,15 @@ private:
     void load_section_headers();
     void load_program_headers();
     void parse();
-    [[nodiscard]] std::vector<char> load_file_binary();
+    [[nodiscard]] std::vector<char> read_entire_file(const fs::path& path);
     void verify_elf_integrity() const;
+
+    [[nodiscard]] static FILE* fopen_thunk(const char* path) {
+        auto file = fopen(path, "rb");
+        if (file == NULL)
+            throw ElfExcecutableException("failed to open file");
+
+        return file;
+    }
+
 };

@@ -13,7 +13,7 @@
 
 void ElfExecutable::parse() {
 
-    m_elf_header = *reinterpret_cast<Elf64_Ehdr*>(m_bytes.data());
+    m_elf_header = *reinterpret_cast<Elf64_Ehdr*>(m_file_bytes.data());
 
     load_program_headers();
     load_section_headers();
@@ -52,7 +52,7 @@ void ElfExecutable::load_symbol_table() {
     m_symbol_table.resize(entries);
 
     for (size_t i=0; i < entries; ++i) {
-        auto src = m_bytes.data() + sect.sh_offset + i * sizeof(Elf64_Sym);
+        auto src = m_file_bytes.data() + sect.sh_offset + i * sizeof(Elf64_Sym);
         m_symbol_table[i] = *reinterpret_cast<Elf64_Sym*>(src);
     }
 
@@ -66,7 +66,7 @@ void ElfExecutable::load_symbol_string_table() {
     if (strtab_sect == m_section_headers.end())
         throw ElfExcecutableException("binary does not contain a symbol string table");
 
-    m_symbol_string_table = &m_bytes[strtab_sect->sh_offset];
+    m_symbol_string_table = &m_file_bytes[strtab_sect->sh_offset];
 }
 
 void ElfExecutable::load_loadable_segments() {
@@ -74,7 +74,7 @@ void ElfExecutable::load_loadable_segments() {
         if (hdr.p_type != PT_LOAD) continue;
         auto offset = hdr.p_offset;
         auto size = hdr.p_memsz;
-        LoadSegment seg({ m_bytes.begin()+offset, size }, hdr.p_vaddr, hdr.p_flags);
+        LoadSegment seg(offset, size, hdr.p_vaddr, hdr.p_flags);
         m_loadable_segments.push_back(seg);
     }
 }
@@ -86,7 +86,7 @@ void ElfExecutable::load_section_headers() {
     m_section_headers.resize(entries);
 
     for (size_t i=0; i < entries; ++i) {
-        auto src = m_bytes.data() + offset + i*sizeof(Elf64_Shdr);
+        auto src = m_file_bytes.data() + offset + i*sizeof(Elf64_Shdr);
         m_section_headers[i] = *reinterpret_cast<Elf64_Shdr*>(src);
     }
 }
@@ -98,21 +98,21 @@ void ElfExecutable::load_program_headers() {
     m_program_headers.resize(entries);
 
     for (size_t i=0; i < entries; ++i) {
-        auto src = m_bytes.data() + offset + i*sizeof(Elf64_Phdr);
+        auto src = m_file_bytes.data() + offset + i*sizeof(Elf64_Phdr);
         m_program_headers[i] = *reinterpret_cast<Elf64_Phdr*>(src);
     }
 }
 
-std::vector<char> ElfExecutable::load_file_binary() {
+std::vector<char> ElfExecutable::read_entire_file(const fs::path& path) {
 
-    if (!fs::exists(m_path))
+    if (!fs::exists(path))
         throw ElfExcecutableException("file does not exist");
 
-    auto type = fs::status(m_path).type();
+    auto type = fs::status(path).type();
     if (type != fs::file_type::regular)
         throw ElfExcecutableException("invalid file type");
 
-    std::ifstream stream(m_path, std::ios::binary);
+    std::ifstream stream(path, std::ios::binary);
     if (!stream)
         throw ElfExcecutableException("failed to open file");
 

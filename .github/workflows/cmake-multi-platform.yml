@@ -24,10 +24,10 @@ jobs:
         include:
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++-15
+            cpp_compiler: g++-14
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++-18
+            cpp_compiler: clang++-20
 
     steps:
     - uses: actions/checkout@v4

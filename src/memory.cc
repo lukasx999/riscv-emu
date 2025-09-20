@@ -77,10 +77,6 @@ void Memory::load_binary(const ElfExecutable& elf) {
         // but for that the address space needs to be mapped contiguously and setting the entry point must account for the base address from mmap()
         // MAP_ANONYMOUS | MAP_PRIVATE | (elf.get_type() == ET_EXEC ? MAP_FIXED_NOREPLACE : 0),
 
-        // TODO:
-        // auto file = fopen(elf.get_path().c_str(), "rb");
-        // int fd = fileno(file);
-
         // anonymous page will be zero-initialized, so bss section doesn't need to be explicitly zeroed
         void* addr = mmap(
             reinterpret_cast<void*>(aligned_addr),

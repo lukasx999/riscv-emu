@@ -8,30 +8,7 @@
 #include "cpu.hh"
 #include "syscalls.hh"
 
-// from: linux/include/uapi/asm-generic/unistd.h
-enum Syscall {
-    Exit=93,
-    Write=64,
-    Close=57,
-    Fstat=80,
-    Brk=214,
-};
-
-template <>
-struct std::formatter<Syscall> : std::formatter<std::string> {
-    auto format(const Syscall& syscall, std::format_context& ctx) const {
-        auto str = [&] {
-            switch (syscall) {
-                case Exit:  return STRINGIFY(Exit);
-                case Write: return STRINGIFY(Write);
-                case Close: return STRINGIFY(Close);
-                case Fstat: return STRINGIFY(Fstat);
-                case Brk:   return STRINGIFY(Brk);
-            };
-        }();
-        return std::formatter<std::string>::format(std::format("{}", str), ctx);
-    }
-};
+using syscalls::Syscall;
 
 class Executor {
     class CPU& m_cpu;
@@ -357,24 +334,26 @@ private:
         };
 
         switch (syscall_nr) {
-            case Syscall::Exit:
+            using enum Syscall;
+
+            case Exit:
                 m_cpu.m_exit_status = arg0;
                 m_cpu.m_should_exit = true;
                 break;
 
-            case Syscall::Write:
+            case Write:
                 set_ret(syscalls::write(arg0, arg1, arg2));
                 break;
 
-            case Syscall::Close:
+            case Close:
                 set_ret(syscalls::close(arg0));
                 break;
 
-            case Syscall::Fstat:
+            case Fstat:
                 set_ret(syscalls::fstat(m_cpu, arg0, arg1));
                 break;
 
-            case Syscall::Brk:
+            case Brk:
                 set_ret(syscalls::brk(m_cpu, arg0));
                 break;
 

@@ -10,6 +10,15 @@
 
 namespace syscalls {
 
+// from: linux/include/uapi/asm-generic/unistd.h
+enum Syscall {
+    Exit=93,
+    Write=64,
+    Close=57,
+    Fstat=80,
+    Brk=214,
+};
+
 SYSCALL_NODISCARD int fstat(CPU& cpu, int fd, Word statbuf_addr);
 
 SYSCALL_NODISCARD inline int write(int fd, Word buf, size_t len) {
@@ -79,3 +88,20 @@ SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
 }
 
 } // namespace syscalls
+
+template <>
+struct std::formatter<syscalls::Syscall> : std::formatter<std::string> {
+    auto format(const syscalls::Syscall& syscall, std::format_context& ctx) const {
+        auto str = [&] {
+            switch (syscall) {
+                using enum syscalls::Syscall;
+                case Exit:  return STRINGIFY(Exit);
+                case Write: return STRINGIFY(Write);
+                case Close: return STRINGIFY(Close);
+                case Fstat: return STRINGIFY(Fstat);
+                case Brk:   return STRINGIFY(Brk);
+            };
+        }();
+        return std::formatter<std::string>::format(std::format("{}", str), ctx);
+    }
+};

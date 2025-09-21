@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <fcntl.h>
 
 typedef int Item;
 
@@ -34,9 +35,7 @@ void dynarray_push_back(DynamicArray *dynarray, Item item) {
 
 int main(void) {
 
-    // int *mem = malloc(20);
-    // if (mem == NULL)
-    //     printf("is null\n");
+    open("foo.txt", O_CREAT);
 
     DynamicArray dynarray = {0};
     dynarray_init(&dynarray);

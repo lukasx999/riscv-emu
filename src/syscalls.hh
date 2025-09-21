@@ -32,16 +32,15 @@ SYSCALL_NODISCARD inline int close(int fd) {
     }
 }
 
-// TODO: doesnt quite work yet
 SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
 
-    std::println("new brk: {:#x}", new_brk);
-
+    // TODO: create a util.hh wrapper for aligning to the NEXT page boundary
     auto new_addr = reinterpret_cast<void*>(align_to_page_size(new_brk)+getpagesize());
     auto old_addr = reinterpret_cast<void*>(align_to_page_size(reinterpret_cast<size_t>(cpu.get_program_break()))+getpagesize());
 
     // brk() syscall differs from the libc wrapper, in that it returns
     // the current program break when calling it with NULL
+    // `man 2 brk` documents the libc wrapper, not the raw syscall!
     if (new_brk == 0)
         return reinterpret_cast<Word>(old_addr);
 
@@ -50,7 +49,8 @@ SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
 
         ptrdiff_t size = static_cast<char*>(new_addr) - static_cast<char*>(old_addr);
 
-        auto ret = ::mmap(
+        // TODO: handle mmap() failure
+        [[gnu::unused]] void* unused_ret = mmap(
             old_addr,
             size,
             PROT_WRITE | PROT_READ,
@@ -59,13 +59,10 @@ SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
             0
         );
 
-        if (ret == MAP_FAILED) {
-            return -1;
-        }
-
         cpu.set_program_break(new_addr);
 
     } else if (new_addr < old_addr) {
+        // TODO:
         // shrink the heap
 
         // ptrdiff_t size = static_cast<char*>(old_addr) - static_cast<char*>(new_addr);
@@ -76,12 +73,9 @@ SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
         //     return -1;
         // }
 
-    } else if (new_addr == old_addr) {
-        // do nothing
-
     }
 
-    return 0;
+    return new_brk;
 }
 
 } // namespace syscalls

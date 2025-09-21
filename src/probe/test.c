@@ -34,12 +34,24 @@ void dynarray_push_back(DynamicArray *dynarray, Item item) {
 
 int main(void) {
 
-    int *mem = malloc(20);
-    if (mem == NULL)
-        printf("is null\n");
+    // int *mem = malloc(20);
+    // if (mem == NULL)
+    //     printf("is null\n");
 
-    // DynamicArray dynarray = {0};
-    // dynarray_init(&dynarray);
-    // dynarray_push_back(&dynarray, 1);
+    DynamicArray dynarray = {0};
+    dynarray_init(&dynarray);
+    dynarray_push_back(&dynarray, 1);
+    dynarray_push_back(&dynarray, 2);
+    dynarray_push_back(&dynarray, 3);
+    dynarray_push_back(&dynarray, 4);
+    dynarray_push_back(&dynarray, 5);
+    dynarray_push_back(&dynarray, 6);
+    dynarray_push_back(&dynarray, 7);
+    dynarray_push_back(&dynarray, 8);
+    dynarray_push_back(&dynarray, 9);
+
+    for (size_t i=0; i < dynarray.length; ++i) {
+        printf("%d\n", dynarray.items[i]);
+    }
 
 }

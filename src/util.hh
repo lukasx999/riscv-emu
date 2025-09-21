@@ -34,7 +34,7 @@ void log(std::format_string<Args...> fmt, Args&& ...args) {
     std::println(stderr, fmt, std::forward<Args>(args)...);
 }
 
-[[nodiscard]] inline size_t align_to_page_size(size_t address) {
+[[nodiscard]] constexpr inline size_t align_to_page_size(size_t address) {
     return address - address % getpagesize();
 }
 

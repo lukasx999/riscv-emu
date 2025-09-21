@@ -35,8 +35,6 @@ void dynarray_push_back(DynamicArray *dynarray, Item item) {
 
 int main(void) {
 
-    open("foo.txt", O_CREAT);
-
     DynamicArray dynarray = {0};
     dynarray_init(&dynarray);
     dynarray_push_back(&dynarray, 1);

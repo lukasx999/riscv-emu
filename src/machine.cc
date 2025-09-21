@@ -9,7 +9,7 @@
 int Machine::run() {
     while (true) {
         Word pc = m_cpu.get_pc();
-        log("{:#x}", pc);
+        // log("{:#x}", pc);
 
         m_cpu.execute(Decoder::decode(fetch()));
 

@@ -51,10 +51,14 @@ public:
         *reinterpret_cast<T*>(address) = value;
     }
 
-    // TODO: what about page alignment?
     [[nodiscard]] void* get_initial_program_break() const {
         auto& [addr, len] = m_mapped_segments.back();
-        return static_cast<char*>(addr) + len;
+        size_t program_break = reinterpret_cast<size_t>(addr) + len;
+        // set the program break to the next full page, to avoid address collisions with the
+        // previous page from the data segment
+        // TODO: dont jump to the next page if program_break is perfectly page aligned
+        size_t aligned = align_to_page_size(program_break) + getpagesize();
+        return reinterpret_cast<void*>(aligned);
     }
 
 private:

@@ -32,16 +32,18 @@ SYSCALL_NODISCARD inline int close(int fd) {
     }
 }
 
-// TODO: doesnt quite work yet, probably needs page alignment
-SYSCALL_NODISCARD inline int brk(CPU& cpu, Word new_brk) {
-
-    // TODO: should brk() return the current program break when new_brk == 0?
-    // it only seems to do this when running with strace
+// TODO: doesnt quite work yet
+SYSCALL_NODISCARD inline Word brk(CPU& cpu, Word new_brk) {
 
     std::println("new brk: {:#x}", new_brk);
 
-    auto new_addr = reinterpret_cast<void*>(new_brk);
-    auto old_addr = cpu.get_program_break();
+    auto new_addr = reinterpret_cast<void*>(align_to_page_size(new_brk)+getpagesize());
+    auto old_addr = reinterpret_cast<void*>(align_to_page_size(reinterpret_cast<size_t>(cpu.get_program_break()))+getpagesize());
+
+    // brk() syscall differs from the libc wrapper, in that it returns
+    // the current program break when calling it with NULL
+    if (new_brk == 0)
+        return reinterpret_cast<Word>(old_addr);
 
     if (new_addr > old_addr) {
         // grow the heap
@@ -58,12 +60,10 @@ SYSCALL_NODISCARD inline int brk(CPU& cpu, Word new_brk) {
         );
 
         if (ret == MAP_FAILED) {
-            errno = ENOMEM;
             return -1;
         }
 
         cpu.set_program_break(new_addr);
-        return 0;
 
     } else if (new_addr < old_addr) {
         // shrink the heap
@@ -76,16 +76,12 @@ SYSCALL_NODISCARD inline int brk(CPU& cpu, Word new_brk) {
         //     return -1;
         // }
 
-        return 0;
-
     } else if (new_addr == old_addr) {
         // do nothing
-        return 0;
 
-    } else {
-        throw std::runtime_error("unreachable");
     }
 
+    return 0;
 }
 
 } // namespace syscalls

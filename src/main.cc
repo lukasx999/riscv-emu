@@ -157,6 +157,7 @@ int main(int argc, char** argv) try {
     // TODO: move all syscall-related code to a subdir `syscalls/`
     // TODO: move public headers to `include/`, for library interface
     // TODO: factor out operator() overloads for cpu executor, to subdir `executor/`
+    // TODO: implement open() syscall
 
     auto opts = parse_args(argc, argv);
 

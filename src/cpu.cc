@@ -333,7 +333,7 @@ private:
             m_cpu.m_registers.set(Register::A0, value);
         };
 
-        // TODO: why does glibc use 1024 for open() syscall number? 1024 is nowhere to be found in linux sources
+        // TODO: why does openat() syscall not exist in riscv newlib?
         switch (syscall_nr) {
             using enum Syscall;
 
